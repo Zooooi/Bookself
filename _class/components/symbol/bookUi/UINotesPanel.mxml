@@ -5,7 +5,7 @@
 				   xmlns:bookUi="components.symbol.bookUi.*"
 				   xmlns:exclusive="exclusive.*"
 				   xmlns:dropdownlist="JsF.dropdownlist.*"
-				   creationComplete="onFlexEvent(event)" styleName="NormalText">
+				   creationComplete="onFlexEvent(event)" styleName="NormalText" xmlns:ext="components.ext.*">
 	<fx:Style source="css/book.css"/>
 	<fx:Metadata>
 		[Event(name="onXMLChange", type="Js.mdel.events.EditEvent")]
@@ -37,7 +37,7 @@
 			import spark.events.IndexChangeEvent;
 			import spark.events.TextOperationEvent;
 			import spark.utils.TextFlowUtil;
-
+			
 			
 			[Bindable]public var __comment__:String
 			[Bindable]public var __promp__:String
@@ -51,6 +51,7 @@
 			[Bindable]private var currentColor:uint
 			
 			[Bindable]private var bEnable:Boolean
+			[Bindable]private var nAlpha:Number
 			
 			private const myXmlContent:XML = <node x="" y="" page="" date=""><text/></node>
 			
@@ -67,7 +68,8 @@
 			
 			protected function onFlexEvent(event:FlexEvent):void
 			{
-				bEnable = SystemOS.isPc
+				bEnable = true;//SystemOS.isPc
+				nAlpha = 1//(SystemOS.isPc)?1:0.2
 				textformat = new TextLayoutFormat 
 				setFontSizeList()
 				setFontList()
@@ -80,7 +82,8 @@
 				txtflow=txtInput.textFlow;
 				stage.focus = null
 				txtInput.setFocus();
-				txtInput.textDisplay.verticalScrollPosition = 0
+				
+				//txtInput.textDisplay.verticalScrollPosition = 0
 			}
 			
 			
@@ -99,7 +102,7 @@
 			
 			private function setFontSizeList():void
 			{
-				 var _array:Array = String(theFontSizeList).split(",")
+				var _array:Array = String(theFontSizeList).split(",")
 				var _obj:Object
 				aFontSize = new ArrayCollection
 				for (var i:int = 0; i < _array.length; i++) 
@@ -126,7 +129,7 @@
 			}
 			
 			
-		
+			
 			
 			private function onSelectionChangedHandler(evt:FlexEvent):void
 			{
@@ -139,7 +142,7 @@
 					{
 						currentFontFamliy = format.fontFamily
 					}
-						
+					
 					if(format.color!=null)
 					{
 						currentColor = format.color;
@@ -182,6 +185,7 @@
 			
 			private function setTextAlian(evt:IndexChangeEvent):void
 			{
+				
 				textformat = txtInput.getFormatOfRange(null,txtInput.selectionAnchorPosition,txtInput.selectionActivePosition);
 				if(alignButtons.selectedItem) 
 				{
@@ -201,6 +205,7 @@
 			
 			private function setFormat():void
 			{
+				txtInput.setFocus()
 				if (textformat)
 				{
 					txtInput.setFormatOfRange(textformat,
@@ -311,7 +316,7 @@
 						
 						if (!bNew)ShellSystem.current.saveUserFile()
 						break;
-						
+					
 				}
 			}
 			
@@ -347,11 +352,11 @@
 			
 			/* protected function onColorChange(event:ColorPickerEvent):void
 			{
-				textformat = txtInput.getFormatOfRange(null,
-					txtInput.selectionAnchorPosition,
-					txtInput.selectionActivePosition);
-				if (textformat)textformat.color = currentColor
-				setFormat();
+			textformat = txtInput.getFormatOfRange(null,
+			txtInput.selectionAnchorPosition,
+			txtInput.selectionActivePosition);
+			if (textformat)textformat.color = currentColor
+			setFormat();
 			} */
 			
 		]]>
@@ -361,26 +366,25 @@
 	<s:Label x="141" y="104" width="361" color="#767676" styleName="NormalTitle" text="{__date__}"
 			 textAlign="left"/>
 	<dropdownlist:jDropDownList id="ddlFont" x="183" y="156" width="132" change="fontlist_change(event);"
-							 	__valueRead="{currentFontFamliy}" __valueWrite="@{currentFontFamliy}"
-								dataProvider="{aFontFamliy}" enabled="{bEnable}"/>
+								__valueRead="{currentFontFamliy}" __valueWrite="@{currentFontFamliy}"
+								dataProvider="{aFontFamliy}" enabled="{bEnable}" alpha="{nAlpha}" />
 	<dropdownlist:jDropDownList id="ddlFontSize" x="354" y="156" width="93" change="sizelist_change(event);"
 								__valueRead="{currentFontSize}" __valueWrite="@{currentFontSize}"
-								dataProvider="{aFontSize}" enabled="{bEnable}"/>
+								dataProvider="{aFontSize}" enabled="{bEnable}" alpha="{nAlpha}"/>
 	<s:ToggleButton id="btnBold" x="153" y="193" width="20" change="boldbtn_change(event);"
-					icon="@Embed('embed/icon/icon_style_bold.png')" enabled="{bEnable}"/>
+					icon="@Embed('embed/icon/icon_style_bold.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
 	<s:ToggleButton id="btnItalic" x="185" y="193" width="20" change="italicbtn_change(event);"
-					icon="@Embed('embed/icon/icon_style_italic.png')" enabled="{bEnable}"/>
+					icon="@Embed('embed/icon/icon_style_italic.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
 	<s:ToggleButton id="btnUnderLine" x="217" y="193" width="20" change="underlinebtn_change(event);"
-					icon="@Embed('embed/icon/icon_style_underline.png')" enabled="{bEnable}"/>
-<!--	<mx:ColorPicker id="textColor" x="444" y="194" change="onColorChange(event)" selectedColor="@{currentColor}">
-		
-	</mx:ColorPicker>-->
+					icon="@Embed('embed/icon/icon_style_underline.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
+	<!--	<mx:ColorPicker id="textColor" x="444" y="194" change="onColorChange(event)" selectedColor="@{currentColor}">
 	
-	<exclusive:ExTextArea id="txtInput" x="141" y="225" width="361" height="205"
-				maxChars="500" paste="onEvent(event)"
-				selectionChange="onSelectionChangedHandler(event)"/>
+	</mx:ColorPicker>-->
+	<exclusive:ExTextArea id="txtInput" x="141" y="225" width="361" height="205" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"
+						  maxChars="500" paste="onEvent(event)" selectionChange="onSelectionChangedHandler(event)"/>
+	
 	<s:ButtonBar id="alignButtons" x="287" y="193" width="80" change="setTextAlian(event)"
-				 skinClass="JsF.skin.Skin_ButtonBar" enabled="{bEnable}">
+				 skinClass="JsF.skin.Skin_ButtonBar" enabled="{bEnable}" alpha="{nAlpha}">
 		<s:dataProvider>
 			<s:ArrayCollection>
 				<fx:Object icon="@Embed('embed/icon/icon_align_left.png')" value="{TextAlign.LEFT}" toolTip=""/>
@@ -392,9 +396,14 @@
 			</s:ArrayCollection>
 		</s:dataProvider>			
 	</s:ButtonBar>
-		
+	
 	<s:BorderContainer id="confirm" x="376" y="503" width="56" backgroundAlpha="0" borderAlpha="0"
-					   buttonMode="true" mouseDown="onMouseEvent(event)"/>
+					   buttonMode="true" click="onMouseEvent(event)"/>
 	<s:BorderContainer id="cancel" x="449" y="503" width="56" backgroundAlpha="0" borderAlpha="0"
 					   buttonMode="true" click="onMouseEvent(event)"/>
+	<s:Rect visible="{SystemOS.isMobile}" x="148" y="148" width="354" height="69">
+		<s:fill >
+			<s:SolidColor color="0xEFEFDE"/>
+		</s:fill>
+	</s:Rect>
 </bookUi:BaseBookUI>

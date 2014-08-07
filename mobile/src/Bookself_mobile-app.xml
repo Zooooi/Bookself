@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <application xmlns="http://ns.adobe.com/air/application/13.0">
 
 <!-- Adobe AIR Application Descriptor File Template.
@@ -135,14 +135,14 @@
 <!-- 		<image72x72>assets/icon/icon072.png</image72x72> -->
 <!-- 		<image114x114>assets/icon/icon114.png</image114x114> -->
 <!-- 		<image128x128>assets/icon/icon128.png</image128x128> -->
-		<image16x16>assets/icon/icon.png</image16x16>
-		<image32x32>assets/icon/icon.png</image32x32>
-		<image36x36>assets/icon/icon.png</image36x36>
-		<image48x48>assets/icon/icon.png</image48x48>
-		<image57x57>assets/icon/icon.png</image57x57>
-		<image72x72>assets/icon/icon.png</image72x72>
-		<image114x114>assets/icon/icon.png</image114x114>
-		<image128x128>assets/icon/icon.png</image128x128>
+		<image16x16>icon/icon.png</image16x16>
+		<image32x32>icon/icon.png</image32x32>
+		<image36x36>icon/icon.png</image36x36>
+		<image48x48>icon/icon.png</image48x48>
+		<image57x57>icon/icon.png</image57x57>
+		<image72x72>icon/icon.png</image72x72>
+		<image114x114>icon/icon.png</image114x114>
+		<image128x128>icon/icon.png</image128x128>
 	</icon> 
 
 	<!-- Whether the application handles the update when a user double-clicks an update version

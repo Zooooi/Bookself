@@ -54,6 +54,7 @@
 						break;
 					case "NetStream.Play.Stop" :
 					case "NetStream.Buffer.Flush" :
+						NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.NORMAL;
 						break;
 					default :
 				}

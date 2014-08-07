@@ -15,9 +15,12 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import spark.components.Group;
+			
 			import JsC.events.JEvent;
 			import JsC.mdel.SystemOS;
 			
+			import jsProject.ctrl.AppScale;
 			import jsProject.mdel.Files;
 			
 			private var book:Book
@@ -69,65 +72,13 @@
 						stage.addEventListener(Event.RESIZE,onEvent)
 						break;
 					case Event.RESIZE:
-						width = stage.stageWidth
-						height = stage.stageHeight
-						
-						//onResize()
-						
+						//trace(width,height)
+						new AppScale(this);
 						break
 				}
 			}
 			
-			private function onResize():void
-			{
-				var bScale:Boolean
-				
-				if (Math.max(stage.stageWidth, stage.stageHeight)>1024)
-				{
-					bScale  = true
-					
-				}else if (Math.min(stage.stageWidth, stage.stageHeight)>768){
-					bScale  = true
-				}
-				if (bScale)
-				{
-					var guiSize:Rectangle = new Rectangle(0, 0, 1024, 768);
-					var deviceSize:Rectangle = new Rectangle(0, 0,
-						Math.max(stage.stageWidth, stage.stageHeight),
-						Math.min(stage.stageWidth, stage.stageHeight));
-					
-					var appScale:Number = 1;
-					var appSize:Rectangle = guiSize.clone();
-					var appLeftOffset:Number = 0;
-					
-					
-					// if device is wider than GUI's aspect ratio, height determines scale
-					if ((deviceSize.width/deviceSize.height) > (guiSize.width/guiSize.height)) {
-						appScale = deviceSize.height / guiSize.height;
-						appSize.width = deviceSize.width / appScale;
-						appLeftOffset = Math.round((appSize.width - guiSize.width) / 2);
-						/* main.scaleX =appScale
-						main.scaleY =appScale
-						main.width = appSize.width   */
-					} 
-						// if device is taller than GUI's aspect ratio, width determines scale
-					else {
-						appScale = deviceSize.width / guiSize.width;
-						appSize.height = deviceSize.height / appScale;
-						appLeftOffset = 0;
-						/* 	main.scaleX =appScale
-						main.scaleY =appScale
-						main.height = appSize.height  */ 
-					}
-					this.scaleX =appScale
-					this.scaleY =appScale
-					// scale the entire interface
-					
-					// crop some menus which are designed to run off the sides of the screen
-					this.scrollRect = appSize;
-					trace(appSize);
-				}
-			}
+			
 			
 			protected function group1_creationCompleteHandler(event:FlexEvent):void
 			{

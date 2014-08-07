@@ -366,6 +366,7 @@
 				
 				//............................................................................................................................
 				loadFile = undefined;
+				
 				zipFile = Files.folder_books + aFolder[nCurrent] + ".zip"
 				zipPath = Files.folder_books;
 				//trace("zipfile",zipFile,zipPath)
@@ -415,6 +416,7 @@
 			
 			protected function onExtraComplete():void
 			{
+				currentLoadPane.$enable()
 				dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
 				currentLoadPane.$img.removeEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
 				currentLoadPane.$img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)

@@ -3,7 +3,7 @@
 				   xmlns:s="library://ns.adobe.com/flex/spark"
 				   xmlns:mx="library://ns.adobe.com/flex/mx"
 				   xmlns:base="components.base.*"
-				    xmlns:Buttons="components.symbol.Buttons.*">
+				   xmlns:Buttons="components.symbol.Buttons.*">
 	
 	<fx:Script>
 		<![CDATA[
@@ -48,32 +48,32 @@
 
 		<s:Button width="44" height="44" right="22" top="2" buttonMode="true" click="ShellAction.GoWeb(this,Value.sUrl);"
 				  skinClass="components.skin.fun_Web" useHandCursor="true"/>
-		<!--	<s:Button id="btnCR"  width="44" height="44" right="69" top="2" buttonMode="true" click="onPop(event)"
-		skinClass="components.skin.fun_CopyRight" useHandCursor="true"/>
-		<s:Button id="btnUG" width="44" height="44" right="22" top="2" buttonMode="true" click="onPop(event)"
-		skinClass="components.skin.fun_UserGuide" useHandCursor="true"/>-->
-		
-		<s:Scroller top="127" bottom="35" horizontalCenter="0">
-			<s:HGroup id="gr"  horizontalAlign="center" 
-					  verticalAlign="middle">
-			</s:HGroup>
-		</s:Scroller>
-		
-		
+
 		<s:Image top="32" horizontalCenter="0" smooth="true" source="controls/bookself/company.png"
 				 left.State1="0" right.State1="0" top.State1="40" height.State1="83"
 				 horizontalCenter.State1="0"
 				 width.State2="95%" height.State2="92"/>
-				
+		
+		<s:HGroup left="0" right="0" top="0" height="35" horizontalAlign="center" verticalAlign="middle">
+			<s:Image source="controls/bookself/title.png"/>
+		</s:HGroup>
+		
+		
+		
+		<s:BitmapImage left="0" right="0" top="0" source="@Embed('embed/intro/topbar.png')"/>
+		<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('embed/intro/bottombar.png')"/>
+		
+		
+		<s:Scroller top="127" bottom="35" horizontalCenter="0">
+			<s:HGroup id="gr"  horizontalAlign="center" verticalAlign="middle">
+			</s:HGroup>
+		</s:Scroller>
+		
+		
 		<s:Group id="grTop" width="100%" height="100%" />
+		
 	</s:BorderContainer>
 
-	<s:BitmapImage left="0" right="0" top="0" source="@Embed('embed/intro/topbar.png')"/>
-	<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('embed/intro/bottombar.png')"/>
-	
-	
-	<s:HGroup left="0" right="0" top="0" height="35" horizontalAlign="center" verticalAlign="middle">
-		<s:Image source="controls/bookself/title.png"/>
-	</s:HGroup>
+
 	
 </base:BaseBookself>

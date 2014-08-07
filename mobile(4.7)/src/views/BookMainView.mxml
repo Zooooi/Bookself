@@ -9,19 +9,20 @@
 		>
 	<fx:Script>
 		<![CDATA[
-			import JsC.events.JEvent;
-			import JsC.mdel.SystemOS;
-			
 			import com.view.MediaView;
 			import com.view.ViewBase;
 			import com.view.WebExporle;
 			
 			import flash.net.navigateToURL;
 			
+			import mx.events.FlexEvent;
+			
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import jsProject.ctrl.AppScale;
 			import jsProject.events.ComponentEvent;
 			import jsProject.mdel.NameDefine;
-			
-			import mx.events.FlexEvent;
 			
 			[Bindable]private var sDebug:String= "system: " + Capabilities.os + "\n"
 			private var sPath:String
@@ -158,8 +159,9 @@
 				switch(event.type)
 				{
 					case Event.ADDED_TO_STAGE:
-						stage.scaleMode = StageScaleMode.NO_SCALE;
-						stage.align = StageAlign.TOP_LEFT;
+						NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.NORMAL;
+						/*stage.scaleMode = StageScaleMode.NO_SCALE;
+						stage.align = StageAlign.TOP_LEFT;*/
 						stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE,onStageEventChange)
 						addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
 						
@@ -173,52 +175,7 @@
 			
 			protected function initStage():void
 			{
-				var bScale:Boolean
-				
-				if (Math.max(stage.stageWidth, stage.stageHeight)>1024)
-				{
-					bScale  = true
-					
-				}else if (Math.min(stage.stageWidth, stage.stageHeight)>768){
-					bScale  = true
-				}
-				if (bScale)
-				{
-					var guiSize:Rectangle = new Rectangle(0, 0, 1024, 768);
-					var deviceSize:Rectangle = new Rectangle(0, 0,
-						Math.max(stage.stageWidth, stage.stageHeight),
-						Math.min(stage.stageWidth, stage.stageHeight));
-					
-					var appScale:Number = 1;
-					var appSize:Rectangle = guiSize.clone();
-					var appLeftOffset:Number = 0;
-					
-					
-					// if device is wider than GUI's aspect ratio, height determines scale
-					if ((deviceSize.width/deviceSize.height) > (guiSize.width/guiSize.height)) {
-						appScale = deviceSize.height / guiSize.height;
-						appSize.width = deviceSize.width / appScale;
-						appLeftOffset = Math.round((appSize.width - guiSize.width) / 2);
-						/* main.scaleX =appScale
-						main.scaleY =appScale
-						main.width = appSize.width   */
-					} 
-						// if device is taller than GUI's aspect ratio, width determines scale
-					else {
-						appScale = deviceSize.width / guiSize.width;
-						appSize.height = deviceSize.height / appScale;
-						appLeftOffset = 0;
-						/* 	main.scaleX =appScale
-						main.scaleY =appScale
-						main.height = appSize.height  */ 
-					}
-					main.scaleX =appScale
-					main.scaleY =appScale
-					// scale the entire interface
-					
-					// crop some menus which are designed to run off the sides of the screen
-					main.scrollRect = appSize;
-				}
+				new AppScale(main)
 			}
 			
 			protected function onStageEventChange(event:StageOrientationEvent):void

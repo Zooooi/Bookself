@@ -15,9 +15,10 @@ package JsA.loader
 	import flash.net.URLRequest;
 	import flash.net.URLRequestHeader;
 	import flash.utils.ByteArray;
+	import flash.utils.setTimeout;
 	
 	import JsC.events.JEvent;
-
+	
 	[Event(name="LOADER_PROGRESS", type="JsC.events.JEvent")]
 	[Event(name="LOADER_OPEN", type="JsC.events.JEvent")]
 	[Event(name="LOADER_COMPLETE", type="JsC.events.JEvent")]
@@ -44,23 +45,36 @@ package JsA.loader
 		}
 		public function start(request:URLRequest, fileName:String):void 
 		{   
+			trace(this);
 			fileRequest = request;
 			sType = "";
 			file = new File(fileName)
+			startLoad() 
+		}
+		
+		private function startLoad():void
+		{
 			urlLoader = new URLLoader();   
 			urlLoader.dataFormat = URLLoaderDataFormat.BINARY; 
 			urlLoader.addEventListener(Event.OPEN,onOpen);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR,onIoEror); 
 			urlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity);  
 			urlLoader.addEventListener(ProgressEvent.PROGRESS, onProgressEvent);
-			urlLoader.load(fileRequest);    
+			urlLoader.load(fileRequest); 
+			dispatchEvent(new JEvent(JEvent.LOADER_START));
 		}
+		
+		
 		protected function onProgressEvent(event:ProgressEvent):void
 		{
 			contentLength = event.bytesTotal
+			trace("contentLength:",contentLength)
+			
 			sType = event.type
 			urlLoader.close()
 			onLoading()
+			
+			
 		}
 		protected function onLoading():void
 		{
@@ -73,7 +87,7 @@ package JsA.loader
 				startPoint = fileStr.bytesAvailable;//计算从哪个点开始下载
 				fileStr.close();//关闭文件流
 			}
-			if(startPoint+range > contentLength) {//确定下载的区间范围，比如0-10000
+			if(startPoint+range>contentLength) {//确定下载的区间范围，比如0-10000
 				endPoint = contentLength;
 			} else {
 				endPoint = startPoint+range;
@@ -82,9 +96,13 @@ package JsA.loader
 			var request:URLRequest = fileRequest;
 			var header:URLRequestHeader = new URLRequestHeader("Range", "bytes="+startPoint+"-"+endPoint);//注意这里很关键，我们在请求的Header里包含对Range的描述，这样服务器会返回文件的某个部分
 			request.requestHeaders.push(header);//将头信息添加到请求里
+			
 			urlLoader = new URLLoader();
 			urlLoader.dataFormat = URLLoaderDataFormat.BINARY;//设置数据类型为字节
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR,onIoEror); 
+			urlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurity); 
 			urlLoader.addEventListener(Event.COMPLETE ,function(e:Event):void {
+				trace(header.value);
 				var currentData:ByteArray = urlLoader.data;//得到下载的数据
 				fileStr = new FileStream();
 				fileStr.open(file, FileMode.UPDATE);
@@ -115,7 +133,9 @@ package JsA.loader
 		}
 		protected function onIoEror(event:IOErrorEvent):void
 		{
-			trace(this,event);    
+			trace(this,event);   
+			dispatchEvent(new JEvent(JEvent.LOADER_ERROR));
+			setTimeout(function():void{startLoad()},5000);
 		}
 		public function stop():void
 		{

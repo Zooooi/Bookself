@@ -35,23 +35,48 @@ package JsA.shell
 		
 		override public function setAppPath():void
 		{
-			Files.setDocumentPath(File.documentsDirectory.url+"/")
+	
+			/*
+			trace(File.applicationStorageDirectory.url)
+			trace(File.applicationDirectory .url)
+			trace(File.desktopDirectory.url)
+			trace(File.documentsDirectory.url)
+			trace(File.userDirectory.url)
+			
+			trace(File.applicationStorageDirectory.nativePath)
+			trace(File.applicationDirectory .nativePath)
+			trace(File.desktopDirectory.nativePath)
+			trace(File.documentsDirectory.nativePath)
+			trace(File.userDirectory.nativePath)
+			*/
+			
+			
 			if (SystemOS.isPc)
 			{
+				Files.setDocumentPath(File.documentsDirectory.url+"/")
 				Files.setAppPath(File.applicationDirectory.nativePath+"/")
 				Files.setBasePath(File.applicationDirectory.nativePath+"/")
 			}else{
 				Files.setAppPath(File.applicationDirectory.url+"/")
+				if (SystemOS.isIOS()){
+					Files.setDocumentPath(File.documentsDirectory.url+"/")
+				}else{
+					Files.setDocumentPath(File.applicationStorageDirectory.nativePath+"/")
+					
+				}
+				 
 			}
 		}
 		
 		override public function createFolder(_folder:String):void
 		{
 			new File(_folder)
+			trace(_folder)
 		}
 		override public function browser():String
 		{
-			/* var imageTypes:FileFilter = new FileFilter("Images (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
+			
+			 /*var imageTypes:FileFilter = new FileFilter("Images (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
 			var docTypes:FileFilter = new FileFilter("Office (*.doc, *.xls, *.ppt)", "*.doc; *.xls; *.ppt;");
 			var mp4Types:FileFilter = new FileFilter("Music (*.mp4)", "*.mp4");
 			var allTypes:Array = new Array();
@@ -62,7 +87,7 @@ package JsA.shell
 			file.addEventListener(Event.SELECT, onSelect);
 			file.addEventListener(Event.COMPLETE, onSelected);
 			file.browse(allTypes) */
-			return ""
+			return "" ;
 		}
 		
 		override public function deleteFile(_url:String):void

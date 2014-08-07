@@ -5,7 +5,6 @@
 			needsSoftKeyboard="true" >
 	<fx:Script>
 		<![CDATA[
-			import spark.components.supportClasses.StyleableTextField;
 			
 			public function set $text(_value:Object):void
 			{

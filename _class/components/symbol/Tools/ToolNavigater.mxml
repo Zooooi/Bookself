@@ -148,7 +148,12 @@
 					{
 						if (_bCompare)
 						{
-							currentState = "State1"
+							if (bSelect)
+							{
+								currentState = "State3"
+							}else{
+								currentState = "State1"
+							}
 						}else{
 							currentState = "State2"
 						}
@@ -158,7 +163,12 @@
 						{
 							currentState = "State2"
 						}else{
-							currentState = "State1"
+							if (bSelect)
+							{
+								currentState = "State3"
+							}else{
+								currentState = "State1"
+							}
 						}
 					}
 				}
@@ -172,7 +182,7 @@
 					currentState = "State1"
 				}
 				bSelect = _b
-				Value.nToolBarH
+				//Value.nToolBarH
 			}
 			
 			protected function onChange(event:Event):void

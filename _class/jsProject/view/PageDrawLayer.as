@@ -1,27 +1,20 @@
 package jsProject.view
 {
-	import JsC.shell.ShellSystem;
-	import JsC.sprite.Drawer;
-	import JsC.string.Maths;
-	import JsC.xml.XmlCtrl;
-	
-	import components.books.BookPage;
-	
-	import flash.display.BlendMode;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
-	import jsProject.mdel.Files;
-	import jsProject.mdel.NameDefine;
-	import jsProject.mdel.Value;
-	import jsProject.mdel.XmlContent;
-	
-	import mx.core.UIComponent;
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
 	import mx.rpc.http.HTTPService;
 	
-	import spark.primitives.Graphic;
+	import JsC.draw.Drawer;
+	import JsC.shell.ShellSystem;
+	import JsC.string.Maths;
+	import JsC.xml.XmlCtrl;
+	
+	import jsProject.mdel.Files;
+	import jsProject.mdel.NameDefine;
+	import jsProject.mdel.XmlContent;
 	
 	
 	public class PageDrawLayer extends Sprite
@@ -35,21 +28,18 @@ package jsProject.view
 		private var xmldata:XML = XmlContent.Edit_drawXML.copy()
 		private var sFile:String
 		
-		private var palf:Sprite
-		private var drawShape:Sprite 
+		private var drawTarget:Sprite
 	
 		public function PageDrawLayer(_nPage:uint)
 		{
 			mouseEnabled = false
 			mouseChildren = false
-			name = NameDefine.KEY_DRAW_KEY
+			name = NameDefine.KEY_DRAWER
 			addEventListener(Event.ADDED_TO_STAGE,onEvent)
 			nPage = _nPage
-			sFile = "draw"+Maths.Bits(nPage+1,3)//Value.getPageNumber(nPage+1,"pageID")
+			sFile = name + Maths.Bits(nPage+1,3)//Value.getPageNumber(nPage+1,"pageID")
 				
-			palf = new Sprite
-			palf.name = "draw"
-			addChild(palf)
+			
 			
 			
 			var xmlLoader:HTTPService = new HTTPService
@@ -70,6 +60,10 @@ package jsProject.view
 					{
 						nW = Sprite(parent).width
 						nH = Sprite(parent).height
+						
+						drawTarget = new Sprite
+						addChild(drawTarget)	
+							
 						layerMask = new Sprite
 						layerMask.graphics.beginFill(0x000000, 0);
 						layerMask.graphics.drawRect(0,0,nW,nH)
@@ -77,7 +71,7 @@ package jsProject.view
 						layerMask.mouseEnabled = false
 						layerMask.mouseChildren = false
 						addChild(layerMask)
-						palf.mask = layerMask
+						drawTarget.mask = layerMask
 						removeEventListener(Event.ADDED_TO_STAGE,arguments.callee)
 					}
 					break;
@@ -110,7 +104,7 @@ package jsProject.view
 			{
 				var _xml:XML = XmlCtrl.getChildrenByID(XMLList(xmldata),i)
 				var _drawer:Drawer = new Drawer
-				_drawer.drawFromXML(palf,_xml)
+				_drawer.drawFromXML(drawTarget,_xml)
 				
 			}
 		}
@@ -120,6 +114,11 @@ package jsProject.view
 		public function $getHitArea():Sprite
 		{
 			return layerMask
+		}
+		
+		public function $getDrawer():Sprite
+		{
+			return drawTarget
 		}
 		
 		public function $getWidth():uint
@@ -148,13 +147,13 @@ package jsProject.view
 		
 		public function $delNode(_node:uint):void
 		{
-			palf.removeChildAt(_node)
+			drawTarget.removeChildAt(_node)
 			XmlCtrl.deleteByID(XMLList(xmldata),_node)
 		}
 		
 		public function $delAll():void
 		{
-			while(palf.numChildren)palf.removeChildAt(0)
+			while(drawTarget.numChildren)drawTarget.removeChildAt(0)
 			xmldata = XmlContent.Edit_drawXML.copy()
 			$saveNode()
 		}

@@ -9,24 +9,23 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import JsC.events.JEvent;
-			import JsC.mdel.SystemOS;
-			
 			import com.view.WebExporle;
-			
-			import jsProject.events.ComponentEvent;
-			import jsProject.mdel.Start;
-			import jsProject.mdel.Value;
 			
 			import mx.events.FlexEvent;
 			
-			import spark.components.Group;
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import jsProject.ctrl.AppScale;
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Start;
 			private var web:WebExporle;
 			
 			protected function onFlexEvent(event:FlexEvent):void
 			{
 				SystemOS.init()
 				Start.init()
+				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
 			}
 			
 			protected function onEvent(event:Event):void
@@ -48,52 +47,7 @@
 			
 			protected function initStage():void
 			{
-				var bScale:Boolean
-				
-				if (Math.max(stage.stageWidth, stage.stageHeight)>1024)
-				{
-					bScale  = true
-					
-				}else if (Math.min(stage.stageWidth, stage.stageHeight)>768){
-					bScale  = true
-				}
-				if (bScale)
-				{
-					var guiSize:Rectangle = new Rectangle(0, 0, 1024, 768);
-					var deviceSize:Rectangle = new Rectangle(0, 0,
-						Math.max(stage.stageWidth, stage.stageHeight),
-						Math.min(stage.stageWidth, stage.stageHeight));
-					
-					var appScale:Number = 1;
-					var appSize:Rectangle = guiSize.clone();
-					var appLeftOffset:Number = 0;
-					
-					
-					// if device is wider than GUI's aspect ratio, height determines scale
-					if ((deviceSize.width/deviceSize.height) > (guiSize.width/guiSize.height)) {
-						appScale = deviceSize.height / guiSize.height;
-						appSize.width = deviceSize.width / appScale;
-						appLeftOffset = Math.round((appSize.width - guiSize.width) / 2);
-						/* main.scaleX =appScale
-						main.scaleY =appScale
-						main.width = appSize.width   */
-					} 
-						// if device is taller than GUI's aspect ratio, width determines scale
-					else {
-						appScale = deviceSize.width / guiSize.width;
-						appSize.height = deviceSize.height / appScale;
-						appLeftOffset = 0;
-					/* 	main.scaleX =appScale
-						main.scaleY =appScale
-						main.height = appSize.height  */ 
-					}
-					main.scaleX =appScale
-					main.scaleY =appScale
-					// scale the entire interface
-					
-					// crop some menus which are designed to run off the sides of the screen
-					main.scrollRect = appSize;
-				}
+				new AppScale(main)
 			}
 			
 			protected function onComponentEvent(event:ComponentEvent):void
@@ -145,11 +99,7 @@
 				
 			}
 			
-			protected function intro_creationCompleteHandler(event:FlexEvent):void
-			{
-				// TODO Auto-generated method stub
-				initStage()
-			}
+		
 			
 		]]>
 	</fx:Script>

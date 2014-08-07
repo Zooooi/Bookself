@@ -417,7 +417,17 @@ package jsProject.ctrl
 		public function setTwoPage(_resize:Boolean = false):void
 		{
 			if (_resize==false)state = stateTwo
-			setShowPageNumber(2)
+			switch(state)
+			{
+				case stateOne:
+					setShowPageNumber(1)
+					break;
+				case stateTwo:
+					setShowPageNumber(2)
+					break;
+					
+			}
+			
 			bSimpPage = false
 		}
 		
@@ -431,26 +441,22 @@ package jsProject.ctrl
 				
 			if (topage!=0)
 			{
-				switch(state)
+				if(bSimpPage)
 				{
-					case stateOne:
-						if (topage == book_page)
-						{
-							bPass = true
-						}
-						break;
-						
-					case stateTwo:
-						if (topage % 2 ==1)
-						{
-						}else{
-							topage --
-						}
-						if (topage+1 == book_page)
-						{
-							bPass = true 
-						}
-						break
+					if (topage == book_page)
+					{
+						bPass = true
+					}
+				}else{
+					if (topage % 2 ==1)
+					{
+					}else{
+						topage --
+					}
+					if (topage+1 == book_page)
+					{
+						bPass = true 
+					}
 				}
 			}else{
 				if (topage == book_page)

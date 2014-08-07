@@ -66,9 +66,15 @@ package JsC.shell
 		public function createUserFolder():void
 		{
 			createFolder(Files.folder_documentEbook)
+			createFolder(Files.folder_user)
 			createFolder(Files.folder_document)
 			createFolder(Files.folder_documentAssets)
 			createFolder(Files.folder_documentDrawing)
+			trace(Files.folder_documentEbook)
+			trace(Files.folder_user)
+			trace(Files.folder_document)
+			trace(Files.folder_documentAssets)
+			trace(Files.folder_documentDrawing)
 		}
 		
 		public function saveUserFile():void

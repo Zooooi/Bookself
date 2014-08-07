@@ -20,8 +20,15 @@ package jsProject.ctrl
 	
 	public class UrlData extends EventDispatcher
 	{
-		
-		protected const webSite:String = "http://zooooi.com/bookself/";//www.zooooi.com//http://jasonli.leadcoinc.com/bookself/
+		/**
+		 * 1) jasonli.leadcoinc.com
+		 *    getfile1_1.php 
+		 * 2) www.zooooi.com
+		 *    getfile1.php
+		 * 3) 192.168.0.13
+		 *    getfile1_1.php
+		 */		
+		protected const webSite:String = "http://jasonli.leadcoinc.com/bookself/";//www.zooooi.com//http://jasonli.leadcoinc.com/bookself/ //192.168.0.13
 		protected const webPath:String = "site/admin/";
 		protected const pageCheckuser:String = "checkuser.php";
 		protected const pageBookself:String = "getbookselft.php";
