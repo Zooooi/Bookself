@@ -16,6 +16,6 @@
 		<s:State name="downAndSelected" stateGroups="downStates, selectedStates" />
 		<s:State name="disabledAndSelected" stateGroups="disabledStates, selectedStates" />
 	</s:states>
-	<s:BitmapImage includeIn="up,over,downAndSelected,disabled" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/draw_menu_u.png')" />
-	<s:BitmapImage includeIn="upAndSelected,overAndSelected,down,disabledAndSelected" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/draw_menu_o.png')" />
+	<s:BitmapImage includeIn="up,over,downAndSelected,disabled" width="100%" height="100%" smooth="true" source="@Embed('embed/button/draw_menu_u.png')" />
+	<s:BitmapImage includeIn="upAndSelected,overAndSelected,down,disabledAndSelected" width="100%" height="100%" smooth="true" source="@Embed('embed/button/draw_menu_o.png')" />
 </s:Skin>

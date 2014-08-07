@@ -1,16 +1,13 @@
 package jsProject.view
 {
+	import JsC.events.JEvent;
+	import JsC.mdel.SystemOS;
+	
 	import flash.display.Bitmap;
-	import flash.display.Loader;
 	import flash.display.SimpleButton;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.geom.Rectangle;
-	
-	import JsA.platform.AssignLoader;
-	
-	import JsC.events.JEvent;
-	import JsC.mdel.SystemOS;
 	
 
 	public class IconButtonSprite extends Base
@@ -51,14 +48,7 @@ package jsProject.view
 			
 			if (nCount <  xml.files.children().length())
 			{
-				var _path:String = sPath + xml.files.children()[nCount];
-				var _loader:Loader = new Loader
-				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
-				_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onContinue);
-				var al:AssignLoader = new AssignLoader
-				al.setLoader(_loader,_path)
-				
-				//JsLoader.get(sPath + xml.files.children()[nCount], {complete:onComplete,ioError:onContinue})
+				JsLoader.get(sPath + xml.files.children()[nCount], {complete:onComplete,ioError:onContinue})
 			}else {
 				var _evt:JEvent = new JEvent(JEvent.COMPLETE)
 				_evt.$setString(xml.localName())

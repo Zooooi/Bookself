@@ -16,9 +16,9 @@
 		<s:State name="downAndSelected" stateGroups="downStates, selectedStates" />
 		<s:State name="disabledAndSelected" stateGroups="disabledStates, selectedStates" />
 	</s:states>
-	<s:Image includeIn="up,over,downAndSelected,disabled" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/icon/top_r2_c10.png')" alpha.disabledAndSelected="0.5"/>
-	<s:Image includeIn="over" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/icon/top_r2_c10_s2.png')" alpha.disabledAndSelected="0.5"/>
-	<s:Image includeIn="upAndSelected,overAndSelected,down,disabledAndSelected" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/icon/top_singlepage_r2_c2.png')" alpha.disabledAndSelected="0.5"/>
-	<s:Image includeIn="overAndSelected" width="100%" height="100%" smooth="true" source="@Embed('/embed/button/icon/top_singlepage_r2_c2_s2.png')" alpha.disabledAndSelected="0.5"/>
+	<s:Image includeIn="up,over,downAndSelected,disabled" width="100%" height="100%" smooth="true" source="@Embed('embed/button/icon/top_r2_c10.png')" alpha.disabledAndSelected="0.5"/>
+	<s:Image includeIn="over" width="100%" height="100%" smooth="true" source="@Embed('embed/button/icon/top_r2_c10_s2.png')" alpha.disabledAndSelected="0.5"/>
+	<s:Image includeIn="upAndSelected,overAndSelected,down,disabledAndSelected" width="100%" height="100%" smooth="true" source="@Embed('embed/button/icon/top_singlepage_r2_c2.png')" alpha.disabledAndSelected="0.5"/>
+	<s:Image includeIn="overAndSelected" width="100%" height="100%" smooth="true" source="@Embed('embed/button/icon/top_singlepage_r2_c2_s2.png')" alpha.disabledAndSelected="0.5"/>
 </s:Skin>
 

@@ -1,6 +1,7 @@
 package jsProject.view
 {
 	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -8,8 +9,6 @@ package jsProject.view
 	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
-	
-	import JsA.platform.AssignLoader;
 
 	public class IconBitmap extends Sprite
 	{
@@ -28,9 +27,7 @@ package jsProject.view
 			var loader:Loader=new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
 			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,onLoadPicError)
-			//loader.load(request)
-			var al:AssignLoader = new AssignLoader
-			al.setLoader(loader,_url)
+			loader.load(request);
 		}
 		
 		private function completeHandler(event:Event):void 

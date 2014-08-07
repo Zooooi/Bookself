@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:ViewBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="Web" xmlns:view="com.view.*" 
+		>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import flash.events.MouseEvent;
+			
+			import mx.events.FlexEvent;
+			
+			private var sPath:String
+			private var web:WebView
+			
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				super.onFlexEvent(event)
+				web = new WebView
+				web.load(_url)
+				addElement(web)
+				web.top = cTop
+				web.bottom = 0
+				web.left = 0
+				web.right = 0
+			}
+			
+			override protected function onExit(event:MouseEvent):void
+			{
+				web.source = ""
+				web.dispose()
+				removeElement(web)
+				dispatchEvent(new JEvent(JEvent.EXIT))
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+</view:ViewBase>

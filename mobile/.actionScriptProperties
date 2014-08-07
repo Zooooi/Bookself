@@ -5,7 +5,6 @@
       <compilerSourcePathEntry kind="1" linkType="1" path="D:/JasonLee/Job/@me/Bookself/source/_class"/>
       <compilerSourcePathEntry kind="1" linkType="1" path="D:/JasonLee/Job/output/Bookself_assets_online"/>
       <compilerSourcePathEntry kind="1" linkType="1" path="D:/JasonLee/Job/@me/Bookself/source/_air"/>
-      <compilerSourcePathEntry kind="1" linkType="1" path="D:/JasonLee/Job/@me/Bookself/source/_mobile"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
@@ -45,19 +44,17 @@
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
   <buildTargets>
-    <buildTarget buildTargetName="com.adobe.flexide.multiplatform.ios.platform" iosSettingsVersion="1" provisioningFile="D:/JasonLee/Develop/apps/Ipad/Generic_Dev_Provision_for_Leadco_Inc.mobileprovision" releasePackageType="ipa-app-store">
+    <buildTarget buildTargetName="com.adobe.flexide.multiplatform.ios.platform" iosSettingsVersion="1" provisioningFile="D:/JasonLee/Develop/apps/Ipad/leadco_victorc_generic_dev_provision_20140505.mobileprovision" releasePackageType="ipa-app-store">
       <multiPlatformSettings enabled="true" includePlatformLibs="false" platformID="com.adobe.flexide.multiplatform.ios.platform" version="2"/>
       <airSettings airCertificatePath="D:/JasonLee/Develop/apps/Ipad/leadco_victorc_ios_devcert.p12" airTimestamp="true" anePathSet="true" version="1">
         <airExcludes>
-          <pathEntry path="assets"/>
           <pathEntry path="css"/>
-          <pathEntry path="DebugHostInfo.xml"/>
-          <pathEntry path="jsProject"/>
           <pathEntry path="JsC"/>
           <pathEntry path="components"/>
           <pathEntry path="skin"/>
-          <pathEntry path="com"/>
+          <pathEntry path="icon"/>
           <pathEntry path="embed"/>
+          <pathEntry path="com"/>
         </airExcludes>
         <anePaths/>
       </airSettings>
@@ -75,15 +72,12 @@
       <multiPlatformSettings enabled="true" includePlatformLibs="false" platformID="com.adobe.flexide.multiplatform.android.platform" version="2"/>
       <airSettings airCertificatePath="D:/JasonLee/Develop/apps/Jason p12/JasonLee_Android.p12" airTimestamp="true" anePathSet="true" version="1">
         <airExcludes>
-          <pathEntry path="assets"/>
           <pathEntry path="css"/>
-          <pathEntry path="DebugHostInfo.xml"/>
-          <pathEntry path="jsProject"/>
           <pathEntry path="JsC"/>
           <pathEntry path="components"/>
           <pathEntry path="skin"/>
-          <pathEntry path="com"/>
           <pathEntry path="embed"/>
+          <pathEntry path="com"/>
         </airExcludes>
         <anePaths/>
       </airSettings>

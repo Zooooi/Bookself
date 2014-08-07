@@ -21,7 +21,7 @@ package jsProject.view
 	public class UIResourceButton extends BaseUIButton
 	{
 		
-		/*[Embed(source="/embed/button/ui/addResourcectrlbutton.png")]
+		/*[Embed(source="embed/button/ui/addResourcectrlbutton.png")]
 		private var PicClass:Class;*/
 		private var toolTip:String
 		

@@ -71,7 +71,6 @@ package JsC.events
 		public static const LOADER_OPEN:String = "LOADER_OPEN"
 		public static const LOADER_PROGRESS:String = "LOADER_PROGRESS"
 		public static const LOADER_COMPLETE:String = "LOADER_COMPLETE"
-		public static const LOADER_ERROR:String = "LOADER_ERROR"
 			
 		public static const SOUND_COMPLETE:String = "SOUND_COMPLETE"
 		public static const SOUND_UPDATE:String = "SOUND_UPDATE"

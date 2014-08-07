@@ -9,9 +9,6 @@
 	<fx:Style source="css/book.css"/>
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import JsC.events.JEvent;
 			import JsC.shell.ShellSystem;
 			import JsC.xml.XmlCtrl;
 			
@@ -20,7 +17,6 @@
 			import components.books.BookPage;
 			import components.symbol.bookUi.BaseMenuNode;
 			
-			import jsProject.ctrl.FileSystem;
 			import jsProject.mdel.NameDefine;
 			import jsProject.mdel.Value;
 			import jsProject.mdel.ViewerControls;
@@ -29,6 +25,8 @@
 			import jsProject.view.BaseUIButton;
 			import jsProject.view.UIResourceButton;
 			
+			import mx.events.FlexEvent;
+
 			
 			[Bindable]private var sName:String="";
 			[Bindable]private var sFile:String="";
@@ -66,15 +64,9 @@
 							default:
 							case "0":
 								xList.@action = NameDefine.COM_OPEN_FILE
-								
-								if(txtInput.textFlow != null){
-									xList.text = <text>{TextConver.textFlowToString(txtInput.textFlow)}</text>
-								}else{
-									xList.text = <text>{txtInput.text}</text>
-								}
-								
+								xList.text = <text>{TextConver.textFlowToString(txtInput.textFlow)}</text>
 								break;
-							
+								
 							case "1":
 								xList.@action =NameDefine.COM_OPEN_HTML
 								if (sOpenFile.indexOf("http://")!=0)
@@ -104,11 +96,11 @@
 				}
 				
 				
-				
+			
 			}
 			
 			
-			override protected function $setList(_xmlList:XMLList):void
+			 override protected function $setList(_xmlList:XMLList):void
 			{
 				super.$setList(_xmlList)
 				sName = xList.@name
@@ -155,19 +147,10 @@
 			
 			protected function onPop(event:MouseEvent):void
 			{
-				/*selectFile = ShellSystem.current.browser()
-				sOpenFile = selectFile*/
-				var fs:FileSystem = new FileSystem
-				fs.addEventListener(JEvent.COMPLETE,onFileSystemEvent)
-				fs.browser();
+				selectFile = ShellSystem.current.browser()
+				sOpenFile = selectFile
 			}
 			
-			
-			protected function onFileSystemEvent(event:JEvent):void
-			{
-				
-				//sOpenFile = selectFile
-			}
 			
 		]]>
 	</fx:Script>
@@ -207,8 +190,8 @@
 					   buttonMode="true" mouseDown="onMouseEvent(event)" visible="{Value.bNewVersion}"/>
 	<s:BorderContainer id="cancel" x="450" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
 					   buttonMode="true" click="Viewers.closeWin()" />
-	<s:RadioButton visible="{Value.bNewVersion}" x="139" y="137" click="selectOption(0)"
+	<s:RadioButton visible="{Value.bNewVersion}" x="139" y="143" click="selectOption(0)"
 				   enabled="{bNew}" groupName="group1" selected="{!bwrite}"/>
-	<s:RadioButton visible="{Value.bNewVersion}" x="274" y="137" click="selectOption(1)"
+	<s:RadioButton visible="{Value.bNewVersion}" x="274" y="143" click="selectOption(1)"
 				   enabled="{bNew}" groupName="group1" selected="{bwrite}"/>
 </bookUi:BaseBookUI>

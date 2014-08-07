@@ -49,15 +49,6 @@
 			return outNumber
 		}
 		
-		public static function float(_number:Number, _float:uint=1):String
-		{
-			var i:Number = _float*10
-			var n:Number = Math.round(_number*i)/i
-			var inNumber:String = String(n);
-			return inNumber
-		}
-		
-		
 		public static function DataName(_firstName:String="",_lastName:String=""):String
 		{
 			var _name:String=_firstName

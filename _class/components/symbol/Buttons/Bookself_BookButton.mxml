@@ -14,14 +14,12 @@
 			{
 				//$img.alpha = 1
 				$img.enabled = true
-				$img.mouseEnabled = true;
 			}
 			
 			public function $disable():void
 			{
 				//$img.alpha = 0.5;
-				$img.enabled = false
-				$img.mouseEnabled = false;
+				$img.enabled = true
 			}
 			
 			
@@ -64,6 +62,6 @@
 	</fx:Script>
 	<s:Image id="$img" horizontalCenter="0" smooth="true" verticalCenter="0" complete="$img_completeHandler(event)"/>
 	<!--<s:BorderContainer right="10" bottom="10" width="30" height="30" backgroundAlpha="0.9" backgroundColor="#000000" borderVisible="false" cornerRadius="5" visible="{bBordercontainer}">
-	<s:Label id="$txt" color="#ffffff" fontWeight="bold" horizontalCenter="0" text="{nDownload}" textAlign="center" verticalAlign="middle" verticalCenter="0"/>
+		<s:Label id="$txt" color="#ffffff" fontWeight="bold" horizontalCenter="0" text="{nDownload}" textAlign="center" verticalAlign="middle" verticalCenter="0"/>
 	</s:BorderContainer>-->
 </s:Group>

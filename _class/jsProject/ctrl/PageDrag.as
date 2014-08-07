@@ -1,33 +1,26 @@
 package jsProject.ctrl
 {
-	import flash.display.Bitmap;
-	import flash.display.Loader;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.events.OutputProgressEvent;
-	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
-	import flash.geom.Rectangle;
-	import flash.net.URLRequest;
-	import flash.utils.ByteArray;
-	
-	import mx.core.UIComponent;
-	
 	import JsA.loader.LoadPDF;
-	import JsA.platform.AssignLoader;
 	
 	import JsC.events.JEvent;
 	import JsC.mdel.SystemOS;
 	
 	import caurina.transitions.Tweener;
 	
+	import flash.display.Bitmap;
+	import flash.display.Loader;
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.geom.Rectangle;
+	import flash.net.URLRequest;
+	
 	import jsProject.events.PageFilpEvents;
 	import jsProject.mdel.NameDefine;
 	import jsProject.mdel.PageFlipContent;
 	import jsProject.mdel.Value;
 	import jsProject.mdel.Viewers;
+	
+	import mx.core.UIComponent;
 	
 	
 	[Event(name = "onLoadInit", type = "jsProject.events.PageFilpEvents")]
@@ -45,19 +38,19 @@ package jsProject.ctrl
 		private const sTimeFlag_StartPlay:String = "startplay"
 		private const sTimeFlag_AutoPlay:String = "autoplay"	
 		private var book_TimerFlag:String = sTimeFlagStop;
-		
+			
 		[Bindable]private var nBookRect:Rectangle;
 		
 		private var aDisplayPage:Vector.<PageFlipContent>
-		
+			
 		public var book_totalpage:uint;
 		public var book_page:uint;
 		public var $TimerFlag:String = sTimeFlagStop
 		private var state:String = stateTwo
 		private const stateOne:String ="stateOne"
 		private const stateTwo:String ="stateTwo"
-		
-		
+			
+			
 		private var book_path:String
 		private var myXML:XML;
 		private var pageMode:uint;
@@ -80,6 +73,7 @@ package jsProject.ctrl
 		private var aPageNumber:Vector.<uint>
 		private var oTweenerObj1:Object
 		private var oTweenerObj2:Object
+		
 		
 		
 		public function PageDrag()
@@ -192,7 +186,7 @@ package jsProject.ctrl
 		{
 			
 		}
-		
+
 		
 		
 		
@@ -226,27 +220,21 @@ package jsProject.ctrl
 			trace(currentPageContent.numChildren)
 			aPageNumber.push(nLoadPage)
 			var pageFile:String = nodePage.children()[nLoadPage].attribute("src")
-			var pageRequest:URLRequest = new URLRequest(book_path + pageFile)
+			var pageRequest:URLRequest = new URLRequest(book_path + pageFile);
 			//trace(nLoadPage,book_path + pageFile)
 			
-			
-			/*if (pageFile.lastIndexOf(".pdf")>0 || pageFile.lastIndexOf(".html")>0 || pageFile.lastIndexOf(".htm")>0)
+				
+			if (pageFile.lastIndexOf(".pdf")>0 || pageFile.lastIndexOf(".html")>0 || pageFile.lastIndexOf(".htm")>0)
 			{
-			var _pdfLoader:LoadPDF = new LoadPDF
-			_pdfLoader.addEventListener(JEvent.COMPLETE,onLoadPDFComplete)
-			_pdfLoader.load(pageRequest)
-			}else{*/
-			var picLoader:Loader = new Loader
-			picLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadPicComplete);
-			picLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onLoadPicError);
-			
-			var al:AssignLoader = new AssignLoader
-			al.setLoader(picLoader,book_path + pageFile)
-			
-			/*}*/
+				var _pdfLoader:LoadPDF = new LoadPDF
+				_pdfLoader.addEventListener(JEvent.COMPLETE,onLoadPDFComplete)
+				_pdfLoader.load(pageRequest)
+			}else{
+				var picLoader:Loader = new Loader
+				picLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadPicComplete);
+				picLoader.load(pageRequest);
+			}
 		}
-		
-		
 		
 		protected function onLoadPDFComplete(event:JEvent):void
 		{
@@ -274,19 +262,11 @@ package jsProject.ctrl
 			onLoadEndAction()
 		}
 		
-		
-		protected function onLoadPicError(event:Event):void
-		{
-			trace(this,event.type,event);
-			
-		}
-		
-		
 		private function onLoadEndAction():void
 		{
 			aDisplayPage.push(currentPageLoader)
 			currentPageLoader.x = currentPageLoader.width * nCount 
-			
+				
 			var _event:PageFilpEvents = new PageFilpEvents(PageFilpEvents.onLoaded)
 			_event.$nPage = nLoadPage + 1
 			_event.$currentPageLoader = currentPageLoader
@@ -298,7 +278,7 @@ package jsProject.ctrl
 				if (nLoadPage<book_totalpage)
 				{
 					nLoadPage ++ 
-						loadAction()
+					loadAction()
 				}else{
 					loadedAndAction()
 				}
@@ -350,9 +330,9 @@ package jsProject.ctrl
 				_nY =  nBookRect.y + (nBookRect.height-currentPageContent.height) / 2
 			}
 			_nC = nBookRect.x + (nBookRect.width - currentPageContent.width )/2	
-			
+				
 			book_page = (nLoadPage - 1<0)?0:nLoadPage
-			
+				
 			if (!bRotation)
 			{
 				if(bNext)
@@ -396,7 +376,7 @@ package jsProject.ctrl
 			}
 			act_init(PageFilpEvents.onPageFlipEnd)
 		}
-		
+	
 		
 		private function onFinish():void
 		{
@@ -433,21 +413,11 @@ package jsProject.ctrl
 			setShowPageNumber(1)
 			bSimpPage =true
 		}
-		
+			
 		public function setTwoPage(_resize:Boolean = false):void
 		{
 			if (_resize==false)state = stateTwo
-			switch(state)
-			{
-				case stateOne:
-					setShowPageNumber(1)
-					break;
-				case stateTwo:
-					setShowPageNumber(2)
-					break;
-				
-			}
-			
+			setShowPageNumber(2)
 			bSimpPage = false
 		}
 		
@@ -458,25 +428,29 @@ package jsProject.ctrl
 			var bPass:Boolean
 			if (topage>book_totalpage) topage = book_totalpage
 			if (topage<0)topage = 0
-			
+				
 			if (topage!=0)
 			{
-				if(bSimpPage)
+				switch(state)
 				{
-					if (topage == book_page)
-					{
-						bPass = true
-					}
-				}else{
-					if (topage % 2 ==1)
-					{
-					}else{
-						topage --
-					}
-					if (topage+1 == book_page)
-					{
-						bPass = true 
-					}
+					case stateOne:
+						if (topage == book_page)
+						{
+							bPass = true
+						}
+						break;
+						
+					case stateTwo:
+						if (topage % 2 ==1)
+						{
+						}else{
+							topage --
+						}
+						if (topage+1 == book_page)
+						{
+							bPass = true 
+						}
+						break
 				}
 			}else{
 				if (topage == book_page)
@@ -550,7 +524,7 @@ package jsProject.ctrl
 				}
 			}
 		}
-		
+			
 		protected function onStageEvent(event:JEvent):void
 		{
 			var _bCompare:Boolean = stage.stageWidth>stage.stageHeight

@@ -56,8 +56,8 @@
 		<s:State name="State2"/>
 	</base:states>
 	<s:BorderContainer left="0" right="0" top="0" bottom="0" backgroundColor="#333333"/>
-	<s:BitmapImage left="0" right="0" top="0" source="@Embed('/embed/intro/topbar.png')"/>
-	<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('/embed/intro/bottombar.png')"/>
+	<s:BitmapImage left="0" right="0" top="0" source="@Embed('embed/intro/topbar.png')"/>
+	<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('embed/intro/bottombar.png')"/>
 	<s:Image y="12" left="0" right="0" smooth="true" source="controls/bookself/title.png"/>
 	<s:Image left="10" right="10" top="65" smooth="true" source="controls/bookself/company.png"/>
 	<s:Button right="22" top="2" buttonMode="true" skinClass="components.skin.fun_Web" useHandCursor="true" click="onGoWeb(event)"/>

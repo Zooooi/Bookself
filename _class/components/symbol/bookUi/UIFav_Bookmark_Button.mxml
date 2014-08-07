@@ -76,7 +76,7 @@
 	</s:Rect>
 	<s:HGroup width="100%" gap="15" paddingBottom="{cpB*1.2}" paddingLeft="10" paddingRight="{cpR}"
 			  paddingTop="{cpT*1.2}" verticalAlign="middle">
-		<s:Image x="15" y="0" width="20" height="20" smooth="true" source="@Embed('/embed/button/icon/bookmark.fw.png')" ioError="onIconLoadError(event)" />
+		<s:Image x="15" y="0" width="20" height="20" smooth="true" source="@Embed('embed/button/icon/bookmark.fw.png')" ioError="onIconLoadError(event)" />
 		<s:Label width="41" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
 				 text="{sPage}" textAlign="center" verticalAlign="top"/>
 		<s:Label width="41" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"

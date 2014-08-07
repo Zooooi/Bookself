@@ -33,48 +33,15 @@ package JsA.shell
 			saveData(_data,_file,_path)
 		}
 		
-		/**
-		 * 
-		 * 
-		 */
 		override public function setAppPath():void
 		{
-	
-			
-			
-			trace("url: ",File.applicationStorageDirectory.url)
-			trace("url: ",File.applicationDirectory .url)
-			trace("url: ",File.desktopDirectory.url)
-			trace("url: ",File.documentsDirectory.url)
-			trace("url: ",File.userDirectory.url)
-			trace("url: ------------------------------------------")
-			trace("nativePath: ",File.applicationStorageDirectory.nativePath)
-			trace("nativePath: ",File.applicationDirectory .nativePath)
-			trace("nativePath: ",File.desktopDirectory.nativePath)
-			trace("nativePath: ",File.documentsDirectory.nativePath)
-			trace("nativePath: ",File.userDirectory.nativePath)
-			trace("url: ------------------------------------------")
-			trace("nativePath: ",File.applicationStorageDirectory.resolvePath("/").url)
-			trace("nativePath: ",File.applicationDirectory.resolvePath("/").url)
-			trace("nativePath: ",File.desktopDirectory.resolvePath("/").url)
-			trace("nativePath: ",File.documentsDirectory.resolvePath("/").url)
-			trace("nativePath: ",File.userDirectory.resolvePath("/").url)
-			
-			
+			Files.setDocumentPath(File.documentsDirectory.url+"/")
 			if (SystemOS.isPc)
 			{
-				Files.setDocumentPath(File.documentsDirectory.url+"/")
 				Files.setAppPath(File.applicationDirectory.nativePath+"/")
-				Files.setBasePath(File.documentsDirectory.nativePath+"/")
+				Files.setBasePath(File.applicationDirectory.nativePath+"/")
 			}else{
-				if (SystemOS.isIOS()){
-					Files.setDocumentPath(File.documentsDirectory.url+"/")
-				}else{
-					Files.setDocumentPath(File.applicationStorageDirectory.nativePath+"/")
-					Files.setAppPath(File.applicationStorageDirectory.nativePath+"/")
-					Files.setBasePath(File.applicationStorageDirectory.nativePath+"/")
-				}
-				 
+				Files.setAppPath(File.applicationDirectory.url+"/")
 			}
 		}
 		
@@ -84,8 +51,7 @@ package JsA.shell
 		}
 		override public function browser():String
 		{
-			
-			 /*var imageTypes:FileFilter = new FileFilter("Images (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
+			/* var imageTypes:FileFilter = new FileFilter("Images (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg; *.jpeg; *.gif; *.png");
 			var docTypes:FileFilter = new FileFilter("Office (*.doc, *.xls, *.ppt)", "*.doc; *.xls; *.ppt;");
 			var mp4Types:FileFilter = new FileFilter("Music (*.mp4)", "*.mp4");
 			var allTypes:Array = new Array();
@@ -96,7 +62,7 @@ package JsA.shell
 			file.addEventListener(Event.SELECT, onSelect);
 			file.addEventListener(Event.COMPLETE, onSelected);
 			file.browse(allTypes) */
-			return "" ;
+			return ""
 		}
 		
 		override public function deleteFile(_url:String):void

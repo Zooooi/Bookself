@@ -12,7 +12,7 @@ package JsC.mdel
 		private static var bAND:Boolean
 		public function SystemOs():void
 		{
-			trace(Capabilities.os)
+			
 		}
 		
 		private static function getOS():String

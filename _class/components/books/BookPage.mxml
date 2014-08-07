@@ -25,6 +25,7 @@
 			import JsC.shell.ShellSystem;
 			
 			import jsProject.ctrl.PageDrag;
+			import jsProject.ctrl.StageCtrl;
 			import jsProject.events.PageFilpEvents;
 			import jsProject.mdel.Files;
 			import jsProject.mdel.NameDefine;
@@ -148,8 +149,6 @@
 				
 			}
 			
-			
-			
 			private function onPageFilpEvent(event:PageFilpEvents):void
 			{
 				switch(event.type)
@@ -163,9 +162,9 @@
 						
 						if (stage.stageWidth>stage.stageHeight)
 						{
-							setTwoPage(true)
+							setTwoPage()
 						}else{
-							setOnePage(true)
+							setOnePage()
 						}
 						break;
 					
@@ -225,11 +224,10 @@
 			
 			private function addLayer(_uint:int,loader:PageFlipContent):void
 			{
-				var _index:uint = (_uint - 1 < 0) ? 0 : _uint - 1
+				var _index:uint = _uint -1
 				if (aDraw[_index]==null) aDraw[_index] = new PageDrawLayer(_index)
 				if (aCtrl[_index]==null) aCtrl[_index] = new PageCtrlLayer(_index)
 				//加入DRAW
-				trace("BookPage->addLayer:  ",aDraw[_index].width,aDraw[_index].height)
 				loader.addChild(aDraw[_index])
 				//加入功能组件
 				loader.addChild(new PageSubGroupLayer(_index))
@@ -258,7 +256,7 @@
 				effectGZoom.addEventListener(JEffectEvent.MIN,onZoomJEffectEvent)
 				effectGZoom.addEventListener(JEffectEvent.UPADTE,onZoomJEffectEvent)
 				
-				//pageMc.addEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
+				pageMc.addEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
 				pageMc.addEventListener(MouseEvent.MOUSE_DOWN, onPageZoomMouseEvent)
 				pageDrag.addEventListener(PageFilpEvents.onRemoveAction,removeActionGroup)
 			}
@@ -270,7 +268,7 @@
 				effectScale.stop()
 				effectGZoom.removeEventListener(JEffectEvent.MIN,onZoomJEffectEvent)
 				effectGZoom.removeEventListener(JEffectEvent.UPADTE,onZoomJEffectEvent)
-				//pageMc.removeEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
+				pageMc.removeEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
 				pageMc.removeEventListener(MouseEvent.MOUSE_DOWN, onPageZoomMouseEvent)
 				
 				effectDrag = null
@@ -286,19 +284,27 @@
 			
 			private function onPageZoomMouseEvent(evt:MouseEvent):void
 			{
-				
-				if (bDraw || !bCanDrag){
-					return 
-				}else if (evt.target is SimpleButton) {
-					effectDrag.remove()
-				}else if (evt.target is Sprite){
-					if (Sprite(evt.target).buttonMode) effectDrag.remove()
+				var bDontAct:Boolean
+				if (bDraw) bDontAct = true				
+				if (!bCanDrag || (evt.target is SimpleButton) ) bDontAct = true
+				if (!bCanDrag || (evt.target is Sprite))
+				{
+					var _sprite:Sprite = Sprite(evt.target)
+					if (_sprite.buttonMode)
+					{
+						bDontAct = true
+						effectDrag.remove()
+						stage.addEventListener(MouseEvent.MOUSE_UP,onDIM)
+					}
 				}
-
+				if (bDontAct) return 
+				
+				//var _point:Point = new Point(pageHitTest.stage.mouseX,pageHitTest.stage.mouseY)
 				switch (evt.type) 
 				{
 					case MouseEvent.MOUSE_DOWN:
 						nDownScale = pageMc.scaleX
+						//nPoint = _point
 						nPageFlipMouseDown = new Point
 						nPageFlipMouseDown.x = stage.mouseX
 						nPageFlipMouseDown.y = stage.mouseY
@@ -306,8 +312,29 @@
 						stage.addEventListener(MouseEvent.MOUSE_UP,onStageMousePageFlip) 
 						
 						break;
-				
+					
+					case MouseEvent.CLICK:
+						return
+						/* 	if (Math.abs(nPoint.x - _point.x)<3 && Math.abs(nPoint.y - _point.y)<3) 
+						{
+						if (!bZoom)
+						{
+						effectScale.ZoomByPoint(_point)
+						effectScale.scaleIn()
+						
+						}else{
+						effectScale.ZoomByMask()
+						effectScale.scaleOut()
+						}
+						setShowReview()
+						pageDrag.disable()
+						bZoom = !bZoom
+						} */
+						break;
 				}
+				
+				
+				
 			}
 			
 			
@@ -539,17 +566,7 @@
 			
 			public function $resize():void
 			{
-				
-				displayPageNo()
-				
-				if (stage.stageWidth>stage.stageHeight)
-				{
-					setTwoPage(true)
-				}else{
-					setOnePage(true)
-				}
-				
-				/*$resizeLoc()
+				$resizeLoc()
 				hideReview()
 				if (effectDrag)
 				{
@@ -557,11 +574,6 @@
 					effectDrag.refresh()
 					//effectDrag.run()
 				}
-				*/
-				
-				
-
-				
 			}
 			
 			
@@ -638,12 +650,12 @@
 				switch(event.type)
 				{
 					case MouseEvent.MOUSE_MOVE:
-/*
-						if (Math.abs(stage.mouseX-nPageFlipMouseDown.x)>10 || Math.abs(stage.mouseY-nPageFlipMouseDown.y)>10)
+
+						if (Math.abs(stage.mouseX-nPageFlipMouseDown.x)>3 || Math.abs(stage.mouseY-nPageFlipMouseDown.y)>3)
 						{
 							effectDrag.start()
 						}
-						*/
+						
 						if (nDownScale != pageMc.scaleX) return
 						if (pageMc.width<=nBookRect.width && pageMc.height<=nBookRect.height )
 						{
@@ -684,7 +696,7 @@
 			private function drapToPlayFlip():void
 			{
 				var _moveNum:Number = stage.mouseX - nPageFlipMouseDown.x
-				if (Math.abs(_moveNum)>300)
+				if (Math.abs(_moveNum)>200)
 				{
 					pageMc.stopDrag()
 					effectDrag.stop()
@@ -724,7 +736,7 @@
 				}
 			}
 			
-			protected function onpageDragEvent(event:Event=null):void
+			protected function onpageDragEvent(event:Event):void
 			{
 				pageDrag.setPath(Files.folder_book_Pages)
 				pageDrag.setEvent()
@@ -772,11 +784,9 @@
 			{
 				var i:int
 				var pageCtrl:PageCtrlLayer
-				
 				for (i = 0; i < $getCurrentDisplayPage().length; i++) 
 				{
-					var pageContent:PageFlipContent = $getCurrentDisplayPage()[i]
-					if (pageContent.hitTestPoint(stage.mouseX,stage.mouseY,true))
+					if ($getCurrentDisplayPage()[i].hitTestPoint(stage.mouseX,stage.mouseY))
 					{
 						pageCtrl = PageCtrlLayer($getCurrentDisplayPage()[i].$getCtrlLayer())
 						_iv.x = pageCtrl.mouseX

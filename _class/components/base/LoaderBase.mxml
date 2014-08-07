@@ -14,12 +14,7 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
 			import JsC.events.JEvent;
-			import JsC.mdel.SystemOS;
 			import JsC.shell.ShellSystem;
 			import JsC.xml.XmlCtrl;
 			
@@ -27,6 +22,10 @@
 			import jsProject.mdel.NameDefine;
 			import jsProject.mdel.Value;
 			import jsProject.mdel.XmlContent;
+			
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
 			
 			protected var xmlData:XML
@@ -51,26 +50,8 @@
 			{
 				if (_path!=null)
 				{
-					
-					
-					if(SystemOS.isAndroid())
-					{
-						var _file:File = new File(_path)
-						if (_file.exists){
-							var stream:FileStream = new FileStream
-							stream.open(_file,FileMode.READ)
-							var _data:String = stream.readUTFBytes(stream.bytesAvailable)
-							stream.close();
-							checkAndLoad(_data);
-						}else{
-							xmlLoader.url = new File(_path).url
-							xmlLoader.send()	
-						}
-						
-					}else{
-						xmlLoader.url = new File(_path).url
-						xmlLoader.send()
-					}
+					xmlLoader.url = _path
+					xmlLoader.send()
 				}
 				
 			}
@@ -79,7 +60,6 @@
 			{
 				if (__alert__)
 				{
-					trace("LoaderBase:",event)
 				}
 				init()
 			}
@@ -148,7 +128,6 @@
 						Value.setPageNumberArray(XmlCtrl.getNodeByName(XMLList(XmlContent.XML_PAGE),NameDefine.KEY_PAGES))
 						break
 				}
-				trace(xmlKey);
 				
 			}
 			
@@ -206,7 +185,6 @@
 				xmlKey = NameDefine.FILE_ID_USER
 				xmlPath = filesPath + xmlFileName //"D:\\Documents\\ebooks\\s2pth\\usr.xml"//
 				//ShellSystem.current.traceInfo("fromFlash:  " +xmlPath)
-				
 			}
 			
 			protected function init_download_bookself():void
@@ -216,7 +194,6 @@
 				xmlFileName = Files.file_bookself_download
 				xmlKey = NameDefine.FILE_ID_DOWNLOAD_BOOKSELF
 				xmlPath = filesPath+xmlFileName
-				
 			}
 			
 			public function reLoadXml():void

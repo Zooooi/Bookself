@@ -23,7 +23,7 @@ package jsProject.mdel
 		public static const KEY_PAGENODE:String = "page"
 		public static const KEY_COMPONENTS_KEY:String = "component"
 		public static const KEY_RESOURCE:String = "resource"
-		public static const KEY_DRAWER:String = "drawer"
+		public static const KEY_DRAW_KEY:String = "draw"
 		public static const KEY_FUNCTION_ROOT:String = "functions"
 		public static const KEY_FUNCTION_NODE:String = "function"
 		public static const KEY_FUNCTION_ITEM:String = "functionItem"

@@ -19,15 +19,13 @@
 	</fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import JsA.platform.AssignLoader;
-			
 			import JsC.events.JEvent;
 			import JsC.sound.SoundControl;
 			import JsC.string.Maths;
 			
 			import jsProject.mdel.Viewers;
+			
+			import mx.events.FlexEvent;
 			
 			[Bindable]private var nPosition:Number
 			[Bindable]private var nLength:uint
@@ -81,9 +79,7 @@
 					sound = new Sound
 					sound.addEventListener(Event.COMPLETE,onLoadComplete)
 					sound.addEventListener(IOErrorEvent.IO_ERROR,onIoError)
-					//sound.load(new URLRequest(sUrl))
-					var _loader:AssignLoader = new AssignLoader
-					_loader.setSoundLoader(sound,sUrl)
+					sound.load(new URLRequest(sUrl))
 				}else{
 					onLoadComplete()
 				}
@@ -280,7 +276,7 @@
 			
 		]]>
 	</fx:Script>
-	<s:BitmapImage x="0" y="0" source="@Embed('/embed/button/icon/panel_audioplayer.png')"/>
+	<s:BitmapImage x="0" y="0" source="@Embed('embed/button/icon/panel_audioplayer.png')"/>
 	<s:Group > 
 		<s:ToggleButton x="2" y="2" buttonMode="true" 
 						selected="{bSelect}" skinClass="components.skin.Toggle_MusicButton"/>

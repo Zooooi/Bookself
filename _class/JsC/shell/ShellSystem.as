@@ -36,8 +36,8 @@ package JsC.shell
 				case "Desktop": 
 					shell = new AirShell
 					break
-			/*	case "ActiveX":
-					shell = new SWFK*/
+				case "ActiveX":
+					shell = new SWFK
 					break;
 			}
 			shell.setAppPath()

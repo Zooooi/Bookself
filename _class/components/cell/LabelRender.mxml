@@ -32,7 +32,7 @@
 			
 			private function rollOutHandler (event:MouseEvent):void
 			{
-				if (popupLabel && !popupLabel.hitTestPoint(event.stageX, event.stageY,true))
+				if (popupLabel && !popupLabel.hitTestPoint(event.stageX, event.stageY))
 				{
 					/* PopUpManager.removePopUp(popupLabel);
 					popupLabel = null; */

@@ -139,7 +139,7 @@
 							  width.State1="43" height.State1="43"/>
 				</s:HGroup>
 			</s:BorderContainer>
-			<s:BitmapImage height="38" source="@Embed('/embed/button/icon/corner.png')"/>
+			<s:BitmapImage height="38" source="@Embed('embed/button/icon/corner.png')"/>
 	</s:HGroup>
 	
 </s:Group>

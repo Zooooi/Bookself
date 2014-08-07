@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:view="com.view.*"
+		xmlns:books="components.books.*"
+		actionBarVisible="false" autoLayout="true" 
+		tabBarVisible="false" title=""
+		addedToStage="onEvent(event)"
+		>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import com.view.MediaView;
+			import com.view.ViewBase;
+			import com.view.WebExporle;
+			
+			import flash.net.navigateToURL;
+			
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.NameDefine;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var sDebug:String= "system: " + Capabilities.os + "\n"
+			private var sPath:String
+			private var myView:ViewBase
+			private var bAnd:Boolean
+			
+			private const sFolder:String = NameDefine.KEY_JSBOOK_FOLDER
+			
+				
+			private function dDebug(_string:String):void
+			{
+				sDebug += _string + "\n"
+				trace(_string + "\n")
+			}
+			protected function onComponentEvent(event:ComponentEvent):void
+			{
+				dDebug("-----------------------------------------------------------------------------------")
+				dDebug("event._file:  "+event._file)
+				dDebug("event._path:  "+event._path)
+				dDebug("event._url:  "+event._url)
+				dDebug("event.type:  "+event.type)
+				bAnd = SystemOS.isAndroid()
+				var _file:File
+				
+				switch(event.type)
+				{
+					case ComponentEvent.OPEN_HTML:
+						openWithStageView(getHtml(event))
+						break;
+					
+					case ComponentEvent.OPEN_OFFICE:
+					case ComponentEvent.OPEN_MOVIE:
+						if (SystemOS.isAndroid())
+						{
+							openFile(event)
+						}else{
+							openWithStageView(getHtml(event))
+						}
+						break 
+						
+				}
+			}
+			
+			
+			private function openWithStageView(_url:String):void
+			{
+				dDebug ("####### STAGE VIEW #######")
+				myView = new WebExporle
+				myView._url = _url
+				myView.addEventListener(JEvent.EXIT,onProjectEvent)
+				addElement(myView)
+			}
+			
+			
+			protected function onProjectEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.EXIT:
+						removeElement(myView)
+						break;
+					
+					case JEvent.HOME:
+						navigator.popToFirstView()
+						break;
+				}
+				
+			}
+			
+			private function getHtml(event:ComponentEvent):String
+			{
+				var _path:String
+				var _file:File 
+				if (event._url.indexOf("http://")>=0)
+				{
+					_path = event._url
+				}else{
+					if (bAnd)
+					{
+						dDebug ("####### COPY MODE #######")
+						_file = File.applicationDirectory.resolvePath(event._path);
+						var _target:File
+						if (event._hasFolder)
+						{
+							_target = File.createTempFile()
+							_path = (_target.url + "/" + event._file)
+						}else{
+							_target = File.createTempDirectory().resolvePath(event._file)
+							_path = (_target.url)
+						}
+						_file.copyTo(_target, true);
+					}else{
+						dDebug ("####### OPEN MODE #######")
+						_file = new File(File.applicationDirectory.nativePath + "/" + event._url)
+						_path = _file.url
+					}
+					dDebug(_file.url)
+					dDebug ("_output.exists:  " + _file.exists)
+				}
+				return _path
+			}
+			
+			
+			private function openFile(event:ComponentEvent):String
+			{
+				var _path:String
+				var _output:File
+				var _file:File
+				_file = File.applicationDirectory.resolvePath(event._path);
+				var _target:File = File.documentsDirectory.resolvePath(sFolder)
+				if (!_target.exists)_target.createDirectory()
+				_target = _target.resolvePath(event._path)
+				if (event._hasFolder)
+				{
+					if (!_target.exists) _target.createDirectory()
+					_path = _target.url + "/" + event._file
+				}else{
+					_path = _target.url
+				}
+				dDebug ("####### COPY MODE #######")
+				_file.copyTo(_target, true);
+				_output = new File(_path)
+				dDebug (_output.url)
+				dDebug (_path)
+				dDebug ("_output.exists:  " + _output.exists)
+				//if (_output.exists) _output.openWithDefaultApplication()
+				if (_output.exists) navigateToURL(new URLRequest(_path))
+				return _path
+			}
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						stage.scaleMode = StageScaleMode.NO_SCALE;
+						stage.align = StageAlign.TOP_LEFT;
+						stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE,onStageEventChange)
+						addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						
+						break;
+					case Event.REMOVED_FROM_STAGE:
+						stage.removeEventListener(StageOrientationEvent.ORIENTATION_CHANGE,onStageEventChange)
+						removeEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						break;
+				}
+			}
+			
+			protected function initStage():void
+			{
+				var bScale:Boolean
+				
+				if (Math.max(stage.stageWidth, stage.stageHeight)>1024)
+				{
+					bScale  = true
+					
+				}else if (Math.min(stage.stageWidth, stage.stageHeight)>768){
+					bScale  = true
+				}
+				if (bScale)
+				{
+					var guiSize:Rectangle = new Rectangle(0, 0, 1024, 768);
+					var deviceSize:Rectangle = new Rectangle(0, 0,
+						Math.max(stage.stageWidth, stage.stageHeight),
+						Math.min(stage.stageWidth, stage.stageHeight));
+					
+					var appScale:Number = 1;
+					var appSize:Rectangle = guiSize.clone();
+					var appLeftOffset:Number = 0;
+					
+					
+					// if device is wider than GUI's aspect ratio, height determines scale
+					if ((deviceSize.width/deviceSize.height) > (guiSize.width/guiSize.height)) {
+						appScale = deviceSize.height / guiSize.height;
+						appSize.width = deviceSize.width / appScale;
+						appLeftOffset = Math.round((appSize.width - guiSize.width) / 2);
+						/* main.scaleX =appScale
+						main.scaleY =appScale
+						main.width = appSize.width   */
+					} 
+						// if device is taller than GUI's aspect ratio, width determines scale
+					else {
+						appScale = deviceSize.width / guiSize.width;
+						appSize.height = deviceSize.height / appScale;
+						appLeftOffset = 0;
+						/* 	main.scaleX =appScale
+						main.scaleY =appScale
+						main.height = appSize.height  */ 
+					}
+					main.scaleX =appScale
+					main.scaleY =appScale
+					// scale the entire interface
+					
+					// crop some menus which are designed to run off the sides of the screen
+					main.scrollRect = appSize;
+				}
+			}
+			
+			protected function onStageEventChange(event:StageOrientationEvent):void
+			{
+				
+				trace(event.type)
+				trace(event.beforeOrientation,event.afterOrientation,StageAspectRatio.LANDSCAPE,StageAspectRatio.PORTRAIT)
+				trace(stage.stageWidth,stage.stageHeight)
+				/* if(event.afterOrientation == StageOrientation.ROTATED_LEFT)
+				{
+					trace("After OR is LEFT")
+				}
+				else if(event.afterOrientation == StageOrientation.ROTATED_RIGHT)
+				{
+					trace("After OR is RIGHT") 
+				}*/
+				/* sDebug +=  "BEGIN--------------------dispatchEvent-------------------------\n"
+				sDebug +=   "system: " + Capabilities.os + "\n"
+				sDebug +=  event.type + "    beforeOrientation:    " + event.beforeOrientation + "|    afterOrientation:   " + event.afterOrientation + "\n"
+				sDebug +=  stage.stageWidth + "x" + stage.stageHeight + "\n"
+				sDebug +=  "END--------------------dispatchEvent-------------------------\n"
+				sDebug +=  "\n" */
+				initStage()
+				main.dispatchEvent(new JEvent(JEvent.RESIZE))
+			}
+			
+			protected function book_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				initStage()
+			}
+			
+		]]>
+	</fx:Script>
+	<books:Book id="main" 
+				creationComplete="book_creationCompleteHandler(event)"
+				HOME="onProjectEvent(event)"
+				OPEN_HTML="onComponentEvent(event)"
+				OPEN_MOVIE="onComponentEvent(event)"
+				OPEN_OFFICE="onComponentEvent(event)"
+				width="100%" height="100%"
+				/>
+	<!--<s:Label left="20" right="20" top="50" bottom="50" text="{sDebug}" mouseEnabled="false" />-->
+</s:View>

@@ -16,7 +16,7 @@ package jsProject.view
 	public class UIAddBookMarkButton extends BaseUIButton
 	{
 		
-		[Embed(source="/embed/button/ui/bookmark.png")]
+		[Embed(source="embed/button/ui/bookmark.png")]
 		private var PicClass:Class;
 		
 		

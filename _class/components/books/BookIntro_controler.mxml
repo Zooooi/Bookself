@@ -38,7 +38,6 @@
 			
 			import JsC.events.JEvent;
 			import JsC.shell.ShellSystem;
-			import JsC.string.Maths;
 			import JsC.xml.XmlCtrl;
 			
 			import components.symbol.Buttons.Bookself_BookButton;
@@ -367,10 +366,8 @@
 				
 				//............................................................................................................................
 				loadFile = undefined;
-				
 				zipFile = Files.folder_books + aFolder[nCurrent] + ".zip"
 				zipPath = Files.folder_books;
-				
 				//trace("zipfile",zipFile,zipPath)
 				var _zip:ExtraZip = new ExtraZip
 				_zip.addEventListener(JEvent.PROGRESS,onProgressEvent);
@@ -381,13 +378,17 @@
 					grDowning.$setProgress(Math.round(l/t*100),sInfo + String( l +" / " + t + " : " + Math.round(l/t*100)+"%"))
 				});
 				_zip.addEventListener(JEvent.ALLCOMPLETE,function(event:JEvent):void{
-					
-					onExtraComplete();
+					currentLoadPane.$removeAll()
+					setTimeout(function():void{
+						onExtraComplete()
+					},2000);
 					
 				});
-				currentLoadPane.$disable()
-				sInfo = "opening "
-				_zip.startByStep(zipFile,zipPath)
+				setTimeout(function():void{
+					currentLoadPane.$disable()
+					sInfo = "opening "
+					_zip.startByStep(zipFile,zipPath)
+				},2000);
 				
 				//............................................................................................................................
 				grDowning = new Bookself_DownloadPane
@@ -414,22 +415,18 @@
 			
 			protected function onExtraComplete():void
 			{
-				xml_ctrl(xml_done);
-				
-				currentLoadPane.$removeAll()
-				currentLoadPane.$enable()
 				dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
-				
 				currentLoadPane.$img.removeEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
 				currentLoadPane.$img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
-				currentLoadPane.$img.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				xml_ctrl(xml_done);
 			}
 			
 			protected function onProgressEvent(event:JEvent):void
 			{
 				var l:Number = event._x
 				var t:Number = event._y
-				grDowning.$setProgress(Math.round(l/t*100),Maths.float(l/1000000) + "MB / " + Maths.float(t/1000000) + "MB : " + Math.round(l/t*100)+"%")
+				grDowning.$setProgress(Math.round(l/t*100),String(Math.round(l/1000000)+"MB / " +Math.round(t/1000000) + "MB : " + Math.round(l/t*100)+"%"))
+				//grDowning.$setProgress(Math.round(l/t*100),sInfo + String(Math.round(l/10000)/100+"MB / " +Math.round(t/10000)/100 + "MB : " + Math.round(l/t*100)+"%"))
 			}
 			
 			
@@ -572,24 +569,21 @@
 			
 			private function xml_ctrl(_type:String):void
 			{
-				var _nodeOn2:XML = xmlOn.children()[nCurrent];
-				var _isbn:String = _nodeOn2.@isbn;
+				var _nodeOn:XML = xmlOn.children()[nCurrent];
+				var _isbn:String = _nodeOn.@isbn;
 				var _nodeOff:XMLList 
-				var _nodeOn:XMLList 
 				
 				if(xmlOff.books.children().(@isbn == _isbn) == undefined)
 				{
-					XmlCtrl.addChild(XMLList(xmlOff.books),XMLList(_nodeOn2));
+					XmlCtrl.addChild(XMLList(xmlOff.books),XMLList(_nodeOn));
 				} 
 				_nodeOff = xmlOff.books.children().(@isbn == _isbn)
-				_nodeOn = xmlOff.books.children().(@isbn == _isbn)
 				switch(_type)
 				{
 					case xml_check:
 						break;
 					case xml_downloaded:
 						_nodeOff.@status = xml_downloaded;
-						_nodeOn .@status = xml_downloaded;
 						var dlInfo:UrlData = new UrlData
 						var obj:Object = new Object
 						obj.uid = UserInfo.id
@@ -613,7 +607,6 @@
 						break
 					case xml_done:
 						_nodeOff.@status = xml_done;
-						_nodeOn.@status = xml_done;
 						ShellSystem.current.deleteFile(zipFile) 
 						ShellSystem.current.saveText(xmlOff,xmlFileName,Files.folder_bookself_download)
 						break

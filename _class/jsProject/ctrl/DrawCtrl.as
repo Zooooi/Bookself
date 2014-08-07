@@ -1,22 +1,21 @@
 package jsProject.ctrl
 {
+	import JsC.events.JEvent;
+	import JsC.sprite.Drawer;
+	import JsC.sprite.Drawer_earse;
+	import JsC.sprite.Drawer_move;
+	import JsC.sprite.Drawer_type;
+	
+	import components.books.BookPage;
+	
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.events.MouseEvent;
 	
-	import JsC.draw.Drawer;
-	import JsC.draw.Drawer_earse;
-	import JsC.draw.Drawer_move;
-	import JsC.draw.Drawer_type;
-	import JsC.events.JEvent;
-	
-	import components.books.BookPage;
-	
 	import jsProject.mdel.DrawData;
-	import jsProject.mdel.PageFlipContent;
 	import jsProject.mdel.Viewers;
 	import jsProject.view.PageDrawLayer;
-	
+
 	public class DrawCtrl extends DrawData
 	{
 		private var stage:Stage
@@ -29,7 +28,7 @@ package jsProject.ctrl
 		{
 			init()
 		}
-		
+	
 		
 		public function remove():void
 		{
@@ -45,7 +44,7 @@ package jsProject.ctrl
 			Viewers.getPage().$pageOnDraw(true)
 			bookpage.$getHitTest().mouseEnabled = true
 			bookpage.$getHitTest().addEventListener(MouseEvent.MOUSE_DOWN,onStageMouseEvent)
-			
+				
 			switch(mode)
 			{
 				case modeEarseAll:
@@ -61,25 +60,19 @@ package jsProject.ctrl
 		protected function onStageMouseEvent(event:MouseEvent):void
 		{
 			pageDrawLayer = null
-			var bHitTest:Boolean
 			var i:int
 			for (i = 0; i < bookpage.$getCurrentDisplayPage().length; i++) 
 			{
-				var pageContent:PageFlipContent = bookpage.$getCurrentDisplayPage()[i]
-				pageContent.mouseEnabled = true;
-				//bHitTest = (pageContent.mouseX && pageContent.mouseY)
-				bHitTest = pageContent.hitTestPoint(stage.mouseX,stage.mouseY,true)
-				pageDrawLayer = pageContent.$getDrawLayer()
-				drawSprite = Sprite(pageDrawLayer.$getDrawer())
-				trace(bHitTest,drawSprite.width,drawSprite.height,pageContent.mouseX,pageContent.mouseY,stage.mouseX,stage.mouseY)
-				if (bHitTest)
+				if (bookpage.$getCurrentDisplayPage()[i].hitTestPoint(stage.mouseX,stage.mouseY))
 				{
+					pageDrawLayer = PageDrawLayer(bookpage.$getCurrentDisplayPage()[i].$getDrawLayer())
 					break
 				}
 			}
 			//......................................................................................................init
-			if (bHitTest)
+			if (pageDrawLayer)
 			{
+				drawSprite = Sprite(pageDrawLayer.getChildByName("draw"))
 				switch(mode)
 				{
 					case modePen:
@@ -148,7 +141,7 @@ package jsProject.ctrl
 		{
 			pageDrawLayer.$setLoc(event._id,event._x,event._y)
 		}
-		
+			
 		protected function onEarseEvent(event:JEvent):void
 		{
 			switch(event.type)
@@ -156,7 +149,7 @@ package jsProject.ctrl
 				case JEvent.REMOVE:
 					pageDrawLayer.$delNode(event._id)
 					break;
-				
+					
 				case JEvent.END:
 					pageDrawLayer.$saveNode()
 					break;

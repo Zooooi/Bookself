@@ -38,7 +38,6 @@
 			
 			import JsC.events.JEvent;
 			import JsC.shell.ShellSystem;
-			import JsC.string.Maths;
 			import JsC.xml.XmlCtrl;
 			
 			import components.symbol.Buttons.Bookself_BookButton;
@@ -367,10 +366,8 @@
 				
 				//............................................................................................................................
 				loadFile = undefined;
-				
 				zipFile = Files.folder_books + aFolder[nCurrent] + ".zip"
 				zipPath = Files.folder_books;
-				
 				//trace("zipfile",zipFile,zipPath)
 				var _zip:ExtraZip = new ExtraZip
 				_zip.addEventListener(JEvent.PROGRESS,onProgressEvent);
@@ -381,13 +378,17 @@
 					grDowning.$setProgress(Math.round(l/t*100),sInfo + String( l +" / " + t + " : " + Math.round(l/t*100)+"%"))
 				});
 				_zip.addEventListener(JEvent.ALLCOMPLETE,function(event:JEvent):void{
-					
-					onExtraComplete();
+					currentLoadPane.$removeAll()
+					setTimeout(function():void{
+						onExtraComplete()
+					},2000);
 					
 				});
-				currentLoadPane.$disable()
-				sInfo = "opening "
-				_zip.startByStep(zipFile,zipPath)
+				setTimeout(function():void{
+					currentLoadPane.$disable()
+					sInfo = "opening "
+					_zip.startByStep(zipFile,zipPath)
+				},2000);
 				
 				//............................................................................................................................
 				grDowning = new Bookself_DownloadPane
@@ -414,22 +415,17 @@
 			
 			protected function onExtraComplete():void
 			{
-				xml_ctrl(xml_done);
-				
-				currentLoadPane.$removeAll()
-				currentLoadPane.$enable()
 				dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
-				
 				currentLoadPane.$img.removeEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
 				currentLoadPane.$img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
-				currentLoadPane.$img.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				xml_ctrl(xml_done);
 			}
 			
 			protected function onProgressEvent(event:JEvent):void
 			{
 				var l:Number = event._x
 				var t:Number = event._y
-				grDowning.$setProgress(Math.round(l/t*100),Maths.float(l/1000000) + "MB / " + Maths.float(t/1000000) + "MB : " + Math.round(l/t*100)+"%")
+				grDowning.$setProgress(Math.round(l/t*100),String(Math.round(l/1000000)+"MB / " +Math.round(t/1000000) + "MB : " + Math.round(l/t*100)+"%"))
 				//grDowning.$setProgress(Math.round(l/t*100),sInfo + String(Math.round(l/10000)/100+"MB / " +Math.round(t/10000)/100 + "MB : " + Math.round(l/t*100)+"%"))
 			}
 			

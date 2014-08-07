@@ -5,7 +5,7 @@
 					xmlns:Tools="components.symbol.Tools.*"
 					preinitialize="bSetButtonState = false"
 					>
-	<s:Image name="background" smooth="true"	source="@Embed('/embed/button/draw_penpanel.png')"/>
+	<s:Image name="background" smooth="true"	source="@Embed('embed/button/draw_penpanel.png')"/>
 	<s:Group y="10" width="99" height="35"  name="gr" >
 		<s:BorderContainer x="3" y="4" width="28" height="28" backgroundAlpha="0.1" borderAlpha="0.2" cornerRadius="5"/>
 		<s:BorderContainer x="33" y="4" width="28" height="28" backgroundAlpha="0.1" borderAlpha="0.2" cornerRadius="5"/>

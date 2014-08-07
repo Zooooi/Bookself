@@ -12,7 +12,7 @@ package jsProject.view
 	public class UINoteButton extends BaseUIButton
 	{
 		
-		[Embed(source="/embed/button/ui/notectrlbutton.png")]
+		[Embed(source="embed/button/ui/notectrlbutton.png")]
 		private var PicClass:Class;
 		
 		

@@ -91,14 +91,11 @@ package jsProject.mdel
 			
 		//用户地址@用户数据	
 		public static function get folder_documentEbook():String  {return path_document + "hkep/"  }
-		public static function get folder_user():String  {return (folder_documentEbook +"user/")}
-		public static function get folder_document():String  {return (folder_user+ userFolder+ "/" +  getBookPath() +"/" )}
+		public static function get folder_document():String  {return (folder_documentEbook +"user/"+ userFolder+ "/" +  getBookPath() +"/" )}
 		public static function get folder_documentAssets():String {return folder_document + "recorder/"}
 		public static function get folder_documentDrawing():String {return folder_document + "drawing/" }
 		public static const file_document:String = "usr.xml"
-		//下载书本@用户数据
-		public static function get folder_bookself_download():String {return  folder_documentEbook + "bookself/"}//return  path_base + path_assets + "/bookself/"
-		public static function get file_bookself_download():String {return "books.xml"}
+		
 		
 		
 			
@@ -141,7 +138,9 @@ package jsProject.mdel
 			
 			
 			
-	
+		//下载书本@用户数据
+		public static function get folder_bookself_download():String {return  folder_documentEbook + "bookself/"}//return  path_base + path_assets + "/bookself/"
+		public static function get file_bookself_download():String {return "books.xml"}
 		
 	}
 

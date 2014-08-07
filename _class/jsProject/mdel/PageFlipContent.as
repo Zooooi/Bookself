@@ -6,6 +6,8 @@ package jsProject.mdel
 	import jsProject.view.PageCtrlLayer;
 	import jsProject.view.PageDrawLayer;
 	
+	import spark.components.Group;
+	
 	public class PageFlipContent extends Sprite
 	{
 		public var id:uint
@@ -27,7 +29,7 @@ package jsProject.mdel
 		
 		public function $getDrawLayer():PageDrawLayer
 		{
-			return PageDrawLayer(getChildByName(NameDefine.KEY_DRAWER))
+			return PageDrawLayer(getChildByName(NameDefine.KEY_DRAW_KEY))
 		}
 		
 		public function $getCtrlLayer():PageCtrlLayer
