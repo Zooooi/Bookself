@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:base="components.base.*"
+		 xmlns:Project="Project.*" xmlns:view1="com.view.*"
+		 preinitialize="Viewers.setPage(this)"
+		 >
+	<fx:Metadata>
+		[Event(name="name", type="jsProject.events.PageFilpEvents")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			
+			import JsC.effects.EffectDrag;
+			import JsC.effects.EffectScale;
+			import JsC.events.JEffectEvent;
+			import JsC.events.JEvent;
+			
+			import jsProject.ctrl.PageFlipClass;
+			import jsProject.events.PageFilpEvents;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.PageFlipContent;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.PageCtrlLayer;
+			import jsProject.view.PageDrawLayer;
+			import jsProject.view.Preview;
+			
+			private var nBindingX:uint;
+			private var nBindingY:uint
+			
+			private const nPec:uint = 3
+			private const nZoomTime:uint = 1
+			private const cL:uint = 10	
+			private const cT:uint = 10	
+				
+			private const navigateToBegin:String = "navigateToBegin"
+			private const navigateToBack:String = "navigateToBack"
+			private const navigateToNext:String = "navigateToNext"
+			private const navigateToEnd:String = "navigateToEnd"
+			private const zoomIn:String = "zoomIn"
+			private const zoomOut:String = "zoomOut"
+			
+			private var xml:XML;
+			private var pageMc:Sprite;
+			private var pageFilp:PageFlipClass;
+			private var pageHitTest:Sprite
+			
+			private var pagemc:Sprite;
+			private var effectDrag:EffectDrag
+			private var effectScale:EffectScale
+			private var bZoom:Boolean
+			private var nPoint:Point
+			private var nScaleMax:Number
+			private var nScaleMin:Number
+			private var nScaleStep:Number
+			private var nScaleCurrent:Number
+			private var bCanDrag:Boolean
+			private var preview:Preview
+			private var bZoomMax:Boolean
+			private var bDraw:Boolean
+			
+			
+			override protected function initMdel():void
+			{
+				init_component()
+			}
+			
+			override protected function init():void
+			{
+				while(ui.numChildren)ui.removeChildAt(0)
+				onLoadXMLComplete()
+			}
+			
+			
+			private function LoadXML_Pages():void
+			{
+				init_page()
+				reLoadXml()
+			}
+			
+			protected function onLoadXMLComplete():void
+			{
+				xml = xmlData
+				switch(String(xml.@fileID))
+				{
+					case NameDefine.FILE_ID_COMPONENT:
+						// Load Components.xml
+						XmlContent.XML_COMPONENT = xml.copy()
+						LoadXML_Pages()
+						break;
+						
+					case NameDefine.FILE_ID_BOOK:
+						//Load Book data.xml
+						XmlContent.XML_PAGE = xml.copy()
+						
+						initPage()
+						
+						break;
+				}
+				
+			}
+			
+			private function initPage():void
+			{
+				/*nBindingX = xml.attribute("bindingX")
+				nBindingY = xml.attribute("bindingY")*/
+				
+				pageMc =  new MovieClip
+				
+				ui.addChild(pageMc)
+				
+				pageHitTest = new Sprite
+				pageHitTest.mouseEnabled = false
+				pageHitTest.mouseChildren = false
+				ui.addChild(pageHitTest)
+				
+				pageFilp = new PageFlipClass();
+				pageFilp.setPath(Files.folder_book_Pages)
+				pageFilp.setXML(xml)
+				pageFilp.setMain(pageMc)
+				pageFilp.setTimerNumer(5)
+				pageFilp.init()
+				pageFilp.addEventListener(PageFilpEvents.onLoadInit,onPageFilpEvent)
+				pageFilp.addEventListener(PageFilpEvents.onResetLoc,onPageFilpEvent)
+				pageFilp.addEventListener(PageFilpEvents.onLoading,onPageFilpEvent)
+				pageFilp.addEventListener(PageFilpEvents.onLoaded,onPageFilpEvent)
+				pageFilp.addEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpEvent)
+				pageFilp.addEventListener(PageFilpEvents.onGoToPageError,onPageFilpEvent)
+				
+				effectScale = new EffectScale(pageMc, pageHitTest)
+				effectDrag = new EffectDrag(pageMc, pageHitTest,20)
+			}
+			
+			private function onPageFilpEvent(event:PageFilpEvents):void
+			{
+				switch(event.type)
+				{
+					case PageFilpEvents.onLoadInit:
+						$resize()
+						
+						bCanDrag = true
+						
+						pageMc.addEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
+						pageMc.addEventListener(MouseEvent.MOUSE_DOWN, onPageZoomMouseEvent)
+						
+						nScaleMin = pageMc.scaleX
+						nScaleMax = pageMc.scaleX * nPec
+						nScaleCurrent = nScaleMin
+						
+						effectScale.setMinScale(nScaleMin, nScaleMin)
+						effectScale.setMaxScale(nScaleMax, nScaleMax)
+						effectScale.setTimeDuration(0.8)
+						effectScale.addEventListener(JEffectEvent.COMPLETE,onEffectScalEffectEvent)
+						
+						
+						effectDrag.dynamicMask = true
+						effectDrag.setOffset(100,100)
+						
+						displayPageNo()
+						break;
+					
+					case PageFilpEvents.onResetLoc:
+						//$resize()
+						break
+					
+					case PageFilpEvents.onLoading:
+						break
+					
+					case PageFilpEvents.onLoaded:
+						//加入DRAW
+						event.$currentPageLoader.addChild(new PageDrawLayer(event.$nPage))
+						//加入控制组件
+						event.$currentPageLoader.addChild(new PageCtrlLayer(event.$nPage))
+						break
+					
+					case PageFilpEvents.onPageFlipEnd:
+						bCanDrag = true
+						displayPageNo()
+						if (bZoom) 
+						{
+							pageFilp.disable()
+						}else{
+							nScaleCurrent = nScaleMin
+						}
+						onDrawState()
+						break
+					
+					case PageFilpEvents.onGoToPageError:
+						displayPageNo()
+						break
+				}
+				
+			}
+		
+		
+			
+			private function onPageZoomMouseEvent(evt:MouseEvent):void
+			{
+				if (bDraw) return				
+				if (!bCanDrag || (evt.target is SimpleButton)) return
+				
+				var _point:Point = new Point(pageHitTest.stage.mouseX,pageHitTest.stage.mouseY)
+				switch (evt.type) 
+				{
+					case MouseEvent.MOUSE_DOWN:
+						nPoint = _point
+						break;
+					case MouseEvent.CLICK:
+						
+						if (Math.abs(nPoint.x - _point.x)<3 && Math.abs(nPoint.y - _point.y)<3) 
+						{
+							effectScale.ZoomByPoint(_point)
+							effectDrag.stop()
+							if (!bZoom)
+							{
+								effectScale.scaleIn()
+							}else{
+								effectScale.scaleOut()
+							}
+						
+							setShowReview()
+							pageFilp.disable()
+							bZoom = !bZoom
+						}
+						break;
+				}
+				
+			}
+			
+			
+			protected function onEffectScalEffectEvent(event:Event):void
+			{
+				if (bZoom)
+				{
+					bZoomMax = true
+				}else{
+					bZoomMax = false
+					$resize()
+				}
+				onDrawState()
+			}
+			
+		
+			private function resetValue(_resize:Boolean=true):void
+			{
+				onDrawState()
+				hideReview()
+				if (_resize)
+				{
+					effectScale.reset()
+					effectDrag.remove()
+					bZoomMax = false
+					nScaleCurrent = nScaleMin
+					pageFilp.dispatchEvent(new PageFilpEvents(PageFilpEvents.onResetLoc))
+				}
+				
+			}
+			
+			
+			private function setShowReview():void
+			{
+				if (pageFilp.$TimerFlag != "stop") 
+				{
+					pageFilp.removeEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpShowPreview)
+					pageFilp.addEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpShowPreview)
+				}else {
+					showReview()
+				}
+			}
+			
+			
+			private function showReview():void
+			{
+				if (preview == null && bCanDrag==true)
+				{
+					preview = new Preview(this)
+					preview.addEventListener(JEvent.PROGRESS,onProgress)
+				}
+			}
+			private function hideReview():void
+			{
+				if (preview != null)
+				{
+					preview.removeEventListener(JEvent.PROGRESS, onProgress)
+					preview.remove()
+					preview = null
+				}
+			}
+			
+			private function onProgress(evt:JEvent):void
+			{
+				effectDrag.stop()
+				if (bDraw)effectDrag.remove()
+			}
+			
+			
+			private function navigateAction(_kind:String):void
+			{
+				if (!bCanDrag) return
+				bCanDrag = false
+				
+				resetValue(false)
+				switch (_kind) 
+				{
+					case navigateToBegin:
+						pageFilp.PageToBegin()
+						break
+					
+					case navigateToBack:
+						pageFilp.PageToBack()
+						break
+					
+					case navigateToNext:
+						pageFilp.PageToNext()
+						break
+					
+					case navigateToEnd:
+						pageFilp.PageToEnd()
+						break
+				}
+				if (bZoom)setShowReview()
+			}
+			
+			
+			private function zoom(_act:String):void
+			{
+				if (!bCanDrag) return
+				switch (_act) 
+				{
+					case zoomIn:
+						if (bZoomMax == false)
+						{
+							effectScale.ZoomByMask()
+							effectScale.scaleIn()
+							bZoomMax = true
+							bZoom = true
+							setShowReview()
+						}
+						break
+					
+					case zoomOut:
+						if (bZoomMax == true)
+						{
+							effectScale.ZoomByMask()
+							effectScale.scaleOut()
+							bZoomMax = false
+							bZoom = false
+						}
+						break
+				}
+					
+			}
+			
+			private function drawMask():void
+			{
+				var _rect:Rectangle = $getBooRect()
+				pageHitTest.graphics.clear()
+				pageHitTest.graphics.beginFill(0x000000, 0)
+				pageHitTest.graphics.drawRect(0,0, _rect.width, _rect.height)
+				pageHitTest.graphics.endFill()
+				pageHitTest.x = _rect.x
+				pageHitTest.y = _rect.y
+			}
+			
+			private function displayPageNo():void
+			{
+				var _no:uint = pageFilp.book_page
+				var _text:String
+				switch (_no) 
+				{
+					case 0:
+						_text =  String(1) // +" / "  + pageFilp.book_totalpage
+						break
+					case pageFilp.book_totalpage:
+						_text =  String(pageFilp.book_totalpage) //+" / "  + pageFilp.book_totalpage
+						break
+					default:
+						_text =  _no+"-"+(_no+1) //+" / "  + pageFilp.book_totalpage
+						break
+				}
+				Viewers.getNavigate().$displayPageNo(_text)
+			}
+		
+			
+			
+			protected function onPageFilpShowPreview(event:PageFilpEvents):void
+			{
+				event.target.removeEventListener(event.type, arguments.callee)
+				showReview()
+			}
+			
+			private function onDrawState():void
+			{
+				
+				if (bDraw)
+				{
+					pageFilp.disable()
+					effectDrag.remove()
+				}else{
+					if (bZoom)
+					{
+						pageFilp.disable()
+						effectDrag.add()
+					}else{
+						pageFilp.enable()
+					}
+				}
+			}
+			
+			
+			public function action_init():void
+			{
+				initMdel()
+				reLoadXml()
+			}
+			
+			public function $navigateToBegin():void
+			{
+				navigateAction(navigateToBegin)
+			}
+				
+			public function $navigateToEnd():void
+			{
+				navigateAction(navigateToEnd)
+			}
+			
+			public function $navigateToNext():void
+			{
+				navigateAction(navigateToNext)
+			}
+			
+			public function $navigateToBack():void
+			{
+				navigateAction(navigateToBack)
+			}
+			public function $navigateByNum(_num:uint):void
+			{
+				if (_num>pageFilp.book_totalpage) _num = pageFilp.book_totalpage
+				if (_num<0) _num = 0
+				pageFilp.PageGoto(_num)
+				displayPageNo()
+			}
+			public function $zoomIn():void
+			{
+				zoom(zoomIn)
+			}
+			
+			public function $zoomOut():void
+			{
+				zoom(zoomOut)
+			}
+			
+			public function $resizeLoc():void
+			{
+				var bookRect:Rectangle = $getBooRect()
+				var _w:uint = bookRect.width - cL * 2
+				var _h:uint = bookRect.height - cT * 2
+				
+				if (bookRect.width>200 && bookRect.height>200) 
+				{
+					if (((pageMc.width) / (pageMc.height)) > (bookRect.width / bookRect.height) )
+					{
+						pageMc.width = _w
+						pageMc.scaleY=  pageMc.scaleX
+					}else {
+						pageMc.height = _h
+						pageMc.scaleX=  pageMc.scaleY
+					}
+					pageMc.x =  bookRect.x + cL + (_w - pageMc.width) / 2
+					pageMc.y =  bookRect.y + cT + (_h - pageMc.height) / 2
+				}
+			}
+			
+			
+			public function $resize():void
+			{
+				$resizeLoc()
+				resetValue()
+				drawMask()
+			}
+			
+			public function $getBooRect():Rectangle
+			{
+				return new Rectangle(nBindingX, Value.nToolBarY + nBindingY, stage.stageWidth - nBindingX * 2,  stage.stageHeight - (Value.nToolBarY) - nBindingY * 2)
+			}
+		
+			public function $getPageFilp():PageFlipClass
+			{
+				return pageFilp
+			}
+			
+			public function getUI():UIComponent
+			{
+				return ui
+			}
+			
+			public function $pageOnDraw(_b:Boolean):void
+			{
+				bDraw = _b
+				onDrawState()
+			}
+			
+			
+			public function $getHitTest():Sprite
+			{
+				return pageHitTest
+			}
+			
+			public function $getCurrentDisplayPage():Vector.<PageFlipContent>
+			{
+				return(pageFilp.getCurrentDisplayPage())
+			}
+			
+			
+			public function $getPreview():Preview
+			{
+				return preview
+			}
+		]]>
+	</fx:Script>
+	<mx:UIComponent id="ui"/>
+	<s:HGroup id="grTip" left="{cL}" top="{Value.nToolBarY + cT}" paddingTop="10" paddingLeft="10" mouseEnabled="false">
+	</s:HGroup>
+</base:LoaderBase>

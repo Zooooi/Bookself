@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:Tools="components.symbol.Tools.*"
+					>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			import jsProject.mdel.DrawData;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var nValue:uint
+			
+			override protected function onEvent(event:Event):void
+			{
+				super.onEvent(event);
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						nValue = DrawData.currentStroke
+						break;
+				}
+			}
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				super.onFlexEvent(event);
+				showHit(uint(DrawData.currentStroke/7))
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:Image name="background" smooth="true" source="controls/bookmenu/panel_highlight_linewidth.png"/>
+	<s:Group name="gr">
+		<s:BorderContainer x="10" y="58" width="105" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="82" width="105" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="109" width="105" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="139" width="105" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="174" width="105" height="25" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="210" width="105" height="30" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="254" width="105" height="40" backgroundAlpha="0.2" cornerRadius="5"/>
+	</s:Group>
+</Tools:ToolDraw_Base>

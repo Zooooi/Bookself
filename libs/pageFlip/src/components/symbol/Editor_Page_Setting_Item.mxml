@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<symbol:BorderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:symbol="components.symbol.*" 
+		 minWidth="300" width="99%" click="$mouseDW()" height="50" >
+	<fx:Declarations>
+		<fx:uint id="_pageNo"/>
+		<fx:String id="_path"/>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="REMOVE", type="Js.events.ProjectEvent")]
+		[Event(name="CHANGE", type="Js.events.ProjectEvent")]
+		[Event(name="SEND", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import EPD.string.Maths;
+			
+			import Js.ctrl.XmlCtrl;
+			import Js.events.ProjectEvent;
+			import Js.mdel.VConst;
+			
+			private var xmlItem:XMLList
+			
+			[Bindable]private var _picName:String
+			
+			private var currentInput:TextInput
+			
+			public function $setXML(_xml:XMLList):void
+			{
+				xmlItem  = _xml
+				_picName=XmlCtrl.getNode(xmlItem,_pageNo-1).@src
+				picNameTextAction()
+			}
+			public function $createID():void
+			{
+				XmlCtrl.getNode(xmlItem,_pageNo-1).@id = Maths.DataName(VConst.KEY_PAGENODE)
+			}
+			
+			public function $getPic():String
+			{
+				return _picName
+			}
+			protected function onTextInput(event:KeyboardEvent):void
+			{
+				if(event.keyCode==13)picNameTextAction()
+			}
+			protected function onIoError(event:IOErrorEvent):void
+			{
+				_picName = ""
+				pic.source = null
+			}
+			protected function onRemoveMouseEvent(event:MouseEvent):void
+			{
+				dispatchEvent(new ProjectEvent(ProjectEvent.REMOVE))
+			}
+			
+			protected function onPageNumberInput(event:KeyboardEvent):void
+			{
+				if(event.keyCode==13)pageNumberAction()
+			}
+			private function pageNumberAction():void
+			{
+				var _num:uint =  uint(pageNo.text)
+				if (!(pageNo.text =="" || _num == 0 || _pageNo == _num ))
+				{
+					_pageNo = _num
+					dispatchEvent(new ProjectEvent(ProjectEvent.CHANGE))
+				}
+				pageNo.text = String(_pageNo)
+			}
+			private function picNameTextAction():void
+			{
+				if (_picName != picName.text)
+				{
+					_picName = picName.text
+					XmlCtrl.getNode(xmlItem,_pageNo-1).@src = _picName
+					dispatchEvent(new ProjectEvent(ProjectEvent.SEND))
+				}
+				pic.source = _path + _picName
+				
+			}
+			protected function onFocusOut(event:FocusEvent):void
+			{
+				currentInput = TextInput(event.currentTarget)
+				
+				switch(currentInput)
+				{
+					case pageNo:
+						pageNumberAction()
+						break;
+					
+					case picName:
+						picNameTextAction()
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<symbol:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</symbol:layout>
+	<s:HGroup verticalAlign="middle" width="30%">
+		<s:VGroup gap="0">
+			<s:Label fontSize="10" text="Page:"/>
+			<s:TextInput id="pageNo" width="40" prompt="No." restrict="0123456789" text="{_pageNo}" textAlign="right" keyUp="onPageNumberInput(event)"   focusOut="onFocusOut(event)" />
+		</s:VGroup>
+		<mx:VRule width="1" height="40"/>
+		<s:Image id="pic" width="40" height="40" smooth="true" ioError="onIoError(event)"/>
+		
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:HGroup verticalAlign="middle" width="50%">
+		<s:VGroup gap="0">
+			<s:Label fontSize="10" text="Picture Name:"/>	
+			<s:TextInput id="picName" width="100%" keyUp="onTextInput(event)"  focusOut="onFocusOut(event)" prompt="Picture Name" text="{_picName}" />
+		</s:VGroup>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:HGroup verticalAlign="middle" width="20%">
+		<s:VGroup width="100%" gap="2" horizontalAlign="center">
+			<s:Button width="65" label="remove" chromeColor="#F8C5C5"
+					  doubleClick="onRemoveMouseEvent(event)" doubleClickEnabled="true"/>
+			<s:Label fontSize="10" text="(double click)"/>
+		</s:VGroup>
+		
+	</s:HGroup>
+	
+</symbol:BorderBase>

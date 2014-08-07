@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*">
+	<fx:Declarations>
+		<s:Group id="gr"/>
+		<fx:String id="__loadFileID"/><!--xml文件头的ID-->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			protected var myXmlList:XMLList
+			protected var myXml:XML
+			
+			override protected function initMdel():void
+			{
+				//Files.book_isbn = "s1mathchidemo" //测试使用
+				switch(__loadFileID)
+				{
+					case NameDefine.FILE_ID_COMPONENT:
+						init_component()						
+						break;
+					case NameDefine.FILE_ID_RESOURCE:
+						init_resource()						
+						break;
+					case NameDefine.FILE_ID_USER:
+						init_user()						
+						break;
+					default:
+						init_page()
+						break
+				}
+			}
+			
+			
+			
+			
+			
+			public function onRefresh(event:MouseEvent=null):void
+			{
+				myXml = null
+				gr.removeAllElements()
+				reLoadXml()
+			}
+			
+			protected function onJevenEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.REFRESH:
+						onRefresh()
+						break;
+					
+					case JEvent.SAVE:
+						switch(__loadFileID)
+						{
+							case NameDefine.FILE_ID_COMPONENT:
+								XmlContent.XML_COMPONENT = xmlData
+								saveXmlFile(Files.folder_components)						
+								break;
+							case NameDefine.FILE_ID_RESOURCE:
+								XmlContent.XML_RESOURCE = xmlData
+								saveXmlFile(Files.folder_components)						
+								break;
+							default:
+								saveXmlFile(Files.folder_book_Pages)
+								break
+						}
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+</base:LoaderBase>

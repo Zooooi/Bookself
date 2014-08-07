@@ -1,0 +1,36 @@
+<content groupID="BOOKSELF201302011938023800108" background="" fileID="JS_KEY_BOOKSELF" website="http://www.hkep.com/jr123/PTH/">
+  <books>
+    <book download="s1pth" folder="s1pth" bookId="" file="" mode="" bookID="s1pth201309001" isbn="s1pth201309001" width="307" id="JS_KEY_BOOK" height="201">
+      <icon src="book1.png"/>
+      <icon src="s1pth_cover.jpg"/>
+    </book>
+    <book download="s2pth" folder="s2pth" bookId="" file="" mode="" bookID="s2pth201309001" isbn="s2pth201309001" width="301" id="JS_KEY_BOOK" height="200" downloaded="true">
+      <icon src="book2.png"/>
+      <icon src="book2.png"/>
+    </book>
+    <book height="200" folder="s1mathchidemo" bookId="" fileID="JS_KEY_BOOK" mode="" bookID="book201302271954307320708" download="s1mathchidemo" isbn="s1mathchidemo" width="301" file="" downloaded="true">
+      <icon src="book3.png"/>
+      <icon src="book3.png"/>
+    </book>
+    <book download="" folder="" bookId="" fileID="JS_KEY_BOOK" mode="" bookID="book201302271954387010459" isbn="" width="301" file="" height="200">
+      <icon src="book4.png"/>
+      <icon src="book4.png"/>
+    </book>
+    <book download="" folder="" bookId="" fileID="JS_KEY_BOOK" mode="" bookID="book201302271954489810756" isbn="" width="301" file="" height="200">
+      <icon src="book5.png"/>
+      <icon src="book5.png"/>
+    </book>
+    <book download="" folder="" bookId="" fileID="JS_KEY_BOOK" mode="" bookID="book201302271954551900948" isbn="" width="301" file="" height="200">
+      <icon src="book6.png"/>
+      <icon src="book6.png"/>
+    </book>
+  </books>
+  <menus/>
+  <pics ground="background.png" center="61" minWidth="136" minHeight="100" maxWidth="300" left="50" background="background.png" gap="16" maxHeight="400" right="50" transition="" middle="0"/>
+  <pics ground="background.jpg" center="60" minWidth="300" minHeight="189" maxWidth="300" left="50" background="" gap="16" maxHeight="200" right="50" transition="" middle="0"/>
+  <layoutContent>
+    <auto hGap="10" vGap="10"/>
+    <landscape line="4|3|0" hGap="10|10|10" vGap="10"/>
+    <protrait line="3|2|2" hGap="10|10|10" vGap="10"/>
+  </layoutContent>
+</content>

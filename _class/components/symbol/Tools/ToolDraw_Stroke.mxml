@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:Tools="components.symbol.Tools.*"
+					>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			import jsProject.mdel.DrawData;
+			
+			import mx.events.FlexEvent;
+			
+			import spark.components.supportClasses.GroupBase;
+			
+			[Bindable]private var nValue:uint 
+			
+			override protected function onEvent(event:Event):void
+			{
+				super.onEvent(event);
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						nValue = DrawData.currentStroke
+						nStroke = nValue
+						break;
+				}
+			}
+			
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				super.onFlexEvent(event);
+				setEvent(gr2,onBtnMouseEvent2)
+				showHit(Math.round(DrawData.currentStroke/7)-1)//最大值
+				showHit2(DrawData.getColorIndex(DrawData.currentStrokeColor),gr2)
+			}
+			
+			protected function onChange(event:Event):void
+			{
+				DrawData.setStrokeAlpha(HSlider(event.currentTarget).value)
+			}
+			
+			protected function onBtnMouseEvent2(event:MouseEvent):void
+			{
+				var _me:BorderContainer = BorderContainer(event.currentTarget)
+				var _group:GroupBase = Group(_me.parent)
+				
+				if (Group(_me.parent)==gr2)
+				{
+					DrawData.setStrokeColor(_group.getElementIndex((_me)))
+				}else{
+					nStroke = _group.getElementIndex((_me))
+				}
+				super.onBtnMouseEvent(event)
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Image x="0" y="0" width="416" height="342" name="background" smooth="true"
+			 source="controls/bookmenu/panel_highlight_linewidth2.png"/>
+	<s:Group x="34" y="18" width="78" height="295" name="gr">
+		<s:BorderContainer x="10" y="58" width="60" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="82" width="60" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="108" width="60" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="136" width="60" height="23" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="170" width="60" height="25" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="204" width="60" height="31" backgroundAlpha="0.2" cornerRadius="5"/>
+		<s:BorderContainer x="10" y="248" width="60" height="36" backgroundAlpha="0.2" cornerRadius="5"/>
+	</s:Group>
+	
+	<s:Group x="126" y="71" width="287" height="183" id="gr2">
+		<s:BorderContainer x="2" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="36" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="68" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="102" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="134" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="170" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="204" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="236" y="3" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="36" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="68" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="102" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="134" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="169" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="204" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="236" y="35" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="36" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="68" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="102" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="134" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="169" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="204" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="236" y="69" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="36" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="68" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="102" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="134" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="169" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="204" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="236" y="102" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="36" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="68" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="102" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="134" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="169" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="204" y="136" width="31" height="31" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="236" y="136" width="31" height="31" cornerRadius="4" backgroundAlpha="0.2"/>
+		
+	</s:Group>
+	<s:HSlider x="394" y="304" width="220" buttonMode="true" change="onChange(event)"
+			   click="onBackgroundMouseEvent(event)" maximum="1" minimum="0.1" stepSize="0.1" 
+			   mouseDown="onBackgroundMouseEvent(event)" rotation="180"  skinClass="components.skin.HSliderSkin"
+			   useHandCursor="true" value="{DrawData.currentStrokeAlpha}"/>
+	<s:BorderContainer id="colorPick" x="129" y="282" width="29" height="29" borderVisible="false" backgroundColor="{DrawData.currentStrokeColor}" backgroundAlpha="{DrawData.currentStrokeAlpha}"/>
+	
+</Tools:ToolDraw_Base>

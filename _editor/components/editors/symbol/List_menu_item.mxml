@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu_Item xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						 xmlns:s="library://ns.adobe.com/flex/spark" 
+						 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:symbol="components.editors.symbol.*"
+						 height="35" xmlns:module="components.module.*" xmlns:dropdownlist="JsF.dropdownlist.*" 
+						 >
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			[Bindable]protected var content:String;
+			[Bindable]protected var nPage:uint;
+			[Bindable]protected var bEnable:Boolean = true;
+			[Bindable]protected var sText:String
+			[Bindable]protected var sPage:String
+			
+			[Bindable]private var aPage:ArrayCollection
+			
+			override public function setContent(_xmlList:XMLList):void
+			{
+				super.setContent(_xmlList)
+				refreshNo()
+				nPage = xmlList.@page
+				nodeNumber = xmlList.@node
+				content = xmlList.text
+				spaceL.width = nX * nodeNumber
+				sPage = xmlList.@page
+					
+				writeSpaceChar()
+			}
+			
+			protected function onControlMouseEvent_Move(event:MouseEvent):void
+			{
+				switch(event.currentTarget)
+				{
+					case btnRT:
+						nodeNumber ++ 
+						break;
+					
+					case btnLT:
+						nodeNumber --
+						if (nodeNumber<0)nodeNumber=0
+						break;
+				}
+				writeSpaceChar()
+				onChange()
+			}
+			
+			private function writeSpaceChar():void
+			{
+				spaceL.width = nX * nodeNumber
+				sText=""
+				for (var i:int = 0; i < nodeNumber; i++) 
+				{
+					sText +="+"
+				}
+			}
+			
+			
+			override protected function onChange():void
+			{
+				xmlList.@page = sPage
+				xmlList.@node = nodeNumber
+				xmlList.text = content
+			}
+			
+			override protected function onGetNewNodeContent():XML
+			{
+				var _node:XML = new XML(<menu page='' node='0'></menu>)
+				if (currentMenuItem!=null )
+				{
+					if (currentMenuItem.parent == gr)
+					{
+						_node.@node = currentMenuItem.getNodeNumber()
+					}
+				}
+				return _node
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<module:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</module:layout>
+	<s:NumericStepper width="55" textAlign="right" minimum="0" maximum="1000" value="@{sNum}"  change="onOrder()" focusOut="refreshNo()"/>
+	<s:Label id="spaceL" color="#005EFB" fontWeight="bold" text="{sText}" textAlign="right"/>
+	<mx:VRule height="80%"/>
+	<s:Label>name:</s:Label><s:TextInput width="200" text="@{content}" change="onChange()"/>
+	<mx:VRule height="80%"/>
+	<s:Label>page:</s:Label>	
+	<dropdownlist:jDropDownList width="250" __valueRead="{sPage}" __valueWrite="@{sPage}"
+								change="onChange()" dataProvider="{Value.aPageNumber}"/>
+	<mx:VRule height="80%"/>
+	<s:Button id="btnRT" width="40" label="→" click="onControlMouseEvent_Move(event)"
+			  enabled="{bEnable}"/>
+	<s:Button id="btnLT" width="40" label="←" click="onControlMouseEvent_Move(event)"
+			  enabled="{bEnable}"/>
+	<mx:VRule height="80%"/>
+	<s:Button width="56" label="DEL" id="btnDEL" click="onControlMouseEvent_DEL(event)"/>
+</module:Base_ListMenu_Item>

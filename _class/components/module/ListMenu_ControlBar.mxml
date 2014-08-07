@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  horizontalAlign="center" gap="2"
+		  >
+	<fx:Metadata>
+		[Event(name="ADD", type="JsC.events.JEvent")]
+		[Event(name="SAVE", type="JsC.events.JEvent")]
+		[Event(name="REFRESH", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</s:states>
+	
+	<s:HGroup includeIn="State1" left="0" right="0" height="20" gap="20" horizontalAlign="center"
+			  verticalAlign="middle">
+		<s:Button height="15" label="ADD" click="dispatchEvent(new JEvent(JEvent.ADD))"/>
+		<mx:VRule height="80%"/>
+		<s:Button height="15" label="SAVE" click="dispatchEvent(new JEvent(JEvent.SAVE))"/>
+		<mx:VRule height="80%"/>
+		<s:Button height="15" label="REFRESH" click="dispatchEvent(new JEvent(JEvent.REFRESH))"/>
+	</s:HGroup>
+	<s:HGroup includeIn="State2" left="0" right="0" height="20" gap="20" horizontalAlign="center"
+			  verticalAlign="middle">
+		<s:Button height="15" label="SAVE" click="dispatchEvent(new JEvent(JEvent.SAVE))"/>
+		<mx:VRule height="80%"/>
+		<s:Button height="15" label="REFRESH" click="dispatchEvent(new JEvent(JEvent.REFRESH))"/>
+	</s:HGroup>
+	<mx:HRule width="80%" chromeColor.State2="#FF0000"/>
+</s:VGroup>

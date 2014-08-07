@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu_Item xmlns:fx="http://ns.adobe.com/mxml/2009"
+						   xmlns:s="library://ns.adobe.com/flex/spark"
+						   xmlns:mx="library://ns.adobe.com/flex/mx"
+						   xmlns:symbol="components.editors.symbol.*"
+						   xmlns:module="components.module.*"
+						   xmlns:dropdownlist="JsF.dropdownlist.*"
+						   height="80" creationComplete="onFlexEvent(event)">
+	<module:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</module:layout>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.string.Maths;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.events.FlexEvent;
+			import mx.states.OverrideBase;
+			[Bindable]private var sPicName:String
+			[Bindable]private var sFolder:String
+			[Bindable]private var sPrompt:String
+			[Bindable]private var sAction:String
+			[Bindable]private var nW:uint
+			[Bindable]private var nH:uint
+			
+			private var aButton:Vector.<Editor_Component_Icon> 
+			private var currentPicButton:Editor_Component_Icon
+			
+			override public function setContent(_xmlList:XMLList):void
+			{
+				super.setContent(_xmlList)
+				refreshNo()
+				sFolder = xmlList.@folder
+				sPrompt = xmlList.@prompt
+				sAction = xmlList.@action
+				nW = uint(xmlList.@width)
+				nH = uint(xmlList.@height)
+			}
+			
+			override protected function onChange():void
+			{
+				xmlList.@folder = sFolder
+				xmlList.@prompt = sPrompt
+				xmlList.@action = sAction
+				xmlList.@width = nW
+				xmlList.@height = nH
+			}
+			
+			/* override protected function onGetXmlList(_xmlList:XMLList):void
+			{
+				xmlList = XMLList(_xmlList.parent())
+			} */
+			
+			override protected function onGetNewNodeContent():XML
+			{
+				var _node:XML = XmlContent.Edit_Component_Item.copy()
+				_node.@componentID = Maths.DataName(NameDefine.KEY_COMPONENTS_KEY)
+				_node.@action = Value.aFunction[0].id
+				return _node
+			}
+			
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						aButton = new Vector.<Editor_Component_Icon>
+						aButton.push(btnUP)
+						aButton.push(btnOV)
+						aButton.push(btnDW)
+						aButton.push(btnDI)
+						
+						var _btn:Editor_Component_Icon
+						var i:int
+						for (i = 0; i < aButton.length; i++) 
+						{
+							_btn = aButton[i]
+							_btn._key = i
+							_btn._path = Files.folder_components
+							_btn.addEventListener(MouseEvent.CLICK,onButtonMouseEvent)
+							_btn.addEventListener(JEvent.IOERROR,onPicButtonProjectEvent)
+							_btn.addEventListener(JEvent.LOADED,onPicButtonProjectEvent)
+							if (i ==0) sPicName = xmlList.files[i]
+							aButton[i].loadPic(xmlList.files[i])
+						}
+						
+						mouseClick(btnUP)
+						break;
+				}
+				
+			}
+			
+			protected function onPicButtonProjectEvent(event:JEvent):void
+			{
+				var _me:Editor_Component_Icon = Editor_Component_Icon(event.currentTarget)
+				switch(event.type)
+				{
+					case JEvent.IOERROR:
+						sPicName = ""
+						if (_me._key==0)
+						{
+							xmlSetFiles()
+						}
+						break;
+					case JEvent.LOADED:
+						if (_me._key==0)
+						{
+							nW = _me._width
+							nH = _me._height
+							onChange()
+						}
+						xmlSetFiles()
+						break;
+					default:
+						
+						break;
+				}
+				
+			}
+			
+			private function xmlSetFiles():void
+			{
+				var i:int
+				var _xml:XML
+				for (i = 0; i < aButton.length; i++) 
+				{
+					_xml = <files>{aButton[i]._pic}</files>
+					xmlList.files[i] =_xml
+				}
+			}
+			
+			
+			private function mouseClick(_me:Editor_Component_Icon):void
+			{
+				currentPicButton = _me
+				currentPicButton.mouseDW()
+				picName.setFocus()
+			}
+			
+			protected function onButtonMouseEvent(event:MouseEvent):void
+			{
+				currentPicButton.mouseOT()
+				mouseClick(Editor_Component_Icon(event.currentTarget))
+				sPicName = currentPicButton._pic
+			}
+			
+			
+			
+			protected function onTextInput(event:KeyboardEvent):void
+			{
+				
+				if(event.keyCode==13)
+				{
+					textAction()
+				}
+			}
+			
+			
+			private function textAction():void
+			{
+				var i:int
+				for (i = 0; i < aButton.length; i++) 
+				{
+					if(aButton[i]._pic==""||aButton[i]._pic==null )
+					{
+						aButton[i].loadPic(picName.text)
+					}
+				}
+				currentPicButton.loadPic(picName.text)
+			}
+			
+			
+			protected function onTextFocusOut(event:FocusEvent):void
+			{
+				textAction()
+			}
+			
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:NumericStepper width="55" textAlign="right" minimum="0" maximum="1000" value="@{sNum}"  change="onOrder()" focusOut="refreshNo()"/>
+	<mx:VRule width="1" height="40"/>
+	<s:HGroup width="240" height="60" gap="10" paddingLeft="5" verticalAlign="middle">
+		<symbol:Editor_Component_Icon id="btnUP" _text="UP"/>
+		<symbol:Editor_Component_Icon id="btnOV" _text="OV"/>
+		<symbol:Editor_Component_Icon id="btnDW" _text="DW"/>
+		<symbol:Editor_Component_Icon id="btnDI" _text="DI"/>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:VGroup width="165" height="60" paddingLeft="2">
+		<s:HGroup verticalAlign="middle">
+			<s:Label styleName="systemText" text="Name:"/>
+			<s:TextInput width="115" styleName="systemText" id="picName" text="{sPicName}" keyUp="onTextInput(event)" focusOut="onTextFocusOut(event)"/>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup verticalAlign="middle">
+			<s:Label styleName="systemText" text="size:"/>
+			<s:NumericStepper width="50" minimum="1" maximum="1000" value="{nW}" change="onChange()"/>
+			<s:Label styleName="systemText" text="x"/>
+			<s:NumericStepper width="50" minimum="1" maximum="1000" value="{nH}"  change="onChange()"/>
+		</s:HGroup>
+	</s:VGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:VGroup width="138" height="60" paddingLeft="2">
+		<s:HGroup width="100%" height="100%" paddingLeft="2" verticalAlign="middle">
+			<s:Label styleName="systemText" text="Folder:"/>
+			<s:TextInput width="83" styleName="systemText" text="@{sFolder}" change="onChange()">
+			</s:TextInput>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" height="100%" paddingLeft="2" verticalAlign="middle">
+			<s:Label styleName="systemText" text="Prompt: "/>
+			<s:TextInput width="80" styleName="systemText" text="@{sPrompt}" change="onChange()">
+			</s:TextInput>
+		</s:HGroup>
+	</s:VGroup>
+	<mx:VRule width="1" height="40"/>
+	
+	<s:HGroup width="177" height="50" paddingLeft="2" verticalAlign="middle">
+		<s:Label styleName="systemText" text="Fuction: "/>
+		<dropdownlist:jDropDownList width="120" dataProvider="{Value.aFunction}" __valueRead="{sAction}" __valueWrite="@{sAction}" change="onChange()"/>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	
+	<s:VGroup gap="2" horizontalAlign="center">
+		<s:Button width="28" label="-" chromeColor="#F2B3B3"
+				  doubleClickEnabled="true" doubleClick="onControlMouseEvent_DEL(event)"/>
+		<s:Label color="#000000" fontSize="10" text="(double click)" textAlign="center"/>
+	</s:VGroup>
+	
+</module:Base_ListMenu_Item>

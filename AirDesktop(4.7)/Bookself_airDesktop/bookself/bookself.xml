@@ -1,0 +1,31 @@
+<content groupID="BOOKSELF201302011938023800108" background="" fileID="JS_KEY_BOOKSELF" website="http://www.hkep.com/jr123/PTH/">
+  <books>
+    <book download="s1pth" height="201" width="307" folder="s1pth" file="" mode="" isbn="s1pth201309001" bookID="s1pth201309001" id="JS_KEY_BOOK" bookId="">
+      <icon src="book1.png"/>
+      <icon src="s1pth_cover.jpg"/>
+    </book>
+    <book download="s2pth" height="200" width="301" folder="s2pth" file="" mode="" isbn="s2pth201309001" bookID="s2pth201309001" id="JS_KEY_BOOK" bookId="">
+      <icon src="book2.png"/>
+      <icon src="book2.png"/>
+    </book>
+    <book download="s1mathchidemo" height="200" fileID="JS_KEY_BOOK" folder="s1mathchidemo" file="" mode="" isbn="s1mathchidemo" bookID="book201302271954307320708" width="301" bookId="">
+      <icon src="book3.png"/>
+      <icon src="book3.png"/>
+    </book>
+    <book download="" height="200" fileID="JS_KEY_BOOK" folder="" file="" mode="" isbn="" bookID="book201302271954387010459" width="301" bookId="">
+      <icon src="book4.png"/>
+      <icon src="book4.png"/>
+    </book>
+    <book download="" height="200" fileID="JS_KEY_BOOK" folder="" file="" mode="" isbn="" bookID="book201302271954489810756" width="301" bookId="">
+      <icon src="book5.png"/>
+      <icon src="book5.png"/>
+    </book>
+    <book download="" height="200" fileID="JS_KEY_BOOK" folder="" file="" mode="" isbn="" bookID="book201302271954551900948" width="301" bookId="">
+      <icon src="book6.png"/>
+      <icon src="book6.png"/>
+    </book>
+  </books>
+  <menus/>
+  <pics transition="" center="61" ground="background.png" right="50" left="50" background="background.png" maxWidth="300" minWidth="136" gap="16" maxHeight="400" minHeight="100" middle="0"/>
+  <pics transition="" center="60" ground="background.jpg" right="50" left="50" background="" maxWidth="300" minWidth="300" gap="16" maxHeight="200" minHeight="189" middle="0"/>
+</content>

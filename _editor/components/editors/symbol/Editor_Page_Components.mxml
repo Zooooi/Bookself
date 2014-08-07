@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 minWidth="800" xmlns:subgroup="components.editors.symbol.subgroup.*">
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="SubGroup1"/>
+	</s:states>
+	<fx:Declarations>
+		<s:Group id="__dragTarget__"/>
+		<s:BorderContainer id="__hitTarget__"/>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="ADD", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.symbol.Buttons.IconButton;
+			import components.editors.symbol.subgroup.Editor_subgroup;
+			
+			import jsProject.mdel.NameDefine;
+			private var currnetItem:Editor_subgroup_PlayList_Button;
+			protected function onEditor_subgroup_PlayListMouseEvent(event:MouseEvent):void
+			{
+				var _me:Editor_subgroup_PlayList_Button = Editor_subgroup_PlayList_Button(event.currentTarget)
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						
+						var _item:Editor_subgroup_PlayList_Button = new Editor_subgroup_PlayList_Button
+						
+						var _point:Point = __dragTarget__.globalToLocal(Group(_me.parent).localToGlobal(new Point(_me.x,_me.y)))
+						_item.x = _point.x
+						_item.y = _point.y
+						_item.__ID__ = _me.__ID__
+						__dragTarget__.addElement(_item)
+						_item.startDrag(false)
+						_item.addEventListener(MouseEvent.MOUSE_UP,onEditor_subgroup_PlayListMouseEvent)
+						break;
+					
+					case MouseEvent.MOUSE_UP:
+						if (_me.hitTestObject(__hitTarget__))
+						{
+							currnetItem = _me
+							currnetItem.removeEventListener(MouseEvent.MOUSE_UP,onEditor_subgroup_PlayListMouseEvent)
+							dispatchEvent(new JEvent(JEvent.ADD))
+						}else{
+							__dragTarget__.removeElement(_me)
+						}
+						break
+				}	
+			}
+			public function getCoponentItem():Editor_subgroup
+			{
+				return currnetItem
+			}
+		]]>
+	</fx:Script>
+	
+	<s:VGroup id="gr" left="10" right="10" top="10" bottom="0">
+		<s:HGroup includeIn="State1" width="100%" horizontalAlign="center">
+			<s:HGroup width="20%" height="50" horizontalAlign="center" verticalAlign="middle" >
+				<subgroup:Editor_subgroup_PlayList_Button mouseDown="onEditor_subgroup_PlayListMouseEvent(event)" __ID__="{NameDefine.KEY_SUBGROUP_PLAYLIST}"/>
+			</s:HGroup>
+			<s:HGroup width="80%" height="30">
+				<s:TextArea width="100%" height="30" editable="false">
+					<s:text>
+						音频播放列表（按鍵拖到垃圾桶即自動刪除，雙擊垃圾桶刪除整個組件）
+					</s:text>
+				</s:TextArea>
+			</s:HGroup>
+		</s:HGroup>
+		
+		<s:HGroup width="100%">
+			<s:HGroup includeIn="State1" width="20%" height="50" horizontalAlign="center"
+					  verticalAlign="middle">
+				<subgroup:Editor_subgroup_PlayList_Button __ID__="{NameDefine.KEY_SUBGROUP_SHOWHIDE}" mouseDown="onEditor_subgroup_PlayListMouseEvent(event)"/>
+			</s:HGroup>
+			<s:HGroup includeIn="State1" width="80%" height="30">
+				<s:TextArea width="100%" height="30" editable="false">
+					<s:text>
+						隐藏显示答案（按鍵拖到垃圾桶即自動刪除，雙擊垃圾桶刪除整個組件）
+					</s:text>
+				</s:TextArea>
+			</s:HGroup>
+		</s:HGroup>
+	</s:VGroup>
+	<subgroup:Editor_subgroup_PlayList_Panel includeIn="SubGroup1" width="100%" height="100%"/>
+</s:Group>

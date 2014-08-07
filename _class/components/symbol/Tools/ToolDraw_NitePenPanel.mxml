@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:Tools="components.symbol.Tools.*"
+					preinitialize="bSetButtonState = false;bNeverRemove = true"
+					addedToStage="onEvent(event)"
+					>
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			override protected function onEvent(event:Event):void
+			{
+				bSetButtonState = false;
+				bNeverRemove = true
+				super.onEvent(event);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Image name="background" smooth="true" source="controls/bookmenu/panel_highlight.png"/>
+	<s:Group name="gr">
+		<s:BorderContainer x="139" y="10" width="30" height="30" cornerRadius="5"/>
+		<s:BorderContainer x="210" y="10" width="30" height="30" cornerRadius="5"/>
+	</s:Group>
+</Tools:ToolDraw_Base>

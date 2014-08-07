@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*"
+		 width="1024" minWidth="600" minHeight="400" xmlns:symbol="components.editors.symbol.*" xmlns:module="components.module.*"
+		 >
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			
+			import components.editors.symbol.Editor_Component_Item;
+			import components.editors.symbol.List_resourceicon_Item;
+			import components.editors.symbol.List_menu_item;
+			import components.editors.symbol.List_teacher_resource_item;
+			import components.module.Base_ListMenu_Item;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.controls.LinkButton;
+			import mx.controls.List;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			
+			private var currentButton:LinkButton
+			
+			protected function onLinkFlexEvent(event:FlexEvent):void
+			{
+				var _parent:LinkBar = LinkBar(event.currentTarget)
+				var _me:LinkButton = LinkButton(_parent.getElementAt(0))
+				setButtonPro(_me,true)
+			}
+			protected function onItemMouseEvent(event:ItemClickEvent):void
+			{
+				if (currentButton!=null) setButtonPro(currentButton,false)
+				currentState = "State"+(event.index+1)
+				var _parent:LinkBar = LinkBar(event.currentTarget)
+				var _me:LinkButton = LinkButton(_parent.getElementAt(event.index))
+				setButtonPro(_me,true)
+			}
+			private function setButtonPro(_btn:LinkButton,_b:Boolean):void
+			{
+				_btn.selected = _b
+				_btn.enabled = !_b
+				if (_b) currentButton=_btn
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</s:states>
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+				  paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="功能按钮设定。设定完后可Page项目，拖放到页面里面。  "/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Path:"/>
+					<s:Label styleName="systemText" text="{Files.folder_components}"/>
+					<s:Button width="14" height="14" label="open folder" click="ShellSystem.current.openFile(Files.folder_components)"
+							  icon="@Embed('embed/button/folder.png')"
+							  useHandCursor="true"  buttonMode="true"/>
+				</s:HGroup>
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Data:"/>
+					<s:Label styleName="systemText" text="{Files.file_components}"/>
+				</s:HGroup>	
+			</s:HGroup>
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		
+		<s:HGroup width="15%" verticalAlign="middle" horizontalAlign="center">
+			<mx:LinkBar width="403" borderStyle="outset" creationComplete="onLinkFlexEvent(event)"
+						horizontalAlign="center" itemClick="onItemMouseEvent(event)"
+						> 
+				<mx:dataProvider> 
+					<fx:String>Components</fx:String> 
+					<fx:String>Resource's Icon</fx:String> 
+				</mx:dataProvider> 
+			</mx:LinkBar>
+		</s:HGroup >	
+		
+	</s:HGroup>
+	
+	
+	<module:ListMenu_Loader includeIn="State1" left="10" right="10" top="40" bottom="2" __gap="20" __horizontalAlign="center"
+							 __loadFileID="{NameDefine.FILE_ID_COMPONENT}" 
+							 __class="{Editor_Component_Item}"
+							 />
+	
+	<module:ListMenu_Loader includeIn="State2" left="10" right="10" top="40" bottom="2" __gap="20" __horizontalAlign="center"						__loadFileID="{NameDefine.FILE_ID_RESOURCE}" 
+							__xmlNode="icons" 
+							__class="{List_resourceicon_Item}"
+							/>
+	
+</s:Group>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:books="components.books.*"
+		 currentState="intro"
+		 preinitialize="SystemOS.mode = SystemOS.PC"
+		 stateChangeComplete="group1_stateChangeCompleteHandler(event)"
+		 addedToStage="onEvent(event)"
+		 creationComplete="group1_creationCompleteHandler(event)"
+		 >
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import jsProject.ctrl.AppScale;
+			import jsProject.mdel.Files;
+			
+			private var book:Book
+			protected function onJEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.SELECT:
+						currentState = "book"
+						break;
+						
+					case JEvent.HOME:
+						currentState = "intro"
+						break;
+				}
+			}
+			
+			public function $setPath(_folder:String):void
+			{
+				Files.$asset = _folder
+			}
+			
+			protected function group1_stateChangeCompleteHandler(event:FlexEvent):void
+			{
+				switch(currentState)
+				{
+					case "book":
+						book = new Book
+						book.percentWidth = 100
+						book.percentHeight = 100
+						book.addEventListener(JEvent.HOME,onJEvent)
+						addElement(book)
+						break;
+						
+					default:
+						if (book) 
+						{
+							removeElement(book)
+						}
+						break;
+				}
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						stage.addEventListener(Event.RESIZE,onEvent)
+						break;
+					case Event.RESIZE:
+						//trace(width,height)
+						new AppScale(this);
+						break
+				}
+			}
+			
+			
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				dispatchEvent(new Event(Event.RESIZE))
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="intro"/>
+		<s:State name="book"/>
+	</s:states>
+	<books:BookIntro_desktop width="100%" height="100%" includeIn="intro" SELECT="onJEvent(event)"/>
+	<!--<books:Book id="book" includeIn="book" HOME="onJEvent(event)" width="100%" height="100%"  />-->
+</s:Group>

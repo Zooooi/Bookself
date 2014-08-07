@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<books:BookIntro_controler xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:books="components.books.*"
+				 preinitialize="addEventListener(JEvent.FINISH,onJEvent)" xmlns:base="components.base.*"
+				 >
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			private var nTimer:Timer
+			protected function onTimeing(event:TimerEvent):void
+			{
+				
+			}
+			
+			protected function onJEvent(event:JEvent):void
+			{
+				
+				
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+</books:BookIntro_controler>

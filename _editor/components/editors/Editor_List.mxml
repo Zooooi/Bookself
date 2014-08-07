@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="1024" minWidth="600" minHeight="400" xmlns:symbol="components.editors.symbol.*" xmlns:bookUi="components.symbol.bookUi.*" xmlns:module="components.module.*"
+		 stateChangeComplete="group1_stateChangeCompleteHandler(event)"
+		 creationComplete="onFlexEvent(event)"
+		 >
+	<fx:Metadata>
+		[Event(name="INIT", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.editors.symbol.List_menu_item;
+			import components.editors.symbol.List_page_item;
+			import components.editors.symbol.List_resource_item;
+			import components.editors.symbol.List_teacher_resource_item;
+			
+			import jsProject.mdel.NameDefine;
+			
+			import mx.controls.LinkButton;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			
+			private var currentButton:LinkButton
+			
+			protected function onLinkFlexEvent(event:FlexEvent):void
+			{
+				var _parent:LinkBar = LinkBar(event.currentTarget)
+				var _me:LinkButton = LinkButton(_parent.getElementAt(0))
+				setButtonPro(_me,true)
+			}
+			protected function onItemMouseEvent(event:ItemClickEvent):void
+			{
+				if (currentButton!=null) setButtonPro(currentButton,false)
+				currentState = "State"+(event.index+1)
+				var _parent:LinkBar = LinkBar(event.currentTarget)
+				var _me:LinkButton = LinkButton(_parent.getElementAt(event.index))
+				setButtonPro(_me,true)
+			}
+			private function setButtonPro(_btn:LinkButton,_b:Boolean):void
+			{
+				_btn.selected = _b
+				_btn.enabled = !_b
+				if (_b) currentButton=_btn
+			}
+			
+			protected function group1_stateChangeCompleteHandler(event:FlexEvent):void
+			{
+				
+			}
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						addEventListener(JEvent.INIT,onJevent)
+						break;
+				}
+			}
+			
+			protected function onJevent(event:Event=null):void
+			{
+				
+				switch(currentState)
+				{
+					case "State1":
+						list1.reload()
+						break;
+						
+					case "State2":
+						list2.reload()
+						break;
+					
+					case "State3":
+						list3.reload()
+						break;
+					case "State4":
+						list4.reload()
+						break;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+		<s:State name="State3"/>
+		<s:State name="State4"/>
+	</s:states>
+	<mx:LinkBar left="10" right="10" top="0" borderStyle="outset" horizontalAlign="center" itemClick="onItemMouseEvent(event)" creationComplete="onLinkFlexEvent(event)"> 
+		<mx:dataProvider> 
+			<fx:String>页面设置</fx:String> 
+			<fx:String>目录</fx:String> 
+			<fx:String>多媒体资源</fx:String> 
+			<fx:String>教师资源</fx:String> 
+		</mx:dataProvider> 
+	</mx:LinkBar>
+	<module:ListMenu_Loader id="list1" includeIn="State1" left="10" right="10" bottom="0" top="35" currentState="State2"
+							__horizontalAlign="center"
+							__xmlNode="{NameDefine.KEY_PAGES}"  
+					  			__class="{List_page_item}"/>
+	
+	<module:ListMenu_Loader id="list2" includeIn="State2" left="10" right="10" bottom="0" top="35" 
+							__xmlNode="menu.pageMenu"  
+							__class="{List_menu_item}"/>
+	
+	<module:ListMenu_Loader id="list3" includeIn="State3" left="10" right="10" top="35" bottom="0" 
+							 __gap="20" __xmlNode="menu.resources" __horizontalAlign="center"
+							 __class="{List_resource_item}" 
+							 />
+	
+	<module:ListMenu_Loader id="list4" includeIn="State4" left="10" right="10" bottom="0" top="35" __horizontalAlign="center"
+					  __xmlNode="menu.teachersResource" 
+					  __class="{List_teacher_resource_item}"/>
+</s:Group>

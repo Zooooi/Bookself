@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		width.up="100%" height.up="100%">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<s:BitmapImage smooth="true" source="@Embed('skin/mainbutton/assets/images/btn1_dowm.png')"
+				   visible.disabled="false" x.disabled="0" y.disabled="0"
+				   visible.down="false" x.down="0" y.down="0"
+				   left.over="0" right.over="0" top.over="0" bottom.over="0"
+				   visible.up="false" x.up="0" y.up="0"/>
+	<s:BitmapImage smooth="true" source="@Embed('skin/mainbutton/assets/images/btn1_normal.png')"
+				   visible.disabled="false" x.disabled="0" y.disabled="0"
+				   left.down="0" right.down="0" top.down="0" bottom.down="0"
+				   visible.over="false" x.over="0" y.over="0"
+				   left.up="0" right.up="0" top.up="0" bottom.up="0"/>
+	<s:BitmapImage smooth="true" source="@Embed('skin/mainbutton/assets/images/btn1_over.png')"
+				   left.disabled="0" right.disabled="0" top.disabled="0" bottom.disabled="0"
+				   visible.down="false" x.down="0" y.down="0"
+				   visible.over="false" x.over="0" y.over="0"
+				   visible.up="false" x.up="0" y.up="0"/>
+	<s:Label id="labelDisplay" left="5" right="5" fontFamily="Arial" kerning="auto" minWidth="65"
+			 textAlign="center" verticalAlign="middle" verticalCenter="0" maxDisplayedLines="1" 
+			 horizontalCenter="0" />
+</s:Skin>

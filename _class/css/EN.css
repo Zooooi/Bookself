@@ -1,0 +1,94 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+.ButtonText
+{
+	fontSize: 16;
+}
+.button
+{
+	borderColor: #135e7d;
+}
+.playerLabel,
+.playerTitle,
+.playerInstrution,
+.NormalText,
+.TitleText,
+.LabelText
+{
+	fontFamily: verdana;
+}
+
+.ButtonText,
+.InputText,
+.number,
+.score,
+.tab
+{
+	fontFamily: verdana;
+}
+.systemText
+{
+	fontSize:12;
+}
+.systemText2
+{
+	fontSize:14;
+	fontFamily: verdana;
+}
+.systemText3
+{
+	fontSize:16;
+	fontFamily: verdana;
+	paddingLeft:0;
+	paddingRight:0
+}
+.playerTitle
+{
+	fontSize:25;
+}
+.playerInstrution
+{
+	
+	fontSize:18;
+}
+.NormalText
+{
+	fontSize: 18;
+}
+.TitleText
+{
+	fontSize: 18;
+}
+.LabelText
+{
+	fontSize: 18;
+}
+.number
+{
+	fontWeight:bold;
+	fontSize: 18;
+	color: #D71635
+}
+.score
+{
+	fontWeight: bold;
+	fontSize: 18;
+	color: #D71635
+}
+.tab
+{
+	fontWeight: bold;
+	fontSize: 18;
+}
+.playerLabel
+{
+	fontSize: 20;
+}
+/*@font-face{
+	cff:true;
+	src:url("fonts/kai.swf");
+	font-family: 標楷體;
+}*/
+

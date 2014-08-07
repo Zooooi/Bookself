@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*"
+		 width="1024" minWidth="600" minHeight="400"
+		 >
+	<fx:Script>
+		<![CDATA[
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.VConst;
+			import Js.mdel.XmlContent;
+			
+			import components.symbol.Editor_Component_Item;
+				
+			private function ButtonAddClick(event:MouseEvent):void
+			{
+				addItem().action_new()
+			}
+			private function addItem():Editor_Component_Item
+			{
+				var _item:Editor_Component_Item = new Editor_Component_Item
+				_item.addEventListener(ProjectEvent.REMOVE,onItemProjectEvent)
+				gr.addElement(_item)
+				return _item
+			}
+			private function onItemProjectEvent(event:Event):void
+			{
+				var _item:Editor_Component_Item = Editor_Component_Item(event.currentTarget)
+				var _id:uint = gr.getElementIndex(_item)
+				gr.removeElementAt(_id)
+			}
+			
+			private function onSaveMouseEvent(event:MouseEvent):void
+			{
+				xmlData = XmlContent.Edit_Component.copy()
+				var i:int
+				for (i = 0; i < gr.numElements; i++) xmlData.appendChild(Editor_Component_Item(gr.getElementAt(i)).getXML().copy())
+				XmlContent.XML_COMPONENT = xmlData
+				saveXmlFile()
+			}
+			protected function onOpenMouseEvent(event:MouseEvent):void
+			{
+				openXmlFile()
+			}
+			
+			override protected function initView():void
+			{
+				gr.removeAllElements()
+				var i:int
+				for (i = 0; i < xmlData.children().length(); i++) 
+				{
+					addItem().setXML(xmlData.children()[i])
+				}
+				XmlContent.XML_COMPONENT = xmlData
+			}
+			
+			override protected function initMdel():void
+			{
+				xmlData = XmlContent.Edit_Component.copy()
+				xmlFileName = Files.file_components
+				xmlPath = Files.folder_components+Files.file_components
+				xmlKey = VConst.KEY_COMPONENTS_ID
+			}
+		]]>
+	</fx:Script>
+	
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+				  paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="功能按钮设定。设定完后可Page项目，拖放到页面里面。  "/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="Path:"/>
+				<s:Label styleName="systemText" text="{Files.folder_components}"/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="Data:"/>
+				<s:Label styleName="systemText" text="{Files.file_components}"/>
+			</s:HGroup>
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="15%">
+			<s:Button width="44" label="+" click="ButtonAddClick(event)"/>
+		</s:HGroup>
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="15%" >
+			<s:Button width="59" label="open" click="onOpenMouseEvent(event)"/>
+			<s:Button width="59" label="save" click="onSaveMouseEvent(event)"/>
+		</s:HGroup >	
+		
+	</s:HGroup>
+	
+	
+	<s:BorderContainer left="10" right="10" top="54" bottom="2">
+		<s:Scroller id="scroll" left="4" right="4" top="4" bottom="4">
+			<s:VGroup id="gr" width="100%" height="100%"/>
+		</s:Scroller>
+	</s:BorderContainer>
+
+	
+</base:LoaderBase>

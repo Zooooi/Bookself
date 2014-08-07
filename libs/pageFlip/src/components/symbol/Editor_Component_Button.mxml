@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="50" height="60"  buttonMode="true"
+				   useHandCursor="true" >
+	<fx:Metadata>
+		[Event(name="LOADED", type="Js.events.ProjectEvent")]
+		[Event(name="IOERROR", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import Js.events.ProjectEvent;
+			
+			public function mouseDW():void
+			{
+				setStyle("borderColor", "0xFF0000");
+			}
+			public function mouseOT():void
+			{
+				setStyle("borderColor", "0x696969");
+			}
+			public function loadPic(_name:String):void
+			{
+				_pic = _name
+				pic.source = _path + _name
+			}
+			
+			protected function onIoError(event:IOErrorEvent):void
+			{
+				_pic = ""
+				pic.source = null
+				dispatchEvent(new ProjectEvent(ProjectEvent.IOERROR))
+				
+			}
+			
+			protected function onComplete(event:Event):void
+			{
+				_width = pic.sourceWidth
+				_height = pic.sourceHeight
+				dispatchEvent(new ProjectEvent(ProjectEvent.LOADED))
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:uint id="_key"/>
+		<fx:String id="_text"/>
+		<fx:String id="_pic"/>
+		<fx:String id="_path"/>
+		<fx:uint id="_width"/>
+		<fx:uint id="_height"/>
+	</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout gap="3" horizontalAlign="center"/>
+	</s:layout>
+	<s:Image id="pic" width="100%" height="40" complete="onComplete(event)" ioError="onIoError(event)" smooth="true" source="{_pic}"/>
+	<s:Label x="14" y="48" text="{_text}"/>
+</s:BorderContainer>

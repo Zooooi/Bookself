@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenu xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:bookUi="components.symbol.bookUi.*"
+				 xmlns:module="components.module.*"
+				 styleName.State2="NormalText">
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.XmlContent;
+		]]>
+	</fx:Script>
+
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	
+	<!--state1 topic-->
+	<s:BitmapImage includeIn="State1" width="373" height="48" smooth="true"
+			 source="controls/bookui/ipad_w_toc.png"/>
+	<module:ModeMenuList includeIn="State1" top="50" bottom="0" left="0" right="0" 
+							__xml="{XmlContent.XML_PAGE}"
+							__xmlName="menu.pageMenu"
+							__nodeClass="{UIMenu_Topic_Button}"
+							__pageLength="50"
+							/>
+	<!--state2 page-->
+	<s:BitmapImage includeIn="State2" width="373" height="48" smooth="true"
+			 source="controls/bookui/ipad_w_thumbnail.png"/>
+
+	
+	<s:BorderContainer width="120" height="48" backgroundAlpha="0.01" borderVisible="false"
+					   buttonMode="true" click="currentState = 'State1'"/>
+	<s:BorderContainer x="117" y="0" width="101" height="48" backgroundAlpha="0.01" visible="false"
+					   borderVisible="false" buttonMode="true" click="currentState = 'State2'"/>
+</bookUi:BaseMenu>

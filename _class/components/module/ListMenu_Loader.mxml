@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:base="components.base.*"
+		 xmlns:symbol="components.editors.symbol.*" xmlns:editors="components.editors.*" xmlns:module="components.module.*"
+		 >
+	<!--单层循环，双层用Module_ListMenu-->
+	<module:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</module:states>
+	<fx:Declarations>
+		<module:ListMenu_ControlBar id="controlbar" left="0" right="0" currentState="{currentState}"
+									ADD="onJevenEvent(event)" 
+									REFRESH="onJevenEvent(event)" 
+									SAVE="onJevenEvent(event)"
+									/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.xml.XmlCtrl;
+			
+			[Bindable]public var __horizontalAlign:String = "left";
+			[Bindable]public var __gap:uint = 5;
+			
+			public var __xmlNode:String //父节点
+			public var __class:Class //Item Class
+			public var __control:Boolean = true;
+			
+		
+			
+			override protected function init():void
+			{
+				super.init()
+				var bpass:Boolean 
+				if (myXml==null)
+				{
+					bpass = true
+					if (__control)addElementAt(controlbar,0)
+				}else{
+					if (String(myXml) != String(xmlData))
+					{
+						bpass = true
+					}
+				}
+				if (bpass)
+				{
+					gr.removeAllElements()
+					myXmlList = XmlCtrl.getNodeAndCreate(XMLList(xmlData),__xmlNode)
+					for (var i:int = 0; i < myXmlList.children().length(); i++) 
+					{
+						onCreateNode(XMLList(myXmlList.children()[i]))
+					}
+					myXml = xmlData.copy()
+				}
+					
+				
+			}
+			
+			
+			
+			protected function onCreateNode(_xmlList:XMLList):void
+			{
+				var _newList:Base_ListMenu_Item = new __class
+				gr.addElement(_newList)
+				_newList.setContent(_xmlList)
+			}
+			
+			override protected function onJevenEvent(event:JEvent):void
+			{
+				super.onJevenEvent(event)
+				switch(event.type)
+				{
+					case JEvent.ADD:
+						var _newList:Base_ListMenu_Item = new __class
+						_newList.addContent(gr,myXmlList)
+						break;
+				}
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+	
+	<s:Scroller id="scroll" left="0" right="0" top="30" bottom="0">
+		<s:VGroup id="gr" width="100%" height="100%" gap="{__gap}" horizontalAlign="{__horizontalAlign}"/>
+	</s:Scroller>
+</module:Base_ListMenu>

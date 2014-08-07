@@ -1,0 +1,38 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+.InputText3,
+.InputText2,
+.InputText,
+.view
+{
+	border-Color:#4DB8E4;
+}
+.InputText
+{
+	fontFamily:verdana;
+	fontSize: 18;
+	border-Style:solid;
+}
+.InputText2
+{
+	fontFamily:verdana;
+	fontSize: 14;
+	border-Style:solid;
+}
+.InputText3
+{
+	fontFamily:verdana;
+	fontSize: 12;
+	border-Style:solid;
+}
+.view
+{
+	border-Style:solid;
+}
+/*@font-face{
+	cff:true;
+	src:url("fonts/kai.swf");
+	font-family: 標楷體;
+}*/
+

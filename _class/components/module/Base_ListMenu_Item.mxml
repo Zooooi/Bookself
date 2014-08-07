@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BorderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:base="components.base.*"
+				 borderAlpha="0.3" borderColor="#BBB9B9" cornerRadius="5"
+				 addedToStage="onEvent(event)">
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import spark.components.Group;
+			import spark.events.TextOperationEvent;
+			
+			[Bindable]protected var sNum:uint
+			
+			protected static var currentMenuItem:Base_ListMenu_Item
+			
+			protected const nX:uint = 8
+			protected var xmlList:XMLList
+			protected var xmlParent:XMLList
+			protected var nodeNumber:int = 0
+			protected var gr:Group
+			
+			//获取当前节点的函数
+			public function setContent(_xmlList:XMLList):void //重要重写function
+			{
+				xmlList = _xmlList
+			}
+			
+			//新建XML格式函数，预留作为重写需要的function
+			protected function onGetNewNodeContent():XML //重要重写function
+			{
+				return new XML(<noname/>)
+			}
+			
+			
+			public function addContent(_gr:Group,_xmlList:XMLList):void
+			{
+				gr = _gr
+				xmlParent = _xmlList
+				if (currentMenuItem!=null )
+				{
+					if (currentMenuItem.parent == gr)
+					{
+						var _node:XML = onGetNewNodeContent()
+						var _index:int = gr.getElementIndex(currentMenuItem)
+						if (_index==gr.numElements-1)
+						{
+							addToEnd()
+						}else{
+							gr.addElementAt(this,_index+1)
+							xmlParent.insertChildAfter(xmlParent.children()[_index],_node)
+							this.setContent(XMLList(_node))
+							for (var i:int = _index; i < gr.numElements; i++) 
+							{
+								Base_ListMenu_Item(gr.getElementAt(i)).refreshNo()
+							}
+						}
+					}
+					else
+					{
+						addToEnd()
+					}
+				}else{
+					addToEnd()
+				}
+			}
+			
+			public function setButtonContent(_xmlList:XMLList,_xmlParent:XMLList):void
+			{
+				xmlList = _xmlList
+				xmlParent = _xmlParent
+			}
+			
+			
+			private function addToEnd():void
+			{
+				xmlList = XMLList(onGetNewNodeContent())
+				xmlParent.appendChild(xmlList)
+				gr.addElement(this)
+				this.setContent(xmlList)
+			}
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						addEventListener(MouseEvent.CLICK,onMouseEvent)
+						addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						onSelect()
+						break;
+					case Event.REMOVED_FROM_STAGE:
+						currentMenuItem = null
+						removeEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						break
+				}
+			}
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						if (currentMenuItem == this) return
+						onSelect()
+						break;
+					
+				}
+			}
+			
+			
+			public function onSelect(_b:Boolean=true):void
+			{
+				if (_b)
+				{
+					if (currentMenuItem!=null) currentMenuItem.onSelect(false)
+					currentMenuItem = this
+					$mouseDW()
+				}else{
+					$mouseOT()
+				}
+			}
+				
+			
+			protected function onChange():void{}
+			
+			public function getNodeNumber():uint
+			{
+				return nodeNumber
+			}
+			
+			public static function getcurrentMenuItem():Base_ListMenu_Item
+			{
+				return currentMenuItem
+			}
+			
+			
+			public function refreshNo():void
+			{
+				sNum = (xmlList.childIndex())
+			}
+			
+			
+			protected function onControlMouseEvent_DEL(event:MouseEvent):void
+			{
+				var _parent:Group = Group(parent)
+				var _num:uint = xmlList.childIndex()
+					
+				delete xmlList.parent().children()[_num]
+				_parent.removeElement(this)
+					
+				for (var i:int = 0; i < _parent.numElements; i++) 
+				{
+					Base_ListMenu_Item(_parent.getElementAt(i)).refreshNo()
+					Base_ListMenu_Item(_parent.getElementAt(i)).$mouseOT()
+				}
+				currentMenuItem = null
+			}
+			
+			
+			protected function onOrderKeyup(event:KeyboardEvent):void
+			{
+				if (event.keyCode==13)
+				{
+					onOrder()
+				}
+				
+			}
+			
+			protected function onOrder():void
+			{
+				var _xmlParent:XMLList = XMLList(xmlList.parent())
+				var _length:uint = _xmlParent.children().length()
+				var _index:uint = xmlList.childIndex()
+				var _num:uint = sNum
+				if (_num > _length -1) 
+				{
+					_num = _length -1
+					sNum = _num
+				}
+				if (_num != _index)
+				{
+					gr = Group(parent)
+					XmlCtrl.insertTo(_xmlParent,_index,_num)
+					gr.addElementAt(this,_num)
+					var j:uint = uint(Math.min(_index,_num))
+					for (var i:int = j; i <= j+Math.abs(_index-_num); i++) 
+					{
+						Base_ListMenu_Item(gr.getElementAt(i)).refreshNo()
+					}
+				}
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+</base:BorderBase>

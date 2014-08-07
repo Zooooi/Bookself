@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:bookUi="components.symbol.bookUi.*"
+					 >
+	<fx:Declarations>
+		<s:VGroup id="gr" width="384" gap="0" />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.ctrl.OpenComponentFiles;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			//这个组件是组合，作为集合一页的资源，以及单个按钮
+			
+			private static var nCount:uint
+			[Bindable]private var sChapter:String
+			[Bindable]private var sPage:String
+			[Bindable]private var sContent:String
+			
+			
+			private var nPage:uint
+			private var xmlComponent:XMLList
+			//一页
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				xmlList = XMLList(_xmlList.children()[i])
+				sContent = xmlList.@name
+				sIcon = getResourceIcon(xmlList.@icon)
+				xmlComponent = xmlList
+				if (xmlList.@page!=undefined ||  xmlList.@page!="")
+				{
+					nPage = uint(xmlList.@page)
+					sPage = Value.getPageNumber(nPage)
+					sChapter = Value.getPageNumber(nPage,"chapter")
+				}
+				
+				setBGcolor(i)
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+			}
+			
+			//一个按钮
+		
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						//數字大一
+						Viewers.getPage().$navigateByNum(nPage-1)
+						new OpenComponentFiles(XML(xmlComponent))
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="15" paddingBottom="{cpB*1.2}" paddingLeft="12" paddingRight="{cpR}"
+			  paddingTop="{cpT*1.2}" verticalAlign="middle">
+		<s:Image x="15" y="0" width="20" height="20" smooth="true" source="{sIcon}" ioError="onIconLoadError(event)" />
+		<s:Label width="44" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sChapter}" textAlign="center" verticalAlign="top"/>
+		<s:Label width="100%" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sContent}" textAlign="left" verticalAlign="top"/>
+	</s:HGroup>
+</bookUi:BaseMenuNode>

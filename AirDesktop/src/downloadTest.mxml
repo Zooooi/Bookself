@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   creationComplete="init()"
+					   
+					  
+					   >
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.net.URLLoader;
+			import flash.net.URLLoaderDataFormat;
+			import flash.net.URLRequest;
+			import flash.utils.ByteArray;
+			[Bindable]
+			private var progress:Number = 0;
+			private var contentLength:int = 0;
+			private var file:File;
+			private var startPoint:int = 0;
+			private var endPoint:int = 0;
+			private var rangeLoader:URLLoader;
+			
+			private var range:int = 100000;
+		
+			[Bindable] private var downloadStatus:Boolean = false;
+			[Bindable] private var sUrl:String = "http://zooooi.com/bookself/site/admin/getfile.php";
+			[Bindable] private var sFile:String = "D:/temp/1.zip"
+			
+			
+			//http://zooooi.com/bookself/downloads/9789888186198.zip
+			//http://zooooi.com/bookself/site/admin/getfile2.php
+			
+			private function init():void {
+				var dotSplitLength:uint = sUrl.split("/").length;//这两行代码是为了获取下载文件的名称
+				var fileName:String = sUrl.split("/")[dotSplitLength-1];
+				file = new File(sFile);//创建一个和下载文件名称一致的文件，保存在D盘temp目录下
+			}
+			
+			private function doDownload():void {//先发送一个下载请求，可以得到文件的真实尺寸
+				var getContentLengthRequest:URLRequest = new URLRequest(sUrl);
+				var getContentLengthLoader:URLLoader = new URLLoader();
+				getContentLengthLoader.addEventListener(ProgressEvent.PROGRESS ,function(e:ProgressEvent):void {
+					contentLength = getContentLengthLoader.bytesTotal;//得到文件的真实尺寸
+					getContentLengthLoader.close();//停止下载
+					downloadByRange();//按照断点续传的方式下载
+				});
+				getContentLengthLoader.load(getContentLengthRequest);
+			}
+			
+			private function downloadByRange():void {//按照断点续传的方式下载
+				downloadStatus = true;
+				var fileStr:FileStream = new FileStream();
+				if(file.exists) {//如果文件是存在的，就说明下载过，需要计算从哪个点开始下载
+					fileStr.open(file, FileMode.READ);
+					startPoint = fileStr.bytesAvailable;//计算从哪个点开始下载
+					fileStr.close();//关闭文件流
+				}
+				if(startPoint+range > contentLength) {//确定下载的区间范围，比如0-10000
+					endPoint = contentLength;
+				} else {
+					endPoint = startPoint+range;
+				}
+				var rangeRequest:URLRequest = new URLRequest(sUrl);
+				trace("Range", "bytes="+startPoint+"-"+endPoint,endPoint - startPoint);
+				var header:URLRequestHeader = new URLRequestHeader("Range", "bytes="+startPoint+"-"+endPoint);//注意这里很关键，我们在请求的Header里包含对Range的描述，这样服务器会返回文件的某个部分
+				rangeRequest.requestHeaders.push(header);//将头信息添加到请求里
+				rangeLoader = new URLLoader();
+				rangeLoader.dataFormat = URLLoaderDataFormat.BINARY;//设置数据类型为字节
+				rangeLoader.addEventListener(Event.COMPLETE ,function(e:Event):void {
+					var currentData:ByteArray = rangeLoader.data;//得到下载的数据
+					fileStr = new FileStream();
+					fileStr.open(file, FileMode.UPDATE);
+					fileStr.position = fileStr.bytesAvailable;//将指针指向文件尾
+					trace("currentData.length",currentData.length)
+					fileStr.writeBytes(currentData, 0, currentData.length);//在文件中写入新下载的数据
+					fileStr.close();//关闭文件流
+					progress = endPoint/contentLength * 100;//计算下载进程
+					if (currentData.length>=range)
+					{
+						downloadByRange();
+					}
+					/* if(progress < 100) {
+						downloadByRange();//如果下载没有完成，则执行下一个断点下载，直到下载完毕整个文件
+					} */
+				});
+				rangeLoader.load(rangeRequest);//发起请求
+			}
+			
+			private function pause():void {//暂停下载
+				downloadStatus = false;
+				rangeLoader.close();
+			}
+			
+			private function open():void {
+				file.openWithDefaultApplication();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Form width="100%">
+		
+		<s:FormItem label="URL" width="100%">
+			<s:TextInput width="100%" text="@{sUrl}"/>
+			<s:TextInput width="100%" text="@{sFile}"/>
+		</s:FormItem>
+		<s:FormItem label="进度">
+			<s:Label text="{progress+'%'}"/>
+		</s:FormItem>
+		<s:FormItem label="Label">
+			<s:Button label="下载" click="doDownload();btDownload.visible=false" id="btDownload"/>
+		</s:FormItem>
+		<s:FormItem label="Label">
+			<s:Button label="暂停" visible="{downloadStatus}" click="pause()"/>
+			<s:Button label="继续" visible="{!downloadStatus}" click="downloadByRange()"/>
+			<s:Button label="打开" visible="{progress==100}" click="open()"/>
+		</s:FormItem>
+	</s:Form>
+	
+</s:WindowedApplication>

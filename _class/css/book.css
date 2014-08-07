@@ -1,0 +1,27 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+
+.NormalText
+{
+	fontSize: 14px;
+}
+
+
+.NormalInput
+{
+	fontSize: 16px;
+}
+
+.NormalTitle
+{
+	fontSize: 18px;
+	color: #767676;
+}
+
+.NormalNumber
+{
+	fontSize: 10px;
+	
+}

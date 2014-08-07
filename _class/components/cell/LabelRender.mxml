@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Label xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  click="onMouseEvent(event)"
+		  rollOver="rollOverHandler(event)" rollOut="rollOutHandler(event)"
+		  text="{listData.label}">
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.managers.PopUpManagerChildList;
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				
+			}
+			
+			private var popupLabel:Label;
+			
+			private function rollOverHandler (event:MouseEvent):void
+			{
+				/* popupLabel = new Label();
+				popupLabel.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+				popupLabel.text = data.c3;
+				PopUpManager.addPopUp(popupLabel, this, false, PopUpManagerChildList.PARENT);
+				var p1:Point = new Point(0, this.y);
+				p1 = localToGlobal(p1);
+				var p2:Point = new Point(listData.owner.x+listData.owner.width, 0);
+				p2 = listData.owner.parent.localToGlobal(p2);
+				popupLabel.move(p2.x, p1.y); */
+			}
+			
+			private function rollOutHandler (event:MouseEvent):void
+			{
+				if (popupLabel && !popupLabel.hitTestPoint(event.stageX, event.stageY,true))
+				{
+					/* PopUpManager.removePopUp(popupLabel);
+					popupLabel = null; */
+				}
+			}
+		]]>
+	</fx:Script>
+</mx:Label>

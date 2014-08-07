@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseIconButton xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*" >
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.mdel.SystemOS;
+			import JsC.string.Maths;
+			
+			import jsProject.mdel.NameDefine;
+			
+			
+			private var bDown:Boolean
+			private var xml:XML
+			
+			public var $XLIST:XMLList
+			public var $ID:String
+			public var NUM:int = -1
+			public var NAME:String=""
+			public var INDEX:uint
+			
+			public function $setIcon(_xml:XML,bEdit:Boolean=false):void
+			{
+				xml = _xml.copy()
+				var _name:String	
+				var i:int
+				
+				$ID = xml.@componentID
+				x = xml.@x
+				y = xml.@y
+			
+				if (xml.@width!=undefined)width = xml.@width
+				if (xml.@height!=undefined)height = xml.@height
+				
+				for (i = 0; i < states.length; i++) 
+				{
+					
+					if (xml.files.children()[i]!=null && xml.files.children()[i]!="") _name = _path + xml.files.children()[i]
+					
+					switch(i)
+					{
+						case 0:sUp = _name;	break;
+						case 1:sOv = _name;	break;
+						case 2:sDw = _name;	break;
+						case 3:sDi = _name;	break;
+					}
+				}
+				
+				
+				bDown = false
+				useHandCursor = true
+				buttonMode = true
+				
+				addEventListener(MouseEvent.ROLL_OVER,onMouseEvent)
+				addEventListener(MouseEvent.ROLL_OUT,onMouseEvent)
+				addEventListener(MouseEvent.MOUSE_DOWN,onMouseEvent)
+				addEventListener(MouseEvent.MOUSE_UP,onMouseEvent)
+			}
+			
+			public function $setLocation(_xmlList:XMLList):void
+			{
+				x = _xmlList.@x 
+				y = _xmlList.@y
+				width = _xmlList.@width
+				height = _xmlList.@height
+			}
+			
+			
+			public function viewRestSize():void
+			{
+				scaleX = 1
+				scaleY = 1
+			}
+				
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_UP:
+						if(bDown)
+						{
+							dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+							/* if ($XLIST!=null)
+							{
+								$XLIST.@x = x
+								$XLIST.@y = y
+								$XLIST.@width = width
+								$XLIST.@height = height
+							} */
+						}
+					
+					case MouseEvent.ROLL_OVER:
+						bDown = false
+						currentState = "over"
+						break;
+					
+					case MouseEvent.MOUSE_DOWN:
+						bDown = true
+						if (SystemOS.PC)
+						{
+							currentState = "down"
+						}else{
+							currentState = "up"
+						}
+						break;
+					
+					case MouseEvent.ROLL_OUT:
+						bDown = false
+						currentState = "up"
+						break;
+				}
+			}
+			
+			
+			public function getXML():XML
+			{
+				return xml
+			}
+			
+			
+			public function $createID():void
+			{
+				$ID = Maths.DataName(NameDefine.KEY_COMPONENTS_KEY)
+				xml.@id= $ID
+			}
+			
+			public function getID():String
+			{
+				return xml.@id 
+			}
+			
+			public function getComponentID():String
+			{
+				return xml.@componentID 
+			}
+		]]>
+	</fx:Script>
+	
+	
+</base:BaseIconButton>

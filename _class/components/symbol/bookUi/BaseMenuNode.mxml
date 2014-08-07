@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" >
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]protected var nBGColor:uint;
+			[Bindable]protected var nBGColor_OV:uint = 0xb7cde5;
+			[Bindable]protected var nBGColor_UP:uint;
+			[Bindable]protected var sIcon:String
+			
+			protected const icon_open:String = Files.folder_components + "icon_open.png";
+			protected const icon_page:String = Files.folder_components + "icon_page.png";
+			
+			protected const nFontColor:uint = 0x333366;
+			protected const nFontSize:uint = 14;
+			protected const cL:uint = 14;
+			protected const cpL:uint = 14;
+			protected const cpR:uint = 7;
+			protected const cpT:uint = 7;
+			protected const cpB:uint = 7;
+			protected var xmlList:XMLList
+			
+			
+			
+			protected function setBGcolor(_sn:uint):void
+			{
+				nBGColor = (_sn%2==0)?0xFFFFFF:0xEEEEEE
+				nBGColor_UP = nBGColor
+			}
+			
+			public function refreshBGColor():void
+			{
+				var _parent:Group = Group(parent)
+				var _index:uint	= _parent.getElementIndex(this)
+				setBGcolor(_index)
+			}
+			
+			public function updateData():void
+			{
+				
+			}
+				
+			
+			protected function definedHandle():void
+			{
+				useHandCursor = true;
+				buttonMode = true
+				addEventListener(MouseEvent.MOUSE_OVER,onMouseEvent)	
+				addEventListener(MouseEvent.MOUSE_OUT,onMouseEvent)	
+				addEventListener(MouseEvent.MOUSE_DOWN,onMouseEvent)
+			}
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_OVER:
+					case MouseEvent.MOUSE_DOWN:
+						nBGColor = nBGColor_OV
+						break;
+					case MouseEvent.MOUSE_OUT:
+						nBGColor = nBGColor_UP
+						break;
+				}
+			}
+			
+			protected function getResourceIcon(_name:String):String
+			{
+				var _iconXmlList:XMLList = XmlCtrl.getNodeByName(XMLList(XmlContent.XML_RESOURCE),"icons")
+				_iconXmlList = (_iconXmlList.children().(@resourceID==_name))
+				var _file:String = _iconXmlList.@file
+				return Files.folder_components + _file
+			}
+			
+			protected function onIconLoadError(event:IOErrorEvent):void
+			{
+				sIcon=null
+			}
+			
+			public function setButtonContent(_xmlParent:XMLList,_xmlComponent:XMLList, i:uint, _length:uint):void
+			{
+				
+			}
+			protected function onControlMouseEvent_DEL(event:MouseEvent=null):void
+			{
+				
+				var _parent:Group = Group(parent)
+				var _index:uint	= _parent.getElementIndex(this)
+				
+				var _num:uint = xmlList.childIndex()
+					
+				delete xmlList.parent().children()[_num]
+				_parent.removeElement(this)
+				ShellSystem.current.saveUserFile()
+					
+				var _length:uint = _parent.numElements
+				if (_index<_length-1)
+				{
+					for (var i:int = 0; i < _length; i++) 
+					{
+						BaseMenuNode(_parent.getElementAt(i)).refreshBGColor()
+					}
+					
+				}
+			}
+			
+			public function $getData():XMLList
+			{
+				return xmlList
+			}
+			
+			public function setContent(_xmlList:XMLList,i:uint,_length:uint):void{}
+			
+		]]>
+	</fx:Script>
+</s:Group>

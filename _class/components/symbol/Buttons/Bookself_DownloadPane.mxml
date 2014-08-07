@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%" styleName="NormalText">
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			[Bindable] private var nPercent:uint = 0 ;
+			[Bindable] public var $text:String = "" ;
+			[Bindable] private var bRange:Boolean = false
+			
+			public function $setProgress(_per:uint,_txtProgress:String):void
+			{
+				bRange = true;
+				nPercent = _per 
+				$text = _txtProgress;
+			}
+			
+			public function $waiting():void
+			{
+				bRange = false;
+				$text = "loading......."
+			}
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="CANCEL", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	
+	<s:BorderContainer width="100%" height="100%" backgroundAlpha="0.5" borderVisible="false" backgroundColor="#000000">
+	</s:BorderContainer>
+	<s:VGroup width="100%" height="100%"  gap="10" horizontalAlign="center" verticalAlign="middle">
+		<s:BorderContainer width="90%" backgroundAlpha="0.3" backgroundColor="#000000"
+						   borderVisible="false" cornerRadius="5">
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="center" paddingBottom="5" paddingLeft="10"
+								  paddingRight="10" paddingTop="5"/>
+			</s:layout>
+			<s:Range x="-584" y="4" width="100%" maximum="100" skinClass="spark.skins.spark.ImageLoadingSkin" value="{nPercent}"/>
+			<s:Label styleName="NormalNumber" color="#FFFFFF" horizontalCenter="0" paddingLeft="1" paddingRight="1"
+					 text="{$text}" textAlign="center" verticalAlign="middle"
+					 verticalCenter="0">
+			</s:Label>
+			
+		</s:BorderContainer>
+		<!--<s:HGroup width="90%" horizontalAlign="center" verticalAlign="middle">
+			<mx:ProgressBar id="$bar" width="100%" labelPlacement="center" mode="manual" textAlign="center"/>
+		</s:HGroup>-->
+		<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle">
+			<s:Button styleName="NormalNumber" id="$btnCancel" label="cancel" click="dispatchEvent(new JEvent(JEvent.CANCEL))"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:Group>

@@ -1,0 +1,30 @@
+<content groupID="BOOKSELF201303051938023800108" background="" fileID="JS_KEY_BOOKSELF" website="http://www.hkep.com/jr123/MATHS/">
+  <books>
+    <book folder="s1mathchidemo" bookId="" width="310" isbn="s1mathchidemo" height="189" id="JS_KEY_BOOK" bookID="book201303081157339140147" file="">
+      <icon src="s1mathchi_cover.jpg"/>
+      <icon src="s1mathchi_cover.jpg"/>
+    </book>
+    <book file="" bookId="" width="310" isbn="" height="189" bookID="book201303081954200600918" fileID="JS_KEY_BOOK" folder="">
+      <icon src="book2.jpg"/>
+      <icon src="book2.jpg"/>
+    </book>
+    <book file="" bookId="" width="310" isbn="" height="189" bookID="book201303081954307320708" fileID="JS_KEY_BOOK" folder="">
+      <icon src="book3.jpg"/>
+      <icon src="book3.jpg"/>
+    </book>
+    <book file="" bookId="" width="310" isbn="" height="189" bookID="book201303081954387010459" fileID="JS_KEY_BOOK" folder="">
+      <icon src="book4.jpg"/>
+      <icon src="book4.jpg"/>
+    </book>
+    <book file="" bookId="" width="310" isbn="" height="189" bookID="book201303081954489810756" fileID="JS_KEY_BOOK" folder="">
+      <icon src="book5.jpg"/>
+      <icon src="book5.jpg"/>
+    </book>
+    <book file="" bookId="" width="310" isbn="" height="189" bookID="book201303081954551900948" fileID="JS_KEY_BOOK" folder="">
+      <icon src="book6.jpg"/>
+      <icon src="book6.jpg"/>
+    </book>
+  </books>
+  <menus/>
+  <pics left="50" middle="0" center="60" minHeight="189" right="50" minWidth="300" background="" ground="background.jpg" maxHeight="200" transition="" maxWidth="300" gap="16"/>
+</content>

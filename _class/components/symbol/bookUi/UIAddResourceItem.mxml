@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:bookUi="components.symbol.bookUi.*"
+					 >
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	<fx:Declarations>
+		<s:VGroup id="gr" width="384" gap="0" />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.string.Escape;
+			
+			import jsProject.ctrl.OpenComponentFiles;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.ViewerControls;
+			import jsProject.mdel.Viewers;
+			
+			import spark.components.Group;
+			//这个组件是组合，作为集合一页的资源，以及单个按钮
+			
+			private static var nCount:uint
+			[Bindable]private var sChapter:String
+			[Bindable]private var sName:String
+			[Bindable]private var sContent:String
+			
+			
+			private var nPage:uint
+			private var xmlComponent:XMLList
+			//一页
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				xmlList = XMLList(_xmlList.children()[i])
+				updateData()
+				if (xmlList.@page!=undefined ||  xmlList.@page!="")
+				{
+					nPage = uint(xmlList.@page)
+					sChapter = Value.getPageNumber(nPage,"chapter")
+				}
+				xmlComponent = xmlList
+					
+				refreshBGColor()
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+			}
+			
+			override public function updateData():void
+			{
+				
+				var _option:String = xmlList.@option
+				var _openfile:String = xmlList.@openfile
+				sName = xmlList.@name
+				switch(_option)
+				{
+					default:
+					case "0":
+						currentState = "State1"
+						sContent = Escape.clearBothSidesSpace(Escape.clearHtml(xmlList.text))
+						/* if (_openfile=="")
+						{
+							toolTip = "no file"
+						}else{
+							toolTip = _openfile
+						} */
+						
+						break;
+					
+					case "1":
+						currentState = "State2"
+						sContent = _openfile
+						//toolTip = "website: " + _openfile
+						break;
+				}
+			}
+			
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						switch(event.target)
+						{
+							case btnDEL:
+								ViewerControls.delResourceButton(xmlList)
+								onControlMouseEvent_DEL()
+								break;
+								
+							case btnEdit:
+								var note:UIAddResourcePanel = new UIAddResourcePanel
+								note.$setItem(this)
+								Viewers.getPage().$close()
+								Viewers.getPage().addUI(note)
+								break;
+							
+							default:
+								Viewers.getPage().$navigateByNum(nPage-1)
+								new OpenComponentFiles(XML(xmlComponent),Files.folder_documentAssets)
+								break;
+						}
+						
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="15" paddingBottom="{cpB*1.2}" paddingLeft="26" paddingRight="{cpR}"
+			  paddingTop="{cpT*1.2}" verticalAlign="top">
+		<s:Label width="41" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sChapter}" textAlign="center" verticalAlign="top"/>
+		<s:VGroup width="95%" gap="10">
+			<s:Label width="100%" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+					 text="{sName}" textAlign="left" verticalAlign="top"/>
+			<s:Label includeIn="State2" width="100%" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+					 textAlign="left" verticalAlign="top">website</s:Label>
+			<s:Label width="100%" fontSize="{nFontSize}" 
+					 text="{sContent}" textAlign="left" verticalAlign="top"/>
+		</s:VGroup>
+		<s:Button id="btnEdit" width="28" height="28" skinClass="components.skin.menu_button_edit"/>
+		<s:Button id="btnDEL" width="28" height="28" skinClass="components.skin.menu_button_del"/>
+		
+	</s:HGroup>
+	
+</bookUi:BaseMenuNode>

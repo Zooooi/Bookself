@@ -1,0 +1,152 @@
+﻿<content bindingX="10" bindingY="10" fileID="JS_KEY_BOOK" pageMode="1" website="http://www.hkep.com/jr123/MATHS/index_c.htm" mode="STUDENT">
+  <menu/>
+  <search/>
+  <pages color="16776960" alpha="0.5">
+    <page pageID="page201301280142378070386" src="1A_cover.jpg">
+      <text>
+        <pageNumber>封面</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201301280142426740993" src="1A_toc01.jpg">
+      <text>
+        <pageNumber>目錄1</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201301280142138210888" src="1A_toc02.jpg">
+      <text>
+        <pageNumber>目錄2</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201301280142247770814" src="1A_toc03.jpg">
+      <text>
+        <pageNumber>目錄3</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201301280142440730957" src="1A_toc04.jpg">
+      <text>
+        <pageNumber>目錄4</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201301280142525520312" src="1A_toc05.jpg">
+      <text>
+        <pageNumber>目錄5</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201302190040196370028" src="1A_toc06.jpg">
+      <text>
+        <pageNumber>目錄6</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201302190040196370028" src="blank.jpg">
+      <text>
+        <pageNumber>.</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p01.jpg">
+      <text>
+        <pageNumber>5.1</pageNumber>
+      </text>
+      <controls/>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p02.jpg">
+      <text>
+        <pageNumber>5.2</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p03.jpg">
+      <text>
+        <pageNumber>5.3</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p04.jpg">
+      <text>
+        <pageNumber>5.4</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p05.jpg">
+      <text>
+        <pageNumber>5.5</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p06.jpg">
+      <text>
+        <pageNumber>5.6</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p07.jpg">
+      <text>
+        <pageNumber>5.7</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p08.jpg">
+      <text>
+        <pageNumber>5.8</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p09.jpg">
+      <text>
+        <pageNumber>5.9</pageNumber>
+      </text>
+      <controls/>
+      <functions>
+        <function x="10.4" y="1265.1" path="images" id="KEY_SUBGROUP_SHOWHIDE" defalutDisplay="0" contentY="1320.1" contentX="10.4">
+          <advance>
+            <playAll/>
+            <kinds/>
+          </advance>
+          <language color="13369344" y="13" width="64" height="62" id="componentsolnopen" x="150">
+            <paragraph file="5_9_04_soln.png">
+              <shape y="53.55" width="775" state="1" height="176" x="204.35"/>
+            </paragraph>
+          </language>
+        </function>
+      </functions>
+      <search color="16776960" alpha="0.1"/>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p10.jpg">
+      <text>
+        <pageNumber>5.10</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p11.jpg">
+      <text>
+        <pageNumber>5.11</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p12.jpg">
+      <text>
+        <pageNumber>5.12</pageNumber>
+        <TAG>..(a) 平行線..</TAG>        
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p13.jpg">
+      <text>
+        <pageNumber>5.13</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p14.jpg">
+      <text>
+        <pageNumber>5.14</pageNumber>
+        <TAG>..解涉及平行線及垂直..</TAG>        
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A05_p15.jpg">
+      <text>
+        <pageNumber>5.15</pageNumber>
+      </text>
+    </page>
+    <page pageID="page201302190040196370028" src="1A_backcover.jpg">
+      <text>
+        <pageNumber>封底</pageNumber>
+      </text>
+    </page>
+  </pages>
+</content>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:bookUi="components.symbol.bookUi.*"
+					 >
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	<fx:Declarations>
+		<s:VGroup id="gr" width="384" gap="0" />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import jsProject.ctrl.OpenComponentFiles;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			
+			import spark.components.Group;
+			//这个组件是组合，作为集合一页的资源，以及单个按钮
+			
+			private static var nCount:uint
+			[Bindable]private var sChapter:String
+			[Bindable]private var sContent:String
+			
+			
+			private var nPage:uint
+			private var xmlComponent:XMLList
+			private static var chapterKind:String = ""
+			//一页
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				var _parent:Group = Group(parent)
+				xmlList = XMLList(_xmlList.children()[i])
+				sContent = xmlList.@name
+				sChapter = xmlList.@chapter	
+				xmlComponent = xmlList
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+				
+				if (chapterKind!=sChapter)
+				{
+					chapterKind = sChapter
+					var _chapterItem:UIFav_TeacherResource_Item = new UIFav_TeacherResource_Item
+					var _index:uint	= _parent.getElementIndex(this)
+					_parent.addElementAt(_chapterItem,_index)
+					_chapterItem.setChapterItemContent(xmlList)
+				}
+				refreshBGColor()
+			}
+			
+			public function setChapterItemContent(_xmlList:XMLList):void
+			{
+				currentState = "State2"
+				percentWidth = 100
+				xmlList = _xmlList
+				sChapter = xmlList.@chapter
+				refreshBGColor()
+			}
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						new OpenComponentFiles(XML(xmlComponent))
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="8" paddingBottom="{cpB*1.2}" paddingLeft="4" paddingRight="{cpR}"
+			  paddingTop="{cpT*1.2}" verticalAlign="middle">
+		<s:Spacer includeIn="State1" width="26"/>
+		<s:Image width="28" height="28" smooth="true" 
+				 source.State1="{icon_page}"
+				 source.State2="{icon_open}"
+				 />
+		<s:Label includeIn="State1" width="100%" color="{nFontColor}" fontSize="{nFontSize}"
+				 fontWeight="bold" text="{sContent}" textAlign="left" verticalAlign="top"/>
+		<s:Label includeIn="State2" width="100%" color="{nFontColor}" fontSize="{nFontSize}"
+				 fontWeight="bold" text="{sChapter}" textAlign="left" verticalAlign="top"/>
+	</s:HGroup>
+	
+</bookUi:BaseMenuNode>

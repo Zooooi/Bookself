@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:controls="com.thanksmister.components.controls.*"
+		 xmlns:symbol="components.symbol.*">
+	
+	<fx:Declarations>
+		<fx:Boolean id="bEdit"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import Js.ctrl.EffectDrag;
+			import Js.ctrl.EffectZoom;
+			import Js.ctrl.PageFlipClass;
+			import Js.events.PageFilpEvents;
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.FilesData;
+			import Js.mdel.VConst;
+			import Js.view.Preview;
+			
+			private var xmlData:XML
+			private var xmlList:XMLList
+			
+			private const nPec:uint = 3
+			private const nZoomTime:uint = 1
+			private const nAlpha1:Number = 0.05
+			private const nAlpha2:Number = 0.8
+			
+			private var xml:XML
+			
+			private var sPath:String
+			
+			private var nCount:uint
+			private var pageFilp:PageFlipClass
+			
+			private var effectZoom:EffectZoom
+			private var effectDrag:EffectDrag
+			private var bZoom:Boolean
+			private var nTimer:Timer
+			private var nPoint:Point
+			private var pagemc:Sprite
+			private var nScaleMax:Number
+			private var nScaleMin:Number
+			private var nScaleStep:Number
+			private var nScaleCurrent:Number
+			private var bPageFilp:Boolean
+			private var preview:Preview
+			private var bZoomMax:Boolean
+			private var pageMask:Sprite;
+			private var bookPage:BookPage;
+			
+			public function init():void
+			{
+				nCount = 0
+				bPageFilp = true
+				
+				xmlData = FilesData.xmlNavigate
+				xmlList = xmlData.toolbar.controls
+					
+				picBackground.source = Files.folder_navigater + xmlList.background.files
+					
+				nTimer = new Timer(2,0)
+				nTimer.addEventListener(TimerEvent.TIMER,onZoomMOuseEventTimerEvent)
+				
+				right = uint(xmlList.@right)
+				bottom = uint(xmlList.@bottom)
+					
+				initCtrl()	
+			}
+			
+			private function resetZoomValue():void
+			{
+				nScaleCurrent = nScaleMin
+				nScaleStep = (nScaleMax -nScaleMin) / nZoomTime
+			}
+			
+			
+			private function initCtrl():void
+			{
+				btnBegin._path=Files.folder_navigater
+				btnBegin.$setData(xmlList.begin,bEdit)
+				btnBegin.addEventListener(MouseEvent.CLICK,onMouseEvent)
+				
+				btnBack._path=Files.folder_navigater
+				btnBack.$setData(xmlList.back,bEdit)
+				btnBack.addEventListener(MouseEvent.CLICK,onMouseEvent)
+				
+				btnNext._path=Files.folder_navigater
+				btnNext.$setData(xmlList.next,bEdit)
+				btnNext.addEventListener(MouseEvent.CLICK,onMouseEvent)
+				
+				btnEnd._path=Files.folder_navigater
+				btnEnd.$setData(xmlList.end,bEdit)
+				btnEnd.addEventListener(MouseEvent.CLICK,onMouseEvent)
+				
+				btnZoomIn._path=Files.folder_navigater
+				btnZoomIn.$setData(xmlList.zoomIn,bEdit)
+				btnZoomIn.addEventListener(MouseEvent.CLICK,onZoomMouseEvent)
+				
+				btnZoomOut._path=Files.folder_navigater
+				btnZoomOut.$setData(xmlList.zoomOut,bEdit)
+				btnZoomOut.addEventListener(MouseEvent.CLICK,onZoomMouseEvent)	
+			}
+			
+			
+			private function onZoomMouseEvent(evt:MouseEvent):void
+			{
+				if (!bPageFilp) return
+				var _rect:Rectangle
+				switch (evt.type) 
+				{
+					case MouseEvent.CLICK:
+						switch (evt.currentTarget) 
+						{
+							case btnZoomIn:
+								if (!bZoomMax)
+								{
+									effectZoom.ZoomByMask()
+									bZoomMax = true
+									bZoom = true
+									nTimer.start()
+								}
+								break
+							
+							case btnZoomOut:
+								nTimer.stop()
+								if (!canFilp()) goFilp()
+								onResize()
+								break
+						}
+						break;
+					case MouseEvent.MOUSE_UP:
+						nTimer.stop()
+						if (!canFilp()) goFilp()
+						evt.currentTarget.removeEventListener(evt.type, arguments.callee)
+						break;
+				}
+				
+			}
+			
+			private function onMouseEvent(evt:MouseEvent):void
+			{
+				var _btn:IconButton = IconButton(evt.currentTarget)
+				switch (evt.type) 
+				{
+					case MouseEvent.CLICK :
+						if (!bPageFilp) return
+							bPageFilp = false
+						
+						var _rect:Rectangle
+						_rect = bookPage.getBooRect()
+						goFilp()
+						
+						switch (evt.currentTarget) 
+						{
+							case btnBegin:
+								pageFilp.PageToBegin()
+								break
+							
+							case btnBack:
+								pageFilp.PageToBack()
+								break
+							
+							case btnNext:
+								pageFilp.PageToNext()
+								break
+							
+							case btnEnd:
+								pageFilp.PageToEnd()
+								break
+						}
+						
+						break;
+				}
+				
+			}
+			
+			public function setPageFlip(_page:BookPage):void
+			{
+				
+				bookPage = _page
+				pageFilp = _page.getPageFilp()
+				pageMask = _page.getMask()
+				
+					
+				pagemc = Sprite(pageFilp.getContent().parent)
+				pagemc.addEventListener(MouseEvent.CLICK,onPageMouseEvent)
+				pagemc.addEventListener(MouseEvent.MOUSE_DOWN, onPageMouseEvent)
+				pageFilp.addEventListener(PageFilpEvents.onPageEnd,onPageEnd)
+					
+				nScaleMin = pagemc.scaleX
+				nScaleMax = pagemc.scaleX * nPec
+				nScaleCurrent = nScaleMin
+				nScaleStep = (nScaleMax -nScaleMin) / nZoomTime
+				
+				effectZoom = new EffectZoom(pagemc, pageMask)
+				effectZoom.setZoomStep(0.3,0.3)
+				effectZoom.setMinScale(nScaleMin,nScaleMin)
+				effectZoom.setMaxScale(nScaleMax, nScaleMax)
+				
+				effectDrag = new EffectDrag(pagemc, pageMask)
+				effectDrag.dynamicMask = true
+				effectDrag.setOffset(300,200)
+					
+				displayPageNo()
+			}
+			
+			
+			private function onPageMouseEvent(evt:MouseEvent):void
+			{
+				if (!bPageFilp || (evt.target is SimpleButton)) return
+				
+				var _point:Point = new Point(pageMask.stage.mouseX,pageMask.stage.mouseY)
+				switch (evt.type) 
+				{
+					case MouseEvent.MOUSE_DOWN:
+						nPoint = _point
+						break;
+					case MouseEvent.CLICK:
+						
+						if (Math.abs(nPoint.x - _point.x)<3 && Math.abs(nPoint.y - _point.y)<3) 
+						{
+							bZoomMax = false
+							goDrag()
+							
+							if (nScaleCurrent>= nScaleMax) nScaleCurrent = nScaleMax
+								
+							if (nScaleCurrent == nScaleMax) 
+							{
+								pageFilp.enable()
+								onResize()
+							}else {
+								setShowReview()
+								nTimer.stop()
+								pageFilp.disable()
+								bZoom = true
+								effectZoom.ZoomByPoint(_point)
+								nTimer.start()
+								nScaleCurrent += nScaleStep
+							}
+						}
+						
+						break;
+				}
+				
+			}
+			
+			private function onPageEnd(evt:PageFilpEvents=null):void
+			{
+				resetZoomValue()
+				displayPageNo()
+				bPageFilp = true
+			}
+			private function displayPageNo():void
+			{
+				var _no:uint = pageFilp.book_page
+				var _text:String
+				switch (_no) 
+				{
+					case 0:
+						_text =  String(1) // +" / "  + pageFilp.book_totalpage
+						break
+					case pageFilp.book_totalpage:
+						_text =  String(pageFilp.book_totalpage) //+" / "  + pageFilp.book_totalpage
+						break
+					default:
+						_text =  _no+"-"+(_no+1) //+" / "  + pageFilp.book_totalpage
+						break
+				}
+				
+				pageNo.text =  _text
+			}
+			private function goDrag():void
+			{
+				bookPage.onResize()
+				pageFilp.disable()
+			}
+			
+			private function onResize(evt:Event=null):void
+			{
+				goFilp()
+				effectZoom.setMinScale(nScaleMin,nScaleMin)
+			}
+			
+			private function setShowReview():void
+			{
+				if (pageFilp.$TimerFlag != "stop") 
+				{
+					pageFilp.removeEventListener(PageFilpEvents.onPageEnd,onPageEnd_ShowReview)
+					pageFilp.addEventListener(PageFilpEvents.onPageEnd,onPageEnd_ShowReview)
+				}else {
+					showReview()
+				}
+			}
+			
+		
+			
+			private function onPageEnd_ShowReview(evt:PageFilpEvents):void
+			{
+				evt.target.removeEventListener(evt.type, arguments.callee)
+				showReview()
+			}
+			
+			
+			private function showReview():void
+			{
+				if (preview == null && bPageFilp==true)
+				{
+					preview = new Preview(xmlData)
+					preview.init(bookPage)
+					preview.addEventListener(ProjectEvent.onProgress,onProgress)
+				}
+			}
+			private function hideReview():void
+			{
+				if (preview != null)
+				{
+					preview.removeEventListener(ProjectEvent.onProgress, onProgress)
+					preview.remove()
+					preview = null
+				}
+			}
+			
+			
+			private function onProgress(evt:ProjectEvent):void
+			{
+				effectDrag.stop()
+			}
+			
+			private function goFilp():void
+			{
+				bZoomMax = false
+				nScaleCurrent = nScaleMin
+				hideReview()
+				effectZoom.reset()
+				effectDrag.remove()
+				pageFilp.enable()
+				pageFilp.dispatchEvent(new PageFilpEvents(PageFilpEvents.onResetLoc))
+				var _rect:Rectangle
+				_rect = pagemc.getRect(pagemc.parent)
+				
+				onResizeBackButton(_rect)
+				onResizeNextButton(_rect)
+			}
+			
+			private function onResizeBackButton(_rect:Rectangle):void
+			{
+				if (_rect.height > VConst.minHeight)
+				{
+					//btnPageBack.visible = true
+					//btnPageBack.x = _rect.x + //btnPageBack.width *0.1
+					//btnPageBack.y = _rect.y + _rect.height - //btnPageBack.height
+				}
+				//btnPageBack.parent.parent.setChildIndex(//btnPageBack.parent, //btnPageBack.parent.parent.numChildren - 1)
+			}
+			
+			private function onResizeNextButton(_rect:Rectangle):void
+			{
+				if (_rect.height > VConst.minHeight) 
+				{
+					//btnPageBack.visible = true
+					//btnPageBack.x = _rect.x +  _rect.width - //btnPageBack.width *1.1
+					//btnPageBack.y = _rect.y  + _rect.height - //btnPageBack.height
+				}
+				//btnPageBack.parent.parent.setChildIndex(//btnPageBack.parent, //btnPageBack.parent.parent.numChildren - 1)
+				
+			}
+			
+			private function onZoomMOuseEventTimerEvent(evt:TimerEvent):void
+			{
+				
+				if (bZoom) 
+				{
+					setShowReview()
+					effectZoom.ZoomIn()
+					switch (bZoomMax) 
+					{
+						case true:
+							if (pagemc.scaleX>=nScaleMax || pagemc.scaleY>=nScaleMax)
+							{
+								nTimer.stop()
+								if (!canFilp()) goFilp()
+							}
+							break;
+						
+						default:
+							if (pagemc.scaleX >= nScaleCurrent || pagemc.scaleY >= nScaleCurrent)
+							{
+								nTimer.stop()
+								if (!canFilp()) goFilp()
+							}
+							break;
+					}
+					
+				}else {
+					if (canFilp()) 
+					{
+						effectZoom.ZoomOut()
+					}else {
+						nTimer.stop()
+						effectZoom.reset()
+						pageFilp.dispatchEvent(new PageFilpEvents(PageFilpEvents.onResetLoc))
+					}
+				}
+			}
+			
+			
+			private function canFilp():Boolean
+			{
+				var _rect:Rectangle = bookPage.getBooRect()
+				return _rect.width <pageFilp.getContent().parent.width || _rect.height <pageFilp.getContent().parent.height
+			}
+		]]>
+	</fx:Script>
+	<s:Image id="picBackground" right="0" top="0" smooth="true" source="@Embed('embed/graphic/bar_control.png')"/>
+	<s:TextInput id="pageNo" x="10" y="29" width="74" textAlign="center"/>
+	<symbol:IconButton id="btnBegin" x="115" y="22"/>
+	<symbol:IconButton id="btnBack" x="157" y="22"/>
+	<symbol:IconButton id="btnNext" x="197" y="22"/>
+	<symbol:IconButton id="btnEnd" x="239" y="22"/>
+	<symbol:IconButton id="btnZoomIn" x="310" y="22"/>
+	<symbol:IconButton id="btnZoomOut" x="352" y="22"/>
+</s:Group>

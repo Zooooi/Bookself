@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu_Item xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:base="components.base.*"
+				 xmlns:symbol="components.editors.symbol.*"
+				 height="75" xmlns:editors="components.editors.*" xmlns:dropdownlist="JsF.dropdownlist.*" xmlns:module="components.module.*"
+				>
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			
+			[Bindable]private var schapter:String;
+			[Bindable]private var sName:String
+			[Bindable]private var sFolder:String
+			[Bindable]private var sFile:String
+			[Bindable]private var sAction:String
+			[Bindable]private var sIcon:String
+			[Bindable]private var nPage:uint;
+			[Bindable]private var sPage:String;
+			[Bindable]private var bEnable:Boolean = true;
+			
+			[Bindable]private var nSelect:uint = 0
+			
+			override public function setContent(_xmlList:XMLList):void
+			{
+				super.setContent(_xmlList)
+				refreshNo()
+				xmlList = _xmlList
+				sName = xmlList.@name
+				sFolder = xmlList.@folder
+				sFile = xmlList.@openfile
+				schapter = xmlList.@chapter
+				sAction = xmlList.@action
+				sIcon = xmlList.@icon 
+				sPage = xmlList.@page 
+					
+			}
+			
+			override protected function onChange():void
+			{
+				xmlList.@name = sName
+				xmlList.@openfile = sFile
+				xmlList.@folder = sFolder
+				xmlList.@chapter = schapter
+				xmlList.@action = sAction
+				xmlList.@icon = sIcon 
+				xmlList.@page = sPage 
+			}
+			
+			
+			override protected function onGetNewNodeContent():XML
+			{
+				return new XML(<resource action={Value.aFunction[0].id}/>)
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<module:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</module:layout>
+	<s:NumericStepper width="55" textAlign="right" minimum="0" maximum="1000" value="@{sNum}"  change="onOrder()" focusOut="refreshNo()"/>
+	<mx:VRule height="80%"/>
+	<s:VGroup width="300" horizontalAlign="center">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>name:</s:Label>
+			<s:TextInput width="100%" text="@{sName}" change="onChange()"/>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>page:</s:Label>
+			
+			<dropdownlist:jDropDownList width="100%" __valueRead="{sPage}" __valueWrite="@{sPage}"
+										change="onChange()" dataProvider="{Value.aPageNumber}"/>
+		</s:HGroup>
+		
+	</s:VGroup>
+	
+	<mx:VRule height="80%"/>
+	<s:VGroup width="211" horizontalAlign="center">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>action:</s:Label>
+			<dropdownlist:jDropDownList width="100%" __valueRead="{sAction}" __valueWrite="@{sAction}"
+										change="onChange()" dataProvider="{Value.aFunction}"/>
+		</s:HGroup>
+		
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>icon:</s:Label>
+			<dropdownlist:DropDownIconList skinClass="JsF.skin.Skin_DropDownIconList_Item" width="100%" change="onChange()"
+										   __valueRead="{sIcon}" __valueWrite="@{sIcon}"   
+										   __path="{Files.folder_components}"
+										   __xml="{XmlContent.XML_RESOURCE}" 
+										   __xmlNode="icons"
+										   __source="@file" 
+										   __label="@action" 
+										   __id="@resourceID"
+										   />
+		</s:HGroup>
+			
+	</s:VGroup>
+	
+	<mx:VRule height="80%"/>
+	
+	<s:VGroup width="236" horizontalAlign="left">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>folder:</s:Label><s:TextInput width="100%" text="@{sFolder}" change="onChange()"/>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>file:</s:Label>
+			<s:TextInput width="100%" text="@{sFile}" change="onChange()"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+	<mx:VRule height="80%"/>
+	<s:Button width="56" label="DEL" id="btnDEL" click="onControlMouseEvent_DEL(event) "/>
+</module:Base_ListMenu_Item>

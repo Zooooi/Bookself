@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Viewers;
+		]]>
+	</fx:Script>
+	<s:BitmapImage width="560" height="575" smooth="true" source="controls/bookui/ipad_w_record.png"/>
+	<s:BorderContainer id="confirm" x="377" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" mouseDown="Viewers.closeWin()"/>
+	<s:BorderContainer id="cancel" x="450" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" click="Viewers.closeWin()"/>
+</s:Group>

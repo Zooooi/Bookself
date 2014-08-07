@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*" xmlns:metadata="org.osmf.metadata.*"
+		>
+	<fx:Metadata>
+		[Event(name="SEND", type="Js.events.ProjectEvent")]
+		[Event(name="REMOVE", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<fx:uint id="__currentID__"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Js.ctrl.XmlCtrl;
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.VConst;
+			import Js.mdel.XmlContent;
+			
+			
+			private const sPageNode:String = VConst.KEY_PAGES
+				
+			private var currentItem:Editor_Page_Setting_Item
+			private var nodePage:XMLList
+			
+			private function onAddMouseEvent(event:MouseEvent):void
+			{
+				nodePage.appendChild(XmlContent.Edit_Pages_Page)
+				var _item:Editor_Page_Setting_Item = addItem()
+				_item.$setXML(nodePage)
+				_item.$createID()
+			}
+			
+			private function addItem():Editor_Page_Setting_Item
+			{
+				var _item:Editor_Page_Setting_Item = new Editor_Page_Setting_Item
+				_item._pageNo=gr.numElements+1
+				_item._path = Files.folder_book
+				_item.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+				_item.addEventListener(ProjectEvent.REMOVE,onItemProjectEvent)
+				_item.addEventListener(ProjectEvent.CHANGE,onItemProjectEvent)
+				_item.addEventListener(ProjectEvent.SEND,onItemProjectEvent)
+				gr.addElement(_item)
+				return _item
+			}
+			
+			private function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _item:Editor_Page_Setting_Item = Editor_Page_Setting_Item(event.currentTarget)
+				itemAction(_item)
+				
+			}
+			
+			private function itemAction(_item:Editor_Page_Setting_Item):void
+			{
+				if (currentItem!=null)currentItem.$mouseOT()
+				currentItem = _item
+				currentItem.$mouseDW()
+				onProjectEvent_Send(_item)
+			}
+			
+			private function onItemProjectEvent(event:ProjectEvent):void
+			{
+				var _item:Editor_Page_Setting_Item = Editor_Page_Setting_Item(event.currentTarget)
+				var _currentID:uint
+				var _id:uint
+				var i:int
+				switch(event.type)
+				{
+					case ProjectEvent.REMOVE:
+						_id = currentItem._pageNo-1
+						XmlCtrl.deleteOne(nodePage,_id)
+						gr.removeElementAt(_id)
+						if (gr.numElements!=0)
+						{
+							for (i = _id; i < gr.numElements; i++) 
+							{
+								Editor_Page_Setting_Item(gr.getElementAt(i))._pageNo=i+1
+							}
+							if(_id==gr.numElements)
+							{
+								currentItem = Editor_Page_Setting_Item(gr.getElementAt(_id-1))
+							}else{
+								currentItem = Editor_Page_Setting_Item(gr.getElementAt(_id))
+							}
+							
+							currentItem.dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+								
+						}else{
+							currentItem = null
+							dispatchEvent(new ProjectEvent(ProjectEvent.REMOVE))
+						}
+						break;
+					
+					case ProjectEvent.CHANGE:
+						_id = gr.getElementIndex(_item)
+						_currentID = _item._pageNo-1
+						
+						//display------------------------------------------------
+						if (_currentID>gr.numElements-1)
+						{
+							_item._pageNo = gr.numElements
+							_currentID = gr.numElements -1
+						}
+						
+						gr.addElementAt(_item,_currentID)
+						var _min:uint
+						var _max:uint
+						
+						if (_currentID>_id)
+						{
+							_min = _id
+							_max = _currentID
+						}else{
+							_min = _currentID
+							_max = _id
+						}
+						for (i = _min; i <= _max; i++) 
+						{
+							Editor_Page_Setting_Item(gr.getElementAt(i))._pageNo = i+1
+						}
+						
+						
+						//xml------------------------------------------------
+						XmlCtrl.insertTo(nodePage,_id,_currentID)
+					
+					case ProjectEvent.SEND:
+						onProjectEvent_Send(_item)
+						break
+				}				
+			}
+			
+			private function onProjectEvent_Send(_item:Editor_Page_Setting_Item):void
+			{
+				var _id:uint = gr.getElementIndex(_item)
+				__currentID__ = _id
+				dispatchEvent(new ProjectEvent(ProjectEvent.SEND))
+			}
+			
+		
+			override protected function initMdel():void
+			{
+				xmlData = XmlContent.Edit_Pages.copy()
+				xmlFileName = Files.file_book
+				xmlPath = Files.folder_book + Files.file_book
+				xmlKey = VConst.KEY_BOOK
+			}
+			override protected function initView():void
+			{
+				XmlContent.XML_PAGE = xmlData
+				gr.removeAllElements()
+				nodePage = XmlContent.getPagesNodes()
+				for (var i:int = 0; i < nodePage.children().length(); i++) addItem().$setXML((nodePage))
+			}
+			
+			public function action_openXml():void
+			{
+				openXmlFile()
+			}
+			public function action_saveXml():void
+			{
+				saveXmlFile()	
+			}
+		]]>
+	</fx:Script>
+	
+		
+
+	<s:HGroup left="0" right="0" top="0" gap="10" horizontalAlign="left" verticalAlign="middle">
+		<mx:VRule width="1" height="30"/>
+		<s:Label text="Pages:"/>
+		<mx:VRule width="1" height="30"/>
+		<s:Button width="60" label="add" click="onAddMouseEvent(event)"/>
+		<mx:VRule width="1" height="30"/>
+	</s:HGroup>
+	<s:BorderContainer left="0" right="0" top="30" bottom="2" height="100%">
+		<s:Scroller id="scroll" left="4" right="4" top="4" bottom="4">
+			<s:VGroup id="gr" width="100%" height="100%">
+			</s:VGroup>
+		</s:Scroller>
+	</s:BorderContainer>
+	
+	
+</base:LoaderBase>

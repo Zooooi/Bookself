@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 >
+	<fx:Declarations>
+		<s:Image id="icon1" source="@Embed('embed/button/icon/Functions_PlayList.png')"/>
+		<s:Image id="icon2" source="@Embed('embed/button/icon/Functions_PlayList.png')"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.BorderContainer;
+			
+			[Bindable]protected var bEnable:Boolean;
+			[Bindable]protected var bFileDisplay:Boolean
+			[Bindable]protected var nBtnColor:uint
+			[Bindable]protected var nGraphicApha:Number
+			
+			public var $index:int = -1
+			public var $hitTestGroup:BorderContainer
+			public var $mainButton:IVisualElement
+			
+			protected var xList:XMLList 
+				
+			public function getResult():void
+			{
+				if (XmlContent.currentPageNode==null)
+				{
+					bEnable = false
+				}else{
+					bEnable = true
+					if(XmlContent.currentPageNode.child(NameDefine.KEY_FUNCTION_ROOT)==undefined)
+					{
+						XmlContent.currentPageNode[NameDefine.KEY_FUNCTION_ROOT] =  XmlContent.Edit_Function_ROOT
+					}
+				}
+			}
+			
+			public function instCtrl():void
+			{
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<fx:String id="__ID__"/>
+	</fx:Declarations>
+	
+</s:Group>

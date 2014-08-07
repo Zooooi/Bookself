@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="true"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)"
+				>
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.SWFK;
+			import JsC.shell.ShellSystem;
+			
+			import jsProject.mdel.Files;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var sFile:String="";
+			
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sFile = Files.path_app+data.source
+				ShellSystem.current.traceInfo(sFile)
+			}
+			
+			protected function onError(event:IOErrorEvent):void
+			{
+				ShellSystem.current.traceInfo(String(event))
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup height="40"  verticalAlign="middle">
+		<mx:Image source="{sFile}"/>
+		<s:Label text="{data.label}"/>
+	</s:HGroup>
+</s:ItemRenderer>

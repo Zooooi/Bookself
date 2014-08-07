@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" height="43" minWidth="300" xmlns:Tools="components.symbol.Tools.*"
+		 preinitialize="Viewers.setBottom(this)"
+		 >
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+		<s:State name="State3"/>
+		<s:State name="hide"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.mdel.SystemOS;
+			
+			import components.books.BookPage;
+			import components.symbol.bookUi.UIAddBookMarkPanel;
+			import components.symbol.bookUi.UIAddMask;
+			import components.symbol.bookUi.UIAddRecord;
+			import components.symbol.bookUi.UIAddResourcePanel;
+			import components.symbol.bookUi.UIDrawer;
+			import components.symbol.bookUi.UINotesPanel;
+			import components.symbol.bookUi.UITimer;
+			
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			
+			[Bindable]private var bState:Boolean = false;
+			private var page:BookPage
+			private var currentToggleBtn:ToggleButton;
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				if (bState)
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+				bState = !bState
+			}
+			
+			protected function onToggleButtonMouseEvent(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				currentToggleBtn = ToggleButton(event.currentTarget)
+				 var _menu:Group
+				 var _bPop:Boolean
+				page = Viewers.getPage()
+				if (currentToggleBtn.selected)
+				{
+					switch(event.currentTarget)
+					{
+						case btnNote:_menu = new UINotesPanel;break	
+						case btnAddResource:_menu = new UIAddResourcePanel;break
+						case btnTimer:_menu = new UITimer;break
+						case btnDraw:_menu = new UIDrawer;break
+						case btnBookMark:_menu = new UIAddBookMarkPanel;break
+						case btnMask:_menu = new UIAddMask;break
+						case btnMic:_menu = new UIAddRecord;break
+					} 
+					_menu.addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+					page.addUI(_menu)
+				}
+				
+				
+			}
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.REMOVED_FROM_STAGE:
+						if (currentToggleBtn)currentToggleBtn.selected=false
+						break;
+					
+				}
+			}
+			
+			
+			public function $close():void
+			{
+				draw.$close()
+			}
+			
+			public function $init():void
+			{
+				if (XmlContent.XML_PAGE.@mode == "STUDENT") content.removeElement(btnMode)
+			}
+			
+			protected function onNormalMouseEvent(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+			}
+			
+			
+			protected function onGoWeb(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				if (SystemOS.isMobile)
+				{
+					var _event:ComponentEvent = new ComponentEvent(ComponentEvent.OPEN_HTML)
+					_event._url = Value.sUrl
+					Viewers.getBook().dispatchEvent(_event)
+				}else{
+					navigateToURL(new URLRequest(Value.sUrl))
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Group id="gr" x="20"/>
+	<s:HGroup verticalAlign="middle" left="0" right="0" height="100%" gap="0">
+			<s:BorderContainer id="content"  left="0" right="0" height="40" backgroundColor="#1F1E48" borderVisible="false">
+				<s:layout>
+					<s:HorizontalLayout/>
+				</s:layout>
+				<s:ToggleButton includeIn="hide" skinClass="components.skin.Navi_mode" id="btnMode" buttonMode="true" useHandCursor="true" selected="{bState}" click="onMouseEvent(event)"/>
+				<s:HGroup verticalAlign="middle" left="0" right="0" height="100%">
+					
+					<s:ToggleButton includeIn="State3" id="btnMic" skinClass="components.skin.fun_Mic"  buttonMode="true" useHandCursor="true"  click="onToggleButtonMouseEvent(event)"/>
+					
+					<s:ToggleButton id="btnMask" includeIn="hide" skinClass="components.skin.fun_Print"  buttonMode="true" useHandCursor="true"  click="onToggleButtonMouseEvent(event)"/>
+					<s:ToggleButton id="btnTimer" includeIn="hide" skinClass="components.skin.fun_Time"  buttonMode="true" useHandCursor="true" click="onToggleButtonMouseEvent(event)"/>
+					<s:ToggleButton includeIn="State3" id="btnDraw"  buttonMode="true" skinClass="components.skin.Radio_Draw_Layer" click="onToggleButtonMouseEvent(event)"/>
+					
+					<Tools:ToolDraw id="draw"  gr="{gr}"/>
+					<s:ToggleButton includeIn="State1" id="btnNote" width="43" height="43" skinClass="components.skin.fun_Note" buttonMode="true" useHandCursor="true" click="onToggleButtonMouseEvent(event)"/>
+					<s:ToggleButton includeIn="State1" id="btnAddResource" width="43" height="43" skinClass="components.skin.fun_Folder"  buttonMode="true" useHandCursor="true" click="onToggleButtonMouseEvent(event)"/>
+					<s:ToggleButton id="btnBookMark" skinClass="components.skin.fun_Mark" width="43" height="43"  buttonMode="true" useHandCursor="true"  click="onToggleButtonMouseEvent(event)"/>
+					<s:Button buttonMode="true" click="onGoWeb(event)"
+							  skinClass="components.skin.fun_Web" useHandCursor="true"
+							  width.State1="43" height.State1="43"/>
+				</s:HGroup>
+			</s:BorderContainer>
+			<s:BitmapImage height="38" source="@Embed('/embed/button/icon/corner.png')"/>
+	</s:HGroup>
+	
+</s:Group>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="450" height="200" styleName="NormalText">
+	<fx:Style source="css/book.css">
+		
+	</fx:Style>
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import flash.utils.setTimeout;
+			
+			import jsProject.ctrl.UrlData;
+			import jsProject.mdel.UserInfo;
+			
+			import spark.events.TextOperationEvent;
+			
+			[Bindable]private var sName:String="";
+			[Bindable]private var sPass:String="";
+			[Bindable]private var bSubmit:Boolean = false;
+			[Bindable]private var bEnble:Boolean = true;
+			
+			protected function onSubmitEvent(event:MouseEvent):void
+			{
+				grP.dispatchEvent(new MouseEvent(MouseEvent.MOUSE_DOWN));
+				bEnble = false
+				bSubmit = false
+				setTimeout(function():void
+				{
+					stage.focus = null;
+					UserInfo.name = sName;
+					UserInfo.pass = sPass;
+					var checkUser:UrlData =  new UrlData
+					checkUser.addEventListener(JEvent.YES,onCheckUserEvent);
+					checkUser.addEventListener(JEvent.NO,onCheckUserEvent);
+					checkUser.login();
+				},500);
+				
+			}
+			
+			
+			private function onCheckUserEvent(event:JEvent):void
+			{
+				var checkUser:UrlData = UrlData(event.currentTarget)
+				var _event:JEvent 
+				switch(event.type)
+				{
+					case JEvent.YES:
+						_event = new JEvent(JEvent.YES)
+						_event.$setXML(checkUser.$xml)
+						dispatchEvent(_event);
+						break;
+					
+					case JEvent.NO:
+						bEnble = true;
+						sName = "";
+						sPass = "";
+						bSubmit = false;
+						var _x:Number = grP.x
+						
+						for (var i:int = 0; i < 12; i++) 
+						{
+							setTimeout(function():void{
+							grP.x = _x + Math.random()*12 - 6		
+							},20*i)
+						}
+						grP.x = _x
+						break;
+				}
+			}
+			
+			
+			protected function onInput(event:TextOperationEvent):void
+			{
+				bSubmit = false
+				if (sName.length>=4 && sPass.length>=4)
+				{
+					bSubmit = true	
+				}
+			}
+			
+			protected function onPaneMouseEvent(event:MouseEvent):void
+			{
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="YES", type="JsC.events.JEvent")]
+		[Event(name="CANCEL", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<s:Panel id="grP" enabled="true" title="登入 Login" width="100%" height="100%" mouseDown="onPaneMouseEvent(event)">
+		<s:controlBarContent >
+			<s:Spacer width="310" height="10"/>
+			<!--<s:Button label="cancel" click="dispatchEvent(new JEvent(JEvent.CANCEL));" visible="false"/>-->
+			<s:Button label="提交 Submit" click="onSubmitEvent(event)" enabled="{bSubmit}"/>
+		</s:controlBarContent>
+		<s:VGroup width="100%" height="100%" gap="20" horizontalAlign="center" paddingLeft="10"
+				  paddingRight="10" paddingTop="20">
+			<s:HGroup width="260" height="29" horizontalAlign="left" verticalAlign="middle">
+				<s:Label width="73" text="用戶名稱：&#xd;User ID:"/>
+				<s:TextInput width="180" change="onInput(event)" enabled="{bEnble}" maxChars="30"
+							 styleName="NormalText" text="@{sName}"/>
+			</s:HGroup>
+			<s:HGroup x="94" width="260" height="29" horizontalAlign="left" verticalAlign="middle">
+				<s:Label width="73" text="密碼：&#xd;Password:"/>
+				<s:TextInput width="180" change="onInput(event)" displayAsPassword="true"
+							 enabled="{bEnble}" maxChars="30" styleName="NormalText" text="@{sPass}"/>
+			</s:HGroup>
+			
+		</s:VGroup>
+	</s:Panel>
+	
+</s:Group>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*" width="400" height="50">
+	<fx:Metadata>
+		[Event(name="SELECT", type="JsC.events.JEvent")]
+		[Event(name="COMPLETE", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.symbol.Buttons.IconButton;
+			
+			import flash.utils.setTimeout;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			
+			public var $index:uint
+			private var nCount:uint
+			override protected function initMdel():void
+			{
+				init_component()
+			}
+			
+			override protected function init():void
+			{
+				nCount = 0 
+				gr.removeAllElements()
+				var _item:IconButton
+				var i:int
+				for (i = 0; i < xmlData.children().length(); i++) 
+				{
+					_item = addItem()
+					_item.NUM = i
+					_item.$setIcon(xmlData.children()[i],true)
+					_item.addEventListener(MouseEvent.CLICK,onClick)
+				}
+				
+			}
+			
+			private function addItem():IconButton
+			{
+				var _item:IconButton = new IconButton
+				_item._path = Files.folder_components
+				gr.addElement(_item)
+				return _item
+			}
+			
+			protected function onClick(event:MouseEvent):void
+			{
+				var _item:IconButton = IconButton(event.currentTarget)
+				_item.removeEventListener(MouseEvent.CLICK,onClick)
+				var _event:JEvent = new JEvent(JEvent.SELECT)
+				_event.$setSprite(_item)
+				dispatchEvent(_event)
+			}
+			
+			public function getItem(_id:String):IconButton
+			{
+				var _item:IconButton
+				for (var i:int = 0; i < gr.numElements; i++) 
+				{
+					_item = IconButton(gr.getElementAt(i))
+					if (_item.getID() == _id)
+					{
+						break
+					}
+				}
+				
+				return _item
+			}
+			
+			protected function onCreateComplete(event:FlexEvent):void
+			{
+				var _item:IconButton = IconButton(event.currentTarget)
+				_item.removeEventListener(MouseEvent.CLICK,onClick)
+				_item.removeEventListener(FlexEvent.CREATION_COMPLETE,onCreateComplete)
+				nCount++
+				if (nCount==xmlData.children().length())
+				{
+					dispatchEvent(new JEvent(JEvent.COMPLETE))
+				}
+			}
+		
+			
+		]]>
+	</fx:Script>
+	<s:Scroller id="scroll" width="100%" height="100%">
+		<s:HGroup id="gr" height="100%" horizontalAlign="center" verticalAlign="top"/>
+	</s:Scroller>
+</base:LoaderBase>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseBookself xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*"
+				   addedToStage="onEvent(event)"
+				   >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import jsProject.ctrl.StageCtrl;
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Value;
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				addEventListener(JEvent.RESIZE,onStageEvent)
+				onResize(true)
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				if (StageCtrl.resize(stage,_b))
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+			}
+			
+			protected function onGoWeb(event:MouseEvent):void
+			{
+				if (SystemOS.isMobile)
+				{
+					var _event:ComponentEvent = new ComponentEvent(ComponentEvent.OPEN_HTML)
+					_event._url = Value.sUrl
+					dispatchEvent(_event)
+				}else{
+					navigateToURL(new URLRequest(Value.sUrl))
+				}
+			}
+		]]>
+	</fx:Script>
+	<base:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</base:states>
+	<s:BorderContainer left="0" right="0" top="0" bottom="0" backgroundColor="#333333"/>
+	<s:BitmapImage left="0" right="0" top="0" source="@Embed('/embed/intro/topbar.png')"/>
+	<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('/embed/intro/bottombar.png')"/>
+	<s:Image y="12" left="0" right="0" smooth="true" source="controls/bookself/title.png"/>
+	<s:Image left="10" right="10" top="65" smooth="true" source="controls/bookself/company.png"/>
+	<s:Button right="22" top="2" buttonMode="true" skinClass="components.skin.fun_Web" useHandCursor="true" click="onGoWeb(event)"/>
+</base:BaseBookself>

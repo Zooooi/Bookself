@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu_Item xmlns:fx="http://ns.adobe.com/mxml/2009"
+						   xmlns:s="library://ns.adobe.com/flex/spark"
+						   xmlns:mx="library://ns.adobe.com/flex/mx"
+						   xmlns:base="components.base.*"
+						   xmlns:module="components.module.*"
+						   xmlns:dropdownlist="JsF.dropdownlist.*"
+						   borderAlpha="1" borderColor="#BBB9B9" cornerRadius="5"
+						   height="65">
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+
+			
+			[Bindable]private var schapter:String;
+			[Bindable]private var sName:String
+			[Bindable]private var sFolder:String
+			[Bindable]private var sFile:String
+			[Bindable]private var sAction:String
+			[Bindable]private var sPage:String
+			[Bindable]private var sIcon:String
+			[Bindable]private var sX:String
+			[Bindable]private var sY:String
+			[Bindable]private var sW:String
+			[Bindable]private var sH:String
+			[Bindable]private var nPage:uint
+			
+			
+			override public function setContent(_xmlList:XMLList):void
+			{
+				xmlList = _xmlList
+				sName = xmlList.@name
+				sAction = xmlList.@action
+				sFolder = xmlList.@folder
+				sFile = xmlList.@openfile
+				sPage = xmlList.@page
+				sIcon = xmlList.@icon
+			}
+			
+				
+			override public function setButtonContent(_xmlList:XMLList,_xmlParent:XMLList):void
+			{
+				setContent(_xmlList)
+				schapter = _xmlParent.text.pageNumber
+			}
+			
+			
+			override protected function onChange():void
+			{
+				xmlList.@name = sName
+				xmlList.@openfile = sFile
+				xmlList.@folder = sFolder
+				xmlList.@action	= sAction
+				xmlList.@icon = sIcon
+				xmlList.@page = sPage
+			}
+			
+			override protected function onEvent(event:Event):void{}
+			
+		]]>
+	</fx:Script>
+	<module:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</module:layout>
+	<s:HGroup width="120" verticalAlign="middle">
+		<s:Label>chapter:</s:Label><s:Label width="100%" color="#940303">{schapter}</s:Label>
+	</s:HGroup>
+	<s:VGroup width="180" >
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>page:</s:Label>	
+			<dropdownlist:jDropDownList width="100%" __valueRead="{sPage}" __valueWrite="@{sPage}"
+										change="onChange()" dataProvider="{Value.aPageNumber}"/>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup verticalAlign="middle" width="100%">
+			<s:Label>name:</s:Label>
+			<s:TextInput width="100%" text="@{sName}" change="onChange()"/>
+		</s:HGroup>	
+		
+	</s:VGroup>
+	<mx:VRule height="80%"/>
+	<s:VGroup width="163">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>action:</s:Label>
+			<dropdownlist:jDropDownList width="100%" __valueRead="{sAction}"
+										__valueWrite="@{sAction}" change="onChange()"
+										dataProvider="{Value.aFunction}"/>
+		</s:HGroup>	
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>icon:</s:Label>
+			<dropdownlist:DropDownIconList skinClass="JsF.skin.Skin_DropDownIconList_Item" width="100%" change="onChange()"
+										   __valueRead="{sIcon}" __valueWrite="@{sIcon}"   
+										   __path="{Files.folder_components}"
+										   __xml="{XmlContent.XML_RESOURCE}" 
+										   __xmlNode="icons"
+										   __source="@file" 
+										   __label="@action" 
+										   __id="@resourceID"
+										   />
+		</s:HGroup>
+	</s:VGroup>
+	<s:VGroup width="236" horizontalAlign="left">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>folder:</s:Label><s:TextInput width="100%" text="@{sFolder}" change="onChange()"/>
+		</s:HGroup>
+		<mx:HRule width="100%"/>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label>file:</s:Label>
+			<s:TextInput width="100%" text="@{sFile}" change="onChange()"/>
+		</s:HGroup>
+	</s:VGroup>
+	<mx:VRule height="80%"/>
+	<mx:VRule height="80%"/>
+	<s:Button width="56" label="DEL" id="btnDEL" click="onControlMouseEvent_DEL(event) "/>
+</module:Base_ListMenu_Item>

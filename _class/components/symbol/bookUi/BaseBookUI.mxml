@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import JsC.string.Maths;
+			
+			import jsProject.view.BaseUIButton;
+			
+			[Bindable]protected var __date__:String
+			[Bindable]protected var bNew:Boolean = true
+			protected var xList:XMLList
+			protected var btn:BaseUIButton
+			protected var item:BaseMenuNode
+			
+			public function $remove():void
+			{
+				if (parent)Group(parent).removeElement(this)
+			}
+			
+			protected function createDate():void
+			{
+				__date__  = Maths.currentTime()
+			}
+
+			public function $setData(_btn:BaseUIButton):void
+			{
+				btn = _btn
+				$setList(_btn.$getData())
+			}
+			
+			public function $setItem(_btn:BaseMenuNode):void
+			{
+				item = _btn
+				$setList(_btn.$getData())
+			}
+			
+ 			protected function $setList(_xmlList:XMLList):void
+			{
+				bNew = false
+				xList = _xmlList
+				__date__ = xList.@date
+			}
+			
+			public function $modData(_xmllist:XMLList):void
+			{
+				
+			}
+			
+			protected function onChange():void
+			{
+				
+			}
+		]]>
+	</fx:Script>
+</s:Group>

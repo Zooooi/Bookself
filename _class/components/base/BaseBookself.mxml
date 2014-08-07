@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*"
+				 >
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.XmlContent;
+			protected var picList:XMLList
+			protected var pageList:XMLList
+			protected var pageLayout:XMLList
+			protected var pageAuto:XMLList
+			protected var pageLandscape:XMLList
+			protected var pageProtrait:XMLList
+			
+			[Bindable]protected var __backGround:String;
+			[Bindable]protected var __backGroundSource:String;
+			
+			[Bindable]protected var __autoHGap:int = 10;
+			[Bindable]protected var __autoVGap:int = 10;
+			[Bindable]protected var __landscapeVGap:int
+			[Bindable]protected var __landscapeHGap:String
+			[Bindable]protected var __landscapeLine:String
+			[Bindable]protected var __protraitVGap:int
+			[Bindable]protected var __protraitHGap:String
+			[Bindable]protected var __protraitLine:String
+			
+			
+			protected function initData():void
+			{
+				pageList = xmlData.books
+				
+				if (xmlData.layoutContent==undefined) xmlData.layoutContent= XmlContent.Edit_IntroLayout
+				pageLayout = xmlData.layoutContent
+				pageAuto = pageLayout.auto
+				pageLandscape = pageLayout.landscape
+				pageProtrait = pageLayout.protrait
+				
+				__autoHGap = pageAuto.@hGap
+				__autoVGap = pageAuto.@vGap
+					
+				__landscapeVGap = pageLandscape.@vGap
+				__landscapeHGap = pageLandscape.@hGap
+				__landscapeLine = pageLandscape.@line
+					
+				__protraitVGap = pageProtrait.@vGap
+				__protraitHGap = pageProtrait.@hGap
+				__protraitLine = pageProtrait.@line
+			}
+			
+			
+			public function updateXML():void
+			{
+				pageAuto.@hGap = __autoHGap
+				pageAuto.@vGap = __autoVGap
+					
+				pageLandscape.@vGap = __landscapeVGap
+				pageLandscape.@hGap = __landscapeHGap
+				pageLandscape.@line = __landscapeLine 
+					
+				pageProtrait.@vGap = __protraitVGap
+				pageProtrait.@hGap = __protraitHGap
+				pageProtrait.@line = __protraitLine
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+</base:LoaderBase>

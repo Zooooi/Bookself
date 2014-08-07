@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="800" width="1024" height="768" xmlns:books="components.books.*" creationComplete="onFlexEvent(event)" addedToStage="onEvent(event)">
+	<fx:Script>
+		<![CDATA[
+			import Js.events.ProjectEvent;
+			
+			import mx.events.FlexEvent;
+			
+			protected function onEvent(event:Event):void
+			{
+				stage.addEventListener(Event.RESIZE,onResize)
+			}
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				toolbar.addEventListener(ProjectEvent.COMPLETE,onNaviProjectEvent)
+				toolbar.init()
+			}
+			protected function onNaviProjectEvent(event:Event):void
+			{
+				page.addEventListener(ProjectEvent.COMPLETE,onPageProjectEvent)
+				page.init()
+			}
+			protected function onPageProjectEvent(event:Event):void
+			{
+				//-------------------last
+				toolbar.setPageFlip(page)
+			}
+			protected function onResize(event:Event=null):void
+			{
+				width = stage.stageWidth
+				height = stage.stageHeight
+				toolbar.width = width
+				page.onResize()
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<books:BookPage id="page" width="1024"/>
+	<books:BookTools id="toolbar" width="1024"/>
+</s:Group>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  minWidth="700" minHeight="768" xmlns:symbol="components.symbol.*" xmlns:editors="components.editors.*"
+		 addedToStage="onEvent(event)" 
+		 >
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.configs.Tooltips;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Value;
+			
+			import mx.events.IndexChangedEvent;
+			import mx.events.ResizeEvent;
+			
+			private const cX:uint = 2
+			
+			protected function onResize(event:Event=null):void
+			{
+				main.x=cX
+				main.y=cX
+				main.width = stage.stageWidth-cX*2
+				main.height = stage.stageHeight-cX*2
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				init()
+			}
+			
+			private function init():void
+			{
+				Tooltips.init()
+				stage.addEventListener(Event.RESIZE,onResize)				
+				onResize()
+			}
+			
+			protected function onChange(event:IndexChangedEvent):void
+			{
+				var _me:TabNavigator = TabNavigator(event.currentTarget)
+				switch(_me.getElementAt(event.newIndex))
+				{
+					case pageContent:
+						page.dispatchEvent(new JEvent(JEvent.INIT))
+						break
+					case listContent:
+						list.dispatchEvent(new JEvent(JEvent.INIT))
+						break;
+					
+				}
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:TabNavigator id="main" width="100%" height="100%" change="onChange(event)">
+		<!-- enabled="{Value.bEdit_Page_Content}"-->
+		
+		<s:NavigatorContent id="background" width="100%" height="100%" label="Background">
+			<editors:Editor_Background width="100%" height="100%"/>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent id="books" width="100%" height="100%" label="Books">
+			<editors:Editor_Book width="100%" height="100%" />
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent id="pageContent" width="100%" height="100%" label="Page" enabled="{Value.bEdit_Page_Content}" >
+			<editors:Editor_Page id="page" width="100%" height="100%"/>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent id="listContent" width="100%" height="100%" label="List" enabled="{Value.bEdit_Page_Content}">
+			<editors:Editor_List id="list" width="100%" height="100%"/>
+		</s:NavigatorContent>
+		
+		<s:NavigatorContent id="components" width="100%" height="100%" label="Components">
+			<editors:Editor_Component width="100%" height="100%"/>
+		</s:NavigatorContent>
+		
+	</mx:TabNavigator>
+</s:Group>

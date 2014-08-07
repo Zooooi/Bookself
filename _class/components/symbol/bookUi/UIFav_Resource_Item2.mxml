@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:bookUi="components.symbol.bookUi.*"
+					 currentState="State1">
+	<fx:Declarations>
+		<s:VGroup id="gr" width="384" gap="0" />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.ctrl.OpenComponentFiles;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			//这个组件是组合，作为集合一页的资源，以及单个按钮
+			
+			private static var nCount:uint
+			[Bindable]private var sChapter:String
+			[Bindable]private var sPage:String
+			[Bindable]private var sContent:String
+			
+			
+			private var nPage:uint
+			private var xmlComponent:XMLList
+			//一页
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				xmlList = XMLList(_xmlList.children()[i])
+				nPage = i
+				var j:int	
+				var _xmlLength:uint
+				var _newList:UIFav_Resource_Item
+					
+				if (xmlList.localName() == NameDefine.KEY_RESOURCE)
+				{
+					addElement(gr)
+					_newList = new UIFav_Resource_Item
+					gr.addElement(_newList)
+					_newList.width = this.width
+					_newList.setResourceButton(XMLList(xmlList),i,_xmlLength) 
+				}else{
+					 xmlList = XMLList(_xmlList.children()[i])
+					var xmlControls:XMLList = XMLList(xmlList.controls)
+					_xmlLength = xmlControls.children().length()
+					if (_xmlLength>0)
+					{
+						addElement(gr)
+						for (j = 0; j < _xmlLength; j++) 
+						{
+							_newList = new UIFav_Resource_Item
+							gr.addElement(_newList)
+							_newList.width = this.width
+							_newList.setButtonContent(XMLList(xmlList),XMLList(xmlControls.children()[j]),j,_xmlLength) 
+						} 
+					} 
+				}
+				
+				
+			}
+			
+			//一个按钮
+			override public function setButtonContent(_xmlParent:XMLList,_xmlComponent:XMLList, i:uint, _length:uint):void
+			{
+				xmlComponent = _xmlComponent
+				currentState="State2"
+				
+				sContent = _xmlComponent.@name
+				sIcon = getResourceIcon(_xmlComponent.@icon)
+				nPage = i
+				if (_xmlComponent.@page!=undefined ||  _xmlComponent.@page!="")
+				{
+					nPage = uint(_xmlComponent.@page)
+					sPage = Value.getPageNumber(nPage-1)
+					sChapter = Value.getPageNumber(nPage-1,"chapter")
+				}
+				setBGcolor(nCount)
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+				nCount ++
+			}
+			
+			
+			private function setResourceButton(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				currentState="State2"
+				sContent = _xmlList.@name
+				sIcon = getResourceIcon(_xmlList.@icon)
+				if (_xmlList.@page!=undefined ||  _xmlList.@page!="")
+				{
+					nPage = uint(_xmlList.@page)
+					if (nPage<Value.aPageNumber.length)
+					{
+						sPage = String(Value.aPageNumber[nPage].content)
+						sChapter = sPage.split(".")[0]
+					}
+				}
+				setBGcolor(nCount)
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+				nCount ++
+			}
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						if (nPage!=0)Viewers.getPage().$navigateByNum(nPage)
+						new OpenComponentFiles(XML(xmlComponent))
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	
+	<s:HGroup includeIn="State2" width="100%" gap="15" paddingBottom="{cpB*1.2}" paddingLeft="12" paddingRight="{cpR}"
+			  paddingTop="{cpT*1.2}" verticalAlign="middle">
+		<s:Image x="15" y="0" width="20" height="20" smooth="true" source="{sIcon}" ioError="onIconLoadError(event)" />
+		<s:Label width="44" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sPage}" textAlign="center" verticalAlign="top"/>
+		<s:Label width="44" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sChapter}" textAlign="center" verticalAlign="top"/>
+		<s:Label width="206" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sContent}" textAlign="left" verticalAlign="top"/>
+	</s:HGroup>
+</bookUi:BaseMenuNode>

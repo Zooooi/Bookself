@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:Tools="components.symbol.Tools.*"
+				   width="700"  minHeight="40" backgroundColor="#363466"
+				   preinitialize="Viewers.setTop(this)"
+				   creationComplete="onFlexEvent(event)"
+				   height="45"
+				   >
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.books.Book;
+			import components.symbol.bookUi.UIFav;
+			import components.symbol.bookUi.UIMenu;
+			import components.symbol.bookUi.UISearch;
+			
+			import jsProject.ctrl.StageCtrl;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			
+			private var uimenu:UIMenu
+			private var uifav:UIFav
+			private var currentToggleBtn:ToggleButton
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						var _book:Book =  Viewers.getBook()
+						_book.addEventListener(JEvent.RESIZE,onStageEvent)
+						onResize(true)
+						break;
+				}
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				if (StageCtrl.resize(stage,_b))
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+			}
+			
+			
+			protected function onToggleMouseEvent(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				currentToggleBtn = ToggleButton(event.currentTarget)
+				var _menu:IVisualElement
+				var _bPop:Boolean
+				if (currentToggleBtn.selected)
+				{
+					switch(currentToggleBtn)
+					{
+						case btnMenu:
+							if (uimenu==null) uimenu = new UIMenu
+							_menu = uimenu;
+							break;
+						
+						case btnFav:
+							if (uifav==null) uifav = new UIFav
+							_menu = uifav;
+							break;
+						case btnSearch:_menu = new UISearch;break;
+					}
+					_menu.percentHeight = 100
+					_menu.addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+					Viewers.getPage().addTool(_menu)
+				}
+			}
+			
+			
+			protected function onToggleMouseEvent2(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				var _me:ToggleButton = ToggleButton(event.currentTarget)
+				var _menu:Group
+				var _bPop:Boolean
+				switch(event.currentTarget)
+				{
+					case btnChangeMode:
+						if (_me.selected)
+						{
+							Viewers.getPage().setOnePage()
+						}else{
+							Viewers.getPage().setTwoPage()
+						}
+						Viewers.getNavigate().setState(_me.selected)
+						break;
+				}
+			}
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.REMOVED_FROM_STAGE:
+						if (currentToggleBtn)currentToggleBtn.selected=false
+						break;
+						
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+		<s:State name="State3"/>
+	</s:states>
+	<s:HGroup left="5" height="45"  horizontalAlign="left" verticalAlign="middle">
+		<s:Button buttonMode="true" click="Viewers.getBook().dispatchEvent(new JEvent(JEvent.HOME))"
+				  skinClass="components.skin.Navi_Return" useHandCursor="true"
+				  width="45" height="45"/>
+		<s:ToggleButton id="btnMenu" width="45" height="45" skinClass="components.skin.Navi_Menu" useHandCursor="true" buttonMode="true" click="onToggleMouseEvent(event)"/>
+		<s:ToggleButton id="btnFav" width="45" height="45" skinClass="components.skin.Navi_Favor" useHandCursor="true" buttonMode="true" click="onToggleMouseEvent(event)"/>
+		<s:ToggleButton visible="false" width="45" height="45" id="btnSearch" skinClass="components.skin.Navi_Search" useHandCursor="true" buttonMode="true" click="onToggleMouseEvent(event)" />
+	</s:HGroup>
+	<s:HGroup left="0" right="0" height="42" horizontalAlign="center" verticalAlign="middle">
+		<Tools:ToolMusic/>
+	</s:HGroup>
+	<s:HGroup id="grRight" right="5" height="45"  horizontalAlign="right" verticalAlign="middle">
+		<s:ToggleButton id="btnChangeMode" includeIn="State1" buttonMode="true"
+						click="onToggleMouseEvent2(event)" skinClass="components.skin.Navi_Book"
+						useHandCursor="true" visible="false"/>
+		<s:Button includeIn="State3" skinClass="components.skin.Navi_Restore" useHandCursor="true" buttonMode="true" />
+		<s:Button includeIn="State3" skinClass="components.skin.Navi_Help" useHandCursor="true" buttonMode="true" />
+		<s:Button includeIn="State3" skinClass="components.skin.Navi_Upload" useHandCursor="true" buttonMode="true" />
+		<s:Button includeIn="State3" skinClass="components.skin.Navi_Download" useHandCursor="true" buttonMode="true" />
+	</s:HGroup>
+</s:BorderContainer>

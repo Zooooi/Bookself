@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="1024" minWidth="600" minHeight="400" xmlns:base="components.base.*" xmlns:symbol="components.symbol.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			import JsC.string.Maths;
+			import JsC.xml.XmlCtrl;
+			
+			import components.editors.symbol.Editor_Book_Item;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			
+			
+			private var booksList:XMLList
+			
+			private const cPath:String = Files.folder_bookself
+			//override-----------------------------------------------------------------------------------------------------------------
+			override protected function initMdel():void
+			{
+				init_bookself()
+				xmlData.@groupID = Maths.DataName(NameDefine.KEY_BOOKSELF_ID)
+			
+			}
+			
+			override protected function init():void
+			{
+				booksList = xmlData.books
+				gr.removeAllElements()
+				var i:int
+				for (i = 0; i < booksList.children().length(); i++) 
+				{
+					addItem().setXML(booksList.children()[i])
+				}
+				
+			}
+			
+				
+			//-----------------------------------------------------------------------------------------------------------------	
+			
+			
+			
+			
+			
+			
+			//private-----------------------------------------------------------------------------------------------------------------
+			
+			private function addItem():Editor_Book_Item
+			{
+				var _item:Editor_Book_Item = new Editor_Book_Item
+				gr.addElement(_item)
+				return _item
+			}
+			
+			
+			protected function onOpenMouseEvent(event:MouseEvent):void
+			{
+				openXmlFile()
+			}
+			
+			protected function onSaveMouseEvent(event:MouseEvent):void
+			{
+				var i:int
+				XmlCtrl.deleteAllChildren(booksList)
+				for (i = 0; i < gr.numElements; i++) booksList.appendChild(Editor_Book_Item(gr.getElementAt(i)).getXML().copy())
+				saveXmlFile(cPath)
+			}
+			//-----------------------------------------------------------------------------------------------------------------	
+			
+			
+			
+			
+			
+			
+			//event-----------------------------------------------------------------------------------------------------------------
+			
+			protected function onAddMouseEvent(event:MouseEvent):void
+			{
+				addItem()
+			}
+			//-----------------------------------------------------------------------------------------------------------------	
+			
+			
+			protected function onOpenFolder(event:MouseEvent):void
+			{
+				ShellSystem.current.openFile(cPath)
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<fx:Declarations>
+		<fx:Boolean id="_hadBook"/>
+	</fx:Declarations>
+	
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="增加或删减书本"/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Path:"/>
+					<s:Label styleName="systemText" text="{Files.folder_bookself}"/>
+					<s:Button width="14" height="14" label="open folder" click="onOpenFolder(event)"
+							  icon="@Embed('embed/button/folder.png')"
+							  useHandCursor="true"  buttonMode="true"/>
+				</s:HGroup>
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Data:"/>
+					<s:Label styleName="systemText" text="{Files.file_bookself}"/>
+				</s:HGroup>
+			</s:HGroup>
+		
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="25"/>
+		<s:HGroup width="15%" verticalAlign="middle" >
+			<s:Label styleName="systemText" text="Book:"/>
+			<s:Button width="59" label="add" click="onAddMouseEvent(event)"/>
+		</s:HGroup>
+		
+		<mx:VRule y="6" width="1" height="25"/>
+		<s:HGroup width="15%" verticalAlign="middle" horizontalAlign="center">
+			<s:Label styleName="systemText" text="XML File:"/>
+			<!--<s:Button width="59" label="open" click="onOpenMouseEvent(event)"/>-->
+			<s:Button width="59" label="save" click="onSaveMouseEvent(event)"/>
+		</s:HGroup >	
+	</s:HGroup>
+	
+	<s:VGroup left="10" right="10" top="35" bottom="5">
+		<s:BorderContainer  height="100%" width="100%">
+			<s:Scroller id="scroll" left="4" right="4" top="4" bottom="4">
+				<s:VGroup id="gr" x="23" y="296" width="100%" height="100%">
+				</s:VGroup>
+			</s:Scroller>
+		</s:BorderContainer>
+	</s:VGroup>
+	
+	
+	
+
+	
+
+</base:LoaderBase>

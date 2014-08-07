@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:components="components.*" xmlns:base="components.base.*"
+					minWidth="800">
+
+	<fx:Declarations>
+		<s:Group id="__dragTarget__"/>
+		<s:BorderContainer id="__hitTarget__"/>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="ADD", type="Js.events.ProjectEvent")]
+		[Event(name="RESULT", type="Js.events.ProjectEvent")]
+		[Event(name="REMOVE", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.VConst;
+			import Js.mdel.XmlContent;
+			
+			[Bindable]private var __id:String
+			[Bindable]private var __action:String
+			[Bindable]private var __prompt:String
+			[Bindable]private var __file:String
+			[Bindable]private var __x:uint
+			[Bindable]private var __y:uint
+			[Bindable]private var __w:uint
+			[Bindable]private var __h:uint
+			
+			
+			private var currnetItem:IconButton
+			private var currnetNode:XMLList
+			
+			override protected function initMdel():void
+			{
+				xmlData = XmlContent.Edit_Component.copy()
+				xmlFileName = Files.file_components
+				xmlPath = Files.folder_components+Files.file_components
+				xmlKey = VConst.KEY_COMPONENTS_ID
+			}
+			
+			override protected function initView():void
+			{
+				gr.removeAllElements()
+				var _item:IconButton
+				var i:int
+				for (i = 0; i < xmlData.children().length(); i++) 
+				{
+					_item = addItem()
+					_item.NUM = i
+					_item.addEventListener(MouseEvent.MOUSE_DOWN,onItemMouseEvent)
+					_item.$setData(xmlData.children()[i],false)
+				}
+				XmlContent.XML_COMPONENT = xmlData
+			}
+			
+			private function addItem():IconButton
+			{
+				var _item:IconButton = new IconButton
+				_item._path = Files.folder_components
+				gr.addElement(_item)
+				return _item
+			}
+			
+			
+			protected function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _me:IconButton = IconButton(event.currentTarget)
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						
+						var _item:IconButton = new IconButton
+						_item.NUM = _me.NUM
+						_item._path = _me._path
+						_item.$setData(xmlData.children()[_item.NUM],false)
+						_item.startDrag(false)
+						_item.addEventListener(MouseEvent.MOUSE_UP,onItemMouseEvent)
+						
+						
+						var _point:Point = __dragTarget__.globalToLocal(gr.localToGlobal(new Point(_me.x,_me.y)))
+						_item.x = _point.x
+						_item.y = _point.y
+						__dragTarget__.addElement(_item)
+						
+						break;
+					
+					case MouseEvent.MOUSE_UP:
+						if (_me.hitTestObject(__hitTarget__))
+						{
+							currnetItem = _me
+							currnetItem.removeEventListener(MouseEvent.MOUSE_UP,onItemMouseEvent)
+							dispatchEvent(new ProjectEvent(ProjectEvent.ADD))
+						}else{
+							__dragTarget__.removeElement(_me)
+						}
+						break
+				}	
+			}
+			
+			public function getCoponentItem():IconButton
+			{
+				return currnetItem
+			}
+			
+			
+			
+			public function setComponentProperty(_node:XMLList):void
+			{
+				currnetNode = _node
+				__id = currnetNode.@id
+				__action = currnetNode.@action
+				__prompt = currnetNode.@prompt
+				__file = currnetNode.@file
+				__x = currnetNode.@x
+				__y = currnetNode.@y
+				__w = currnetNode.@width
+				__h = currnetNode.@height
+			}
+			
+			public function doProjectEvent_Result():void
+			{
+				if (currnetNode==null) return
+				currnetNode.@id = __id
+				currnetNode.@action = __action
+				currnetNode.@prompt = __prompt
+				currnetNode.@file = __file
+				currnetNode.@x = __x
+				currnetNode.@y = __y
+				currnetNode.@width = __w
+				currnetNode.@height = __h
+				dispatchEvent(new ProjectEvent(ProjectEvent.RESULT))
+			}
+			
+			public function doProjectEvent_Remove():void
+			{
+				dispatchEvent(new ProjectEvent(ProjectEvent.REMOVE))
+			}
+			
+			protected function onRemoveMouseEvent(event:MouseEvent):void
+			{
+				//删除当前组件
+				doProjectEvent_Remove()
+				
+				__id = currnetNode.@id
+				__action = currnetNode.@action
+				__prompt = currnetNode.@prompt
+				__file = currnetNode.@file
+				__x = currnetNode.@x
+				__y = currnetNode.@y
+				__w = currnetNode.@width
+				__h = currnetNode.@height
+			}
+			
+			protected function onNumberEvent(event:Event):void
+			{
+				//x,y,w,h
+				var _me:NumericStepper = NumericStepper(event.currentTarget)
+				switch(_me)
+				{
+					case numStX:__x = _me.value;break;
+					case numStY:__y = _me.value;break;
+					case numStW:__w = _me.value;break;
+					case numStH:__h = _me.value;break;
+				}
+				doProjectEvent_Result()
+			}
+			
+			protected function onTextInputEvent(event:KeyboardEvent):void
+			{
+				// textInput
+				doTextInputAction(TextInput(event.currentTarget))
+			}
+			
+			protected function onTextInputFocusOut(event:FocusEvent):void
+			{
+				// textInput
+				doTextInputAction(TextInput(event.currentTarget))
+			}
+			
+			private function doTextInputAction(_textInput:TextInput):void
+			{
+				switch(_textInput)
+				{
+					case textPrompt:__prompt = _textInput.text;break;
+					case textOpen:__file = _textInput.text;break;
+				}
+				doProjectEvent_Result()
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<s:BorderContainer left="0" right="0" top="0" bottom="0">
+		<s:layout>
+			<s:HorizontalLayout gap="2"/>
+		</s:layout>
+		<s:VGroup width="60%" height="100%" gap="0" paddingBottom="10" paddingLeft="10"
+				  paddingRight="5">
+			<s:HGroup width="189" gap="10" horizontalAlign="left" verticalAlign="middle">
+				<mx:VRule width="1" height="30"/>
+				<s:Label text="Component:"/>
+				<mx:VRule width="1" height="30"/>
+				<s:Button id="refresh" label="refresh" width="80" click="reLoadXml()"/>
+			</s:HGroup>
+			<s:BorderContainer width="100%" height="100%">
+				<s:Scroller id="scroll" left="4" right="4" top="4" bottom="4">
+					<s:HGroup id="gr" width="100%" height="100%" horizontalAlign="center"/>
+				</s:Scroller>
+			</s:BorderContainer>
+		</s:VGroup>
+		
+		<s:VGroup width="40%" height="100%" gap="0" paddingBottom="10" paddingLeft="5"
+				  paddingRight="10">
+			<s:HGroup width="189" gap="10" horizontalAlign="left" verticalAlign="middle">
+				<mx:VRule width="1" height="30"/>
+				<s:Label text="Property:"/>
+				<mx:VRule width="1" height="30"/>
+				<s:HGroup width="100%" gap="2" verticalAlign="middle">
+					<s:Button width="80" label="remove" chromeColor="#F8C5C5"
+							  doubleClick="onRemoveMouseEvent(event)" doubleClickEnabled="true"/>
+					<s:Label fontSize="10" text="(double click)"/>
+				</s:HGroup>
+			</s:HGroup>
+			
+			<!--
+			property
+			-->
+			
+			<s:BorderContainer width="100%" height="100%">
+				<s:VGroup width="100%" gap="4" paddingBottom="5" paddingLeft="5" paddingRight="5"
+						  paddingTop="5">
+					<s:HGroup width="100%" gap="10" horizontalAlign="left" verticalAlign="middle">
+						<s:Label text="ID:"/>
+						<s:Label text="{__id}"/>
+					</s:HGroup>
+					<s:HGroup width="100%" gap="10" horizontalAlign="left" verticalAlign="middle">
+						<s:Label text="ACTION:"/>
+						<s:Label text="{__action}"/>
+					</s:HGroup>
+					
+					<s:HGroup width="100%" gap="10" horizontalAlign="left" verticalAlign="middle">
+						<s:Label text="prompt:"/>
+						<s:TextInput id="textPrompt" width="80%" text="{__prompt}" keyUp="onTextInputEvent(event)" focusOut="onTextInputFocusOut(event)"/>
+						<mx:VRule width="1" height="20"/>
+						<s:Label text="open file:"/>
+						<s:TextInput id="textOpen" width="80%" text="{__file}" keyUp="onTextInputEvent(event)" focusOut="onTextInputFocusOut(event)"/>
+					</s:HGroup>
+					
+					<!--<s:HGroup width="100%" gap="10" horizontalAlign="left" verticalAlign="middle">
+						
+					</s:HGroup>-->
+					
+					<s:HGroup width="100%" gap="10" horizontalAlign="left" verticalAlign="middle">
+						<s:Label text="x:"/>
+						<s:NumericStepper id="numStX" change="onNumberEvent(event)" width="15%" maximum="10000" stepSize="0.1" value="{__x}"/>
+						
+						<mx:VRule width="1" height="20"/>
+						<s:Label text="y:"/>
+						<s:NumericStepper id="numStY" change="onNumberEvent(event)" width="15%" maximum="10000" stepSize="0.1" value="{__y}"/>
+						
+						<mx:VRule width="1" height="20"/>
+						<s:Label text="w:"/>
+						<s:NumericStepper id="numStW" change="onNumberEvent(event)" width="15%" maximum="1000" stepSize="1" value="{__w}"/>
+						<mx:VRule width="1" height="20"/>
+						<s:Label text="h:"/>
+						<s:NumericStepper id="numStH" change="onNumberEvent(event)" width="15%" maximum="1000" stepSize="1" value="{__h}"/>
+					</s:HGroup>
+					
+				</s:VGroup>
+				
+			</s:BorderContainer>
+		</s:VGroup>	
+		
+		
+	</s:BorderContainer>
+
+</base:LoaderBase>

@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- online -->
+<books:BookIntro_viewer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:books="components.books.*" xmlns:Buttons="components.symbol.Buttons.*">
+	
+	<fx:Declarations>
+		<s:TileGroup id="grTile" horizontalAlign="center" horizontalCenter="0"
+					 horizontalGap="{__autoHGap}" orientation="columns"
+					 requestedColumnCount="{nColumn}" requestedRowCount="{nRow}"
+					 verticalAlign="middle" verticalGap="{__autoVGap}"/>
+		
+		<s:VGroup id="grFree" width="100%" height="100%" gap="{nVGap}">
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+		</s:VGroup>
+		<Buttons:Bookself_DownloadComfirm id="grDownPane" width="100%" height="100%"/>
+		<Buttons:Bookself_LoadingAndRefresh id="grLoading" horizontalCenter="0" verticalCenter="0" myParent="{grTop}" />
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="LOADER_START", type="JsC.events.JEvent")]
+		[Event(name="LOADER_COMPLETE", type="JsC.events.JEvent")]
+		[Event(name="SELECT", type="JsC.events.JEvent")]
+		[Event(name="FINISH", type="JsC.events.JEvent")]
+		[Event(name="RESIZE", type="JsC.events.JEvent")]
+		[Event(name="OPEN_HTML", type="jsProject.events.ComponentEvent")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Group;
+			import spark.components.HGroup;
+			
+			import JsA.loader.ExtraZip;
+			import JsA.loader.LoadFile;
+			
+			import JsC.events.JEvent;
+			import JsC.shell.ShellSystem;
+			import JsC.string.Maths;
+			import JsC.xml.XmlCtrl;
+			
+			import components.symbol.Buttons.Bookself_BookButton;
+			import components.symbol.Buttons.Bookself_DownloadPane;
+			import components.symbol.bookUi.Login;
+			
+			import jsProject.ctrl.StageCtrl;
+			import jsProject.ctrl.UrlData;
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.UserInfo;
+			import jsProject.mdel.Value;
+			
+			private const xml_check:String = "xml_check";
+			private const xml_done:String = "done";
+			private const xml_downloaded:String = "downloaded";
+			
+			private const cLength:uint = 6;
+			protected var aButton:Vector.<Group> = new Vector.<Group>
+			protected var aFolder:Vector.<String>
+			
+			private var nCount:uint
+			private var nGrWidth:uint
+			
+			private var loadFile:LoadFile
+			private var nCurrent:uint
+			
+			private var currentLoadPane:Bookself_BookButton
+			
+			private var zipFile:String;
+			private var zipPath:String;
+			private var sInfo:String=""
+			
+			private var grDowning:Bookself_DownloadPane
+			
+			private var urlLogin:UrlData 
+			
+			private var xmlOn:XML
+			private var xmlOff:XML
+			
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			override protected function initMdel():void
+			{
+				init_bookself()
+				grLoading.getIn();
+			}
+			
+			override protected function init():void
+			{
+				Value.sUrl = xmlData.@website
+				
+				onLoadXMLComplete()
+			}
+			
+			protected function onLoadXMLComplete():void
+			{
+				var xml:XML = xmlData.copy()
+				switch(String(xml.@fileID))
+				{
+					case NameDefine.FILE_ID_BOOKSELF:
+						initLogin()
+						//onGetBookSelf()
+						break;
+					
+					case NameDefine.FILE_ID_DOWNLOAD_BOOKSELF:
+						//xmlDB = xml
+						xmlOff = xml;
+						initView()
+						break
+					
+					
+				}
+				
+			}
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			
+			protected function initLogin():void
+			{
+				urlLogin = new UrlData
+				urlLogin.addEventListener(JEvent.YES,onLoginEvent);
+				urlLogin.addEventListener(JEvent.NO,onLoginEvent);
+				urlLogin.addEventListener(JEvent.IOERROR,onLoginEvent);
+				urlLogin.login();
+			}
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				addEventListener(JEvent.RESIZE,onStageEvent)
+				onResize(true)
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				trace("onStageEvent",Value.bStageSize)
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				if (StageCtrl.resize(stage,_b))
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+				if (nLength)
+				{
+					if (nLength<=cLength)
+					{
+						setTileGroupValue()
+					}else{
+						assignGroup()
+					}
+				}
+				
+			}
+			
+			protected function initView():void
+			{
+				
+				var i:uint
+				gr.removeAllElements()
+				aButton = new Vector.<Group>
+				aFolder = new Vector.<String>
+				initData()
+				nLength = xmlOn.children().length()
+				if (nLength<=cLength)
+				{
+					setTileGroupValue()
+				}
+				//trace(xmlOff);
+				for (i = 0; i < nLength; i++) 
+				{
+					var _group:Bookself_BookButton = new Bookself_BookButton
+					_group.percentWidth = 100;
+					_group.percentHeight = 100;
+					
+					var _node:XML = xmlOn.children()[i]
+					var _url:String = xmlOn.@path;
+					var _isbn:String = _node.@isbn
+					var _publish:String = _node.@publish
+					var _downloaded:String = _node.@downloaded
+					var _status:String;
+					_group.$img.source = _url + _isbn + ".png";
+					
+					var _nodeOff:XMLList = xmlOff.books.children().(@isbn == _isbn)
+					_status = _nodeOff.@status
+					
+					//trace("_status",_status,_isbn);
+					
+					if (_publish =="1")
+					{
+						switch(_status)
+						{
+							case xml_done:
+								_group.$img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+								break;
+							case xml_downloaded:
+								_group.$img.addEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
+								break
+							default:
+								_group.$img.addEventListener(MouseEvent.CLICK,onCheckDownloadMouseEvent)
+								break
+							
+						}
+						_group.$setDownloadNum(_downloaded) ;
+						_group.useHandCursor = true
+						_group.buttonMode = true
+					}else{
+						_group.alpha = 0.5
+						_group.$setDownloadNum() ;	
+					}
+					aButton.push(_group)
+					aFolder.push(_isbn)
+				}
+				
+				
+				if (nLength<=cLength)
+				{
+					gr.addElement(grTile)
+					for (i = 0; i < nLength; i++) grTile.addElement(aButton[i]) 
+				}else{
+					assignGroup()
+				}
+				
+			}
+			
+			
+			private function assignGroup():void
+			{
+				if (nLength>cLength)
+				{
+					var i:uint
+					var _aGap:Array 
+					var _aLine:Array
+					var _group:HGroup
+					var _count:uint
+					gr.addElement(grFree)
+					
+					switch(currentState)
+					{
+						case "State1":
+							nVGap = __landscapeVGap
+							_aGap = __landscapeHGap.split("|")
+							_aLine = __landscapeLine.split("|")
+							break;
+						case "State2":
+							nVGap = __protraitVGap
+							_aGap = __protraitHGap.split("|")
+							_aLine = __protraitLine.split("|")
+							break;
+					}
+					
+					for (i = 0; i < grFree.numElements; i++) 
+					{
+						_group = HGroup(grFree.getElementAt(i))
+						_group.removeAllElements()
+						_group.gap = _aGap[i]
+						
+						for (var j:int = 0; j < _aLine[i]; j++) 
+						{
+							if (_count<aButton.length)
+							{
+								_group.addElement(aButton[_count])
+								_count ++
+							}else{
+								break
+							}
+						}
+					}
+				}
+				
+			}
+			
+			
+			private function setTileGroupValue():void
+			{
+				if (nLength!=0)
+				{
+					var _c:uint
+					switch(currentState)
+					{
+						case "State1":
+							_c = 3
+							break;
+						case "State2":
+							_c = 2
+							break;
+					}
+					nColumn = (nLength<_c)?nLength:_c
+					nRow = Math.ceil(nLength/_c)
+				}
+			}
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			public function setXML(_xml:XML):void
+			{
+				actionRefresh(_xml)
+			}
+			
+			public function actionRefresh(_xml:XML):void
+			{
+				xmlData = _xml
+				initData()
+				assignGroup()
+			}
+			
+			
+			
+			//event------------------------------------------------------------------------------------------------------------------------
+			
+			//open book
+			protected function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _me:Group = Group(event.currentTarget.parent)
+				Files.book_isbn = aFolder[aButton.indexOf(_me)]
+				dispatchEvent(new JEvent(JEvent.SELECT))
+			}
+			//download book
+			protected function onCheckDownloadMouseEvent(event:MouseEvent):void
+			{
+				if (grDowning!=null && grDowning.parent)currentLoadPane.$removeAll()
+				grDownPane.dispatchEvent(new JEvent(JEvent.CANCEL));
+				var _me:Bookself_BookButton = Bookself_BookButton(event.currentTarget.parent)
+				var _index:uint = aButton.indexOf(_me);
+				currentLoadPane = _me;
+				nCurrent = _index
+				onStartDown()
+			}
+			protected function onExtraZipMouseEvent(event:MouseEvent):void
+			{
+				if (grDowning!=null && grDowning.parent)currentLoadPane.$removeAll()
+				grDownPane.dispatchEvent(new JEvent(JEvent.CANCEL));
+				var _me:Bookself_BookButton = Bookself_BookButton(event.currentTarget.parent)
+				var _index:uint = aButton.indexOf(_me);
+				currentLoadPane = _me;
+				Files.book_isbn = aFolder[_index]
+				nCurrent = _index
+				onLoadedAndStartExtraZip()
+			}
+			
+			private function onLoadZipFunction(_type:String=""):void
+			{
+				switch(_type)
+				{
+					case "open":
+						grDowning.$waiting()
+						break
+					case "complete":
+						onDownloadComplete()
+						break;
+				}
+			}
+			
+			protected function onLoadedAndStartExtraZip():void
+			{
+				//............................................................................................................................
+				
+				dispatchEvent(new JEvent(JEvent.LOADER_START))
+				currentLoadPane.$removeAll()
+				currentLoadPane.$disable()
+				
+				//............................................................................................................................
+				loadFile = undefined;
+				
+				zipFile = Files.folder_books + aFolder[nCurrent] + ".zip"
+				zipPath = Files.folder_books;
+				
+				//trace("zipfile",zipFile,zipPath)
+				var _zip:ExtraZip = new ExtraZip
+				_zip.addEventListener(JEvent.PROGRESS,onProgressEvent);
+				_zip.addEventListener(JEvent.COMPLETE,function(event:JEvent):void{
+					sInfo = "extra "
+					var l:Number = event._x
+					var t:Number = event._y
+					grDowning.$setProgress(Math.round(l/t*100),sInfo + String( l +" / " + t + " : " + Math.round(l/t*100)+"%"))
+				});
+				_zip.addEventListener(JEvent.ALLCOMPLETE,function(event:JEvent):void{
+					
+					onExtraComplete();
+					
+				});
+				currentLoadPane.$disable()
+				sInfo = "opening "
+				_zip.startByStep(zipFile,zipPath)
+				
+				//............................................................................................................................
+				grDowning = new Bookself_DownloadPane
+				grDowning.addEventListener(Event.REMOVED_FROM_STAGE,function(event:Event):void{
+					if(_zip)_zip.close()
+					currentLoadPane.$enable()
+				});
+				grDowning.addEventListener(JEvent.CANCEL,function(event:JEvent):void
+				{
+					dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
+					currentLoadPane.$removeAll()
+				});
+				currentLoadPane.addElement(grDowning)
+			}
+			
+			
+			protected function onDownloadComplete():void
+			{
+				currentLoadPane.$img.removeEventListener(MouseEvent.CLICK,onCheckDownloadMouseEvent)
+				currentLoadPane.$img.addEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
+				xml_ctrl(xml_downloaded)
+				onLoadedAndStartExtraZip()
+			}
+			
+			protected function onExtraComplete():void
+			{
+				xml_ctrl(xml_done);
+				
+				currentLoadPane.$removeAll()
+				currentLoadPane.$enable()
+				dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
+				
+				currentLoadPane.$img.removeEventListener(MouseEvent.CLICK,onExtraZipMouseEvent)
+				currentLoadPane.$img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+				currentLoadPane.$img.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+			}
+			
+			protected function onProgressEvent(event:JEvent):void
+			{
+				var l:Number = event._x
+				var t:Number = event._y
+				grDowning.$setProgress(Math.round(l/t*100),Maths.float(l/1000000) + "MB / " + Maths.float(t/1000000) + "MB : " + Math.round(l/t*100)+"%")
+				//grDowning.$setProgress(Math.round(l/t*100),sInfo + String(Math.round(l/10000)/100+"MB / " +Math.round(t/10000)/100 + "MB : " + Math.round(l/t*100)+"%"))
+			}
+			
+			
+			
+			
+			
+			protected function onLoginEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.YES:
+						grLoading.getOut()
+						onGetBookSelf()
+						break;
+					
+					case JEvent.NO:
+						var login:Login = new Login
+						login.addEventListener(JEvent.YES,function(event:JEvent):void
+						{
+							grTop.removeAllElements()
+							onGetBookSelf()
+							//onResize(Value.bStageSize)
+						});
+						login.addEventListener(JEvent.CANCEL,function(event:JEvent):void
+						{
+							grTop.removeAllElements()
+							//onResize(Value.bStageSize)
+						});
+						//PopUpManager.centerPopUp(login);
+						login.horizontalCenter = 0
+						login.verticalCenter = 0
+						grTop.addElement(login);
+						grLoading.getOut()
+						break;
+					
+					case JEvent.IOERROR:
+						grLoading.getRefresh();
+						grLoading.addEventListener(JEvent.RESTART,function(event:JEvent):void{
+							grLoading.getIn();
+							grLoading.removeEventListener(event.type,arguments.callee);
+							initLogin();
+						});
+						break
+				}
+			}
+			
+			
+			protected function onGetBookSelf():void
+			{
+				
+				var urlBookself:UrlData = new UrlData
+				var onGetBookSelfEvent:Function = function	(event:JEvent):void
+				{
+					switch(event.type)
+					{
+						case JEvent.YES:
+							if (urlBookself.$xml.books!=undefined)
+							{
+								onLoadBookself(new XML(urlBookself.$xml.books))
+							}
+							
+							break;
+						
+						case JEvent.IOERROR:
+							
+							break;
+					}
+				}
+				urlBookself.addEventListener(JEvent.YES,onGetBookSelfEvent);
+				urlBookself.addEventListener(JEvent.IOERROR,onGetBookSelfEvent);
+				urlBookself.getBookSelf()
+				
+			}
+			
+			protected function onLoadBookself(_xml:XML):void
+			{
+				xmlOn = new XML(_xml);
+				init_download_bookself()
+				reLoadXml() 
+			}
+			
+			private function onStartDown():void
+			{
+				currentLoadPane.$disable()
+				currentLoadPane.addElement(grDownPane);
+				
+				if (grDownPane.hasEventListener(JEvent.DOWNLOAD))grDownPane.removeEventListener(JEvent.DOWNLOAD,grDownPaneEvent);
+				if (grDownPane.hasEventListener(JEvent.CANCEL))grDownPane.removeEventListener(JEvent.CANCEL,grDownPaneEvent);
+				grDownPane.addEventListener(JEvent.DOWNLOAD,grDownPaneEvent);
+				grDownPane.addEventListener(JEvent.CANCEL,grDownPaneEvent);
+			}
+			
+			
+			private function grDownPaneEvent(event:JEvent):void
+			{
+				event.currentTarget.removeEventListener(event.type,arguments.callee);
+				switch(event.type)
+				{
+					case JEvent.DOWNLOAD:
+						dispatchEvent(new JEvent(JEvent.LOADER_START))
+						currentLoadPane.$removeAll()
+						
+						//下載讀數版面
+						grDowning = new Bookself_DownloadPane
+						grDowning.addEventListener(Event.REMOVED_FROM_STAGE,function(event:Event):void{
+							if (loadFile)loadFile.stop();
+							currentLoadPane.$enable()
+						})
+						grDowning.addEventListener(JEvent.CANCEL,function(event:JEvent):void{
+							event.currentTarget.removeEventListener(event.type,arguments.callee);
+							dispatchEvent(new JEvent(JEvent.LOADER_COMPLETE))
+							currentLoadPane.$removeAll()
+						});
+						currentLoadPane.addElement(grDowning)
+						grDowning.$waiting()
+						
+						sInfo = "loading "
+						loadFile = new LoadFile
+						loadFile.addEventListener(JEvent.LOADER_PROGRESS,onProgressEvent)
+						loadFile.addEventListener(JEvent.LOADER_OPEN,onLoadFileEvent)
+						loadFile.addEventListener(JEvent.LOADER_COMPLETE,onLoadFileEvent)
+						
+						var _node:XML = xmlOn.children()[nCurrent]
+						var _path:String = xmlOn.@path
+						var _download:String = _path + aFolder[nCurrent] + ".zip"
+						zipFile = Files.folder_books + aFolder[nCurrent] + ".zip"
+						zipPath = Files.folder_books;
+						/*  loadFile.start2(_download, zipFile);
+						return  */  
+						var urlData:UrlData = new UrlData
+						loadFile.start(urlData.getZipFile(aFolder[nCurrent]), zipFile); 
+						break;
+					
+					case JEvent.CANCEL:
+						currentLoadPane.$removeAll()
+						currentLoadPane.$enable()
+						break
+				}
+			}  
+			
+			private function xml_ctrl(_type:String):void
+			{
+				var _nodeOn:XML = xmlOn.children()[nCurrent];
+				var _isbn:String = _nodeOn.@isbn;
+				var _nodeOff:XMLList 
+				
+				if(xmlOff.books.children().(@isbn == _isbn) == undefined)
+				{
+					XmlCtrl.addChild(XMLList(xmlOff.books),XMLList(_nodeOn));
+				} 
+				_nodeOff = xmlOff.books.children().(@isbn == _isbn)
+				switch(_type)
+				{
+					case xml_check:
+						break;
+					case xml_downloaded:
+						_nodeOff.@status = xml_downloaded;
+						var dlInfo:UrlData = new UrlData
+						var obj:Object = new Object
+						obj.uid = UserInfo.id
+						obj.bookid = _nodeOff.@id
+						
+						var onSendDownload:Function = function(event:JEvent):void
+						{
+							switch(event.type)
+							{
+								case JEvent.YES:
+									var _downloadNum:String = String(dlInfo.$xml.action.@downloaded);
+									currentLoadPane.$setDownloadNum(_downloadNum)
+									_nodeOff.@download = _downloadNum;
+									ShellSystem.current.saveText(xmlOff,xmlFileName,Files.folder_bookself_download)
+									break;
+								
+							}
+						}
+						dlInfo.addEventListener(JEvent.YES,onSendDownload);
+						dlInfo.sendDownLoadInfo(obj);
+						break
+					case xml_done:
+						_nodeOff.@status = xml_done;
+						ShellSystem.current.deleteFile(zipFile) 
+						ShellSystem.current.saveText(xmlOff,xmlFileName,Files.folder_bookself_download)
+						break
+				}
+				
+				
+			}
+			
+			
+			protected function onLoadFileEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.LOADER_OPEN:
+						grDowning.$waiting()
+						break
+					case JEvent.LOADER_COMPLETE:
+						onDownloadComplete()
+						break;
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+</books:BookIntro_viewer>

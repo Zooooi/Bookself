@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TabNavigator xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:fc="http://ns.adobe.com/flashcatalyst/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+				 creationComplete="onInit(event)"
+				 tabStyleName="tab"
+				 >
+	<fx:Style>
+
+		.tab
+		{
+			/*upSkin:ClassReference('com.EnhancedButtonSkin');
+			overSkin:ClassReference('com.EnhancedButtonSkin');
+			downSkin:ClassReference('com.EnhancedButtonSkin');
+			disabledSkin:ClassReference('com.EnhancedButtonSkin');
+			selectedUpSkin:ClassReference('com.EnhancedButtonSkin');
+			selectedOverSkin:ClassReference('com.EnhancedButtonSkin');
+			selectedDownSkin:ClassReference('com.EnhancedButtonSkin');
+			selectedDisabledSkin:ClassReference('com.EnhancedButtonSkin');
+			
+			cornerRadii: 5, 5, 0, 0;
+			borderColors: #CC0000, #000000;
+			overBorderColors: #003399, #003399;
+			selectedBorderColors: #666666, #FFFFFF;
+			borderThickness: 1;
+			borderAlpha: 1;
+			fillColors: #CC3300, #F98900;
+			fillAlphas: 1, 1;
+			fillColorRatios: 0, 255;
+			overFillColors: #999999, #FFFFFF;
+			overFillAlphas: 1, 1;
+			overFillColorRatios: 0, 255;
+			selectedFillColors: #999999, #FFFFFF;
+			selectedFillAlphas: 1, 1;
+			selectedFillColorRatios: 111, 255;
+			highlightAlphas: 0, 0;
+			color: #000000;
+			textRollOverColor: #000000;
+			fontSize: 13;
+			*/
+			
+			cornerRadii: 0, 0, 0, 0;
+			borderColors: #135e7d, #135e7d;
+			overBorderColors: #135e7d, #135e7d;
+			selectedBorderColors: #135e7d, #135e7d;
+			borderThickness: 0;
+			borderAlpha: 0;
+			fillColors: #ffffff, #ffffff;
+			fillAlphas: 0, 0;
+			fillColorRatios: 0, 0;
+			overFillColors: #ffffff, #FFFFFF;
+			overFillAlphas: 0, 0;
+			overFillColorRatios: 0, 0;
+			selectedFillColors: #ffffff, #FFFFFF;
+			selectedFillAlphas: 0, 0;
+			selectedFillColorRatios: 0, 0;
+			highlightAlphas: 0, 0;
+			
+			color: #000000;
+			textRollOverColor: #000000;
+			
+		}
+		
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import skin.rebuild.TabBarStyle;
+			
+			protected function onInit(event:FlexEvent):void
+			{
+				tabBar.setStyle("skinClass", TabBarStyle)
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+</mx:TabNavigator>

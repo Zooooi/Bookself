@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DropDownList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				labelField="name" selectedIndex="{nSelect}" change="onChane(event)"
+				>
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.events.IndexChangeEvent;
+			
+			
+			[Bindable]protected var nSelect:uint;
+			[Bindable]protected var sName:String;
+			[Bindable]public var __valueWrite:String;
+			
+			[Bindable]public function get __valueRead():String
+			{
+				return sName;
+			}
+
+			public function set __valueRead(value:String):void
+			{
+				sName = value
+				onAutoSelect()
+			}
+			
+			protected function onAutoSelect():void
+			{
+				var _array:ArrayCollection = ArrayCollection(dataProvider)
+				if (_array.length!=0)
+				{
+					if (sName =="" || sName == null)
+					{
+						sName=String(_array[0].id)
+						__valueWrite=sName
+					}else{
+						for (var i:int = 0; i < _array.length; i++) 
+						{
+							if (sName==_array[i].id)
+							{
+								nSelect = i
+								break
+							}
+						}
+						//不用这个方法转不到第一项
+						if (nSelect==0)
+						{
+							nSelect = _array.length-1
+							nSelect = 0
+						}
+					}
+				}
+			}
+			
+
+			protected function onChane(event:IndexChangeEvent):void
+			{
+				var _array:ArrayCollection = ArrayCollection(dataProvider)
+				sName=String(_array[event.newIndex].id)
+				__valueWrite=sName;
+				ShellSystem.current.traceInfo(_array[event.newIndex].source)
+			}
+			
+		]]>
+	</fx:Script>
+</s:DropDownList>

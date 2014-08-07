@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*" xmlns:metadata="org.osmf.metadata.*"
+		>
+	<fx:Metadata>
+		[Event(name="SEND", type="JsC.events.JEvent")]
+		[Event(name="REMOVE", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<base:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</base:states>
+	<fx:Declarations>
+		<fx:uint id="__currentID__"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.IList;
+			
+			import spark.events.IndexChangeEvent;
+			
+			
+			private const sPageNode:String = NameDefine.KEY_PAGES
+				
+			private var currentItem:Editor_Page_Setting_Item
+			private var nodePage:XMLList
+			
+		
+			
+			public function action_Add():void
+			{
+				nodePage.appendChild(XmlContent.Edit_Pages_Page)
+				var _item:Editor_Page_Setting_Item = addItem()
+				_item.$setXML(nodePage)
+				_item.$createID()
+			}
+			
+			
+			private function addItem():Editor_Page_Setting_Item
+			{
+				var _item:Editor_Page_Setting_Item = new Editor_Page_Setting_Item
+				_item._pageNo=gr.numElements+1
+				_item._path = Files.folder_book_Pages
+				_item.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+				_item.addEventListener(JEvent.REMOVE,onItemProjectEvent)
+				_item.addEventListener(JEvent.CHANGE,onItemProjectEvent)
+				_item.addEventListener(JEvent.SEND,onItemProjectEvent)
+				gr.addElement(_item)
+				return _item
+			}
+			
+			private function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _item:Editor_Page_Setting_Item = Editor_Page_Setting_Item(event.currentTarget)
+				itemAction(_item)
+				
+			}
+			
+			private function itemAction(_item:Editor_Page_Setting_Item):void
+			{
+				if (currentItem!=null)currentItem.$mouseOT()
+				currentItem = _item
+				currentItem.$mouseDW()
+				onProjectEvent_Send(_item)
+			}
+			
+			private function onItemProjectEvent(event:JEvent):void
+			{
+				var _item:Editor_Page_Setting_Item = Editor_Page_Setting_Item(event.currentTarget)
+				var _currentID:uint
+				var _id:uint
+				var i:int
+				switch(event.type)
+				{
+					case JEvent.REMOVE:
+						_id = currentItem._pageNo-1
+						XmlCtrl.deleteByID(nodePage,_id)
+						gr.removeElementAt(_id)
+						if (gr.numElements!=0)
+						{
+							for (i = _id; i < gr.numElements; i++) 
+							{
+								Editor_Page_Setting_Item(gr.getElementAt(i))._pageNo=i+1
+							}
+							if(_id==gr.numElements)
+							{
+								currentItem = Editor_Page_Setting_Item(gr.getElementAt(_id-1))
+							}else{
+								currentItem = Editor_Page_Setting_Item(gr.getElementAt(_id))
+							}
+							
+							currentItem.dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+								
+						}else{
+							currentItem = null
+							dispatchEvent(new JEvent(JEvent.REMOVE))
+						}
+						break;
+					
+					case JEvent.CHANGE:
+						_id = gr.getElementIndex(_item)
+						_currentID = _item._pageNo-1
+						
+						//display------------------------------------------------
+						if (_currentID>gr.numElements-1)
+						{
+							_item._pageNo = gr.numElements
+							_currentID = gr.numElements -1
+						}
+						
+						gr.addElementAt(_item,_currentID)
+						var _min:uint
+						var _max:uint
+						
+						if (_currentID>_id)
+						{
+							_min = _id
+							_max = _currentID
+						}else{
+							_min = _currentID
+							_max = _id
+						}
+						for (i = _min; i <= _max; i++) 
+						{
+							Editor_Page_Setting_Item(gr.getElementAt(i))._pageNo = i+1
+						}
+						
+						
+						//xml------------------------------------------------
+						XmlCtrl.insertTo(nodePage,_id,_currentID)
+					
+					case JEvent.SEND:
+						onProjectEvent_Send(_item)
+						break
+				}				
+			}
+			
+			private function onProjectEvent_Send(_item:Editor_Page_Setting_Item):void
+			{
+				var _id:uint = gr.getElementIndex(_item)
+				__currentID__ = _id
+				dispatchEvent(new JEvent(JEvent.SEND))
+			}
+			
+		
+			override protected function initMdel():void
+			{
+				init_page()
+			}
+			
+			override protected function init():void
+			{
+				if (gr==null)return
+				XmlContent.XML_PAGE = xmlData
+				gr.removeAllElements()
+				nodePage = XmlContent.getPagesNodes()
+				for (var i:int = 0; i < nodePage.children().length(); i++) addItem().$setXML((nodePage))
+			
+				var _mode:String = xmlData.@mode
+				if (_mode!="")
+				{
+					var list:IList = dropMode.dataProvider
+					for (var j:int = 0; j < list.length; j++) 
+					{
+						if (list[j] == _mode)
+						{
+							dropMode.selectedIndex = j
+							break
+						}
+					}
+				}else{
+					dropMode.selectedIndex = 0
+				}
+			}
+			
+			public function action_openXml():void
+			{
+				openXmlFile()
+			}
+			public function action_saveXml():void
+			{
+				saveXmlFile(Files.folder_book_Pages )	
+			}
+			
+			
+			
+			protected function dropMode_changeHandler(event:IndexChangeEvent):void
+			{
+				xmlData.@mode = dropMode.selectedItem
+			}
+			
+			protected function onResizeWin(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer width="100%" height="100%" includeIn="State1">
+		<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center">
+			<s:Button width="20" buttonMode="true"
+					  icon="@Embed('embed/button/icon/Edit_Page_Arrow.png')" 
+					  skinClass="components.skin.IconButtonSkin"
+					  x.State1="0" y.State1="21" rotation.State1="-90"
+					  x.State2="22" y.State2="0" rotation.State2="90"
+					  click.State1="currentState='State2'"
+					  click.State2="currentState='State1'"
+					  />
+			<s:Label text="mode:" width="50" />
+			<s:DropDownList id="dropMode" change="dropMode_changeHandler(event)">
+				<s:ArrayCollection>
+					<fx:String>TEACHER</fx:String>
+					<fx:String>STUDENT</fx:String>
+				</s:ArrayCollection>
+			</s:DropDownList>
+		</s:HGroup >
+		<s:Scroller id="scroll" left="4" right="4" top="22" bottom="4">
+			<s:VGroup id="gr" width="100%" height="100%">
+			</s:VGroup>
+		</s:Scroller>
+	</s:BorderContainer>
+	<s:Button includeIn="State2" x="22" y="0" width="20" buttonMode="true"
+			  click="currentState='State1'" icon="@Embed('embed/button/icon/Edit_Page_Arrow.png')"
+			  rotation="90" skinClass="components.skin.IconButtonSkin"/>
+</base:LoaderBase>

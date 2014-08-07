@@ -1,0 +1,14 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+
+s|TextArea:normalWithPrompt
+{
+	fontStyle:normal;
+}
+
+s|TextInput:normalWithPrompt
+{
+	fontStyle:normal;
+}

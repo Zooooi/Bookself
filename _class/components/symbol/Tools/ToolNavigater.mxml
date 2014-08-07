@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:controls="com.thanksmister.components.controls.*"
+		 xmlns:symbol="components.symbol.*"
+		 xmlns:Buttons="components.symbol.Buttons.*"
+		 creationComplete="onFlexEvent(event)" preinitialize="onFlexEvent(event)"
+		 width.State1="409">
+	
+	<fx:Style source="css/book.css"/>
+	
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+		<s:State name="State3"/>
+		<s:State name="State4"/>
+	</s:states>
+	
+	<fx:Declarations>
+		<fx:Boolean id="bEdit"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			
+			import components.books.BookPage;
+			import components.symbol.bookUi.UISearchPage;
+			
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var bookPage:BookPage;
+			[Bindable]private var sPageNo1:String; 
+			[Bindable]private var sPageNo2:String; 
+			
+			private var xmlData:XML
+			private var xmlList:XMLList
+			private var sPath:String
+			
+			[Bindable]private var bSelect:Boolean
+			
+		/* 	private function onZoomMouseEvent(evt:MouseEvent):void
+			{
+				switch (evt.type) 
+				{
+					case MouseEvent.CLICK:
+						switch (evt.currentTarget) 
+						{
+							case btnZoomIn:
+								bookPage.$zoomIn()
+								break
+							
+							case btnZoomOut:
+								bookPage.$zoomOut()
+								break
+						}
+						break;
+				}
+				
+			} */
+			
+			private function onMouseEvent(evt:MouseEvent):void
+			{
+				Viewers.closeWin()
+				bookPage = Viewers.getPage()
+				var _btn:Button = Button(evt.currentTarget)
+				switch (evt.type) 
+				{
+					case MouseEvent.CLICK :
+						switch (_btn.name) 
+						{
+							/* case btnBegin:
+								bookPage.$navigateToBegin() 
+								break
+							*/
+							case "btnBack":
+								bookPage.$navigateToBack()
+								break
+							
+							case "btnNext":
+								bookPage.$navigateToNext()
+								break
+							
+							/* case btnEnd:
+								bookPage.$navigateToEnd() 
+								break*/
+						}
+						break;
+				}
+				
+			}
+			
+			public function $displayPageNo(_num1:String,_num2:String):void
+			{
+				sPageNo1 = _num1
+				sPageNo2 = _num2
+			}
+		
+			
+			protected function onKeyDown(event:KeyboardEvent):void
+			{
+				bookPage = Viewers.getPage()
+				 if (event.keyCode == 13)
+				{
+					bookPage.$navigateByNum(uint(pageNo.text))
+					//pageNo.enabled = false
+					//bookPage.setFocus()
+					//pageNo.enabled = true
+					pageNo.visible = false
+				}  
+			}
+			
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				Viewers.setNavigate(this)
+				Value.bShowPreviewOpen = true
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						Viewers.getBook().addEventListener(JEvent.RESIZE,onStageEvent)
+						onResize(true)
+						//stage.addEventListener(KeyboardEvent.KEY_DOWN,onStageKeyEvent)
+						//addEventListener(Event.REMOVED_FROM_STAGE,onRemoveStageKeyEvent)
+						break;
+						
+					case FlexEvent.PREINITIALIZE:
+						break;
+				}
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				var _bCompare:Boolean = stage.stageWidth>stage.stageHeight
+				if (SystemOS.isMobile)
+				{
+					if (_b)
+					{
+						if (_bCompare)
+						{
+							if (bSelect)
+							{
+								currentState = "State3"
+							}else{
+								currentState = "State1"
+							}
+						}else{
+							currentState = "State2"
+						}
+					}else
+					{
+						if (_bCompare)
+						{
+							currentState = "State2"
+						}else{
+							if (bSelect)
+							{
+								currentState = "State3"
+							}else{
+								currentState = "State1"
+							}
+						}
+					}
+				}
+			}
+			public function setState(_b:Boolean):void
+			{
+				if (_b)
+				{
+					currentState = "State3"
+				}else{
+					currentState = "State1"
+				}
+				bSelect = _b
+				//Value.nToolBarH
+			}
+			
+			protected function onChange(event:Event):void
+			{
+				var _me:HSlider = HSlider(event.currentTarget)
+				Value.nZoom = _me.value
+				Viewers.getPage().setZoom()
+			}
+			
+			protected function onClose(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+			}
+			
+			protected function onSetPreview(event:MouseEvent):void
+			{
+				Value.bShowPreviewOpen = !Value.bShowPreviewOpen
+				Viewers.getPage().$setPreview()
+			}
+			
+			protected function onStageKeyEvent(event:KeyboardEvent):void
+			{
+				if (event.ctrlKey)
+				{
+					if (event.keyCode == 49)
+					{
+						if (pageNo)pageNo.visible = !pageNo.visible
+					}
+				}
+			}
+			
+			protected function onRemoveStageKeyEvent(event:Event):void
+			{
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN,onStageKeyEvent)
+			}
+			
+			
+			protected function onPageMouseEvent(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				Viewers.getPage().addUI(new UISearchPage)
+			}
+			
+			protected function onToggleMouseEvent2(event:MouseEvent):void
+			{
+				Viewers.closeWin()
+				var _me:ToggleButton = ToggleButton(event.currentTarget)
+				var _menu:Group
+				var _bPop:Boolean
+				if (_me.selected)
+				{
+					Viewers.getPage().setOnePage()
+				}else{
+					Viewers.getPage().setTwoPage()
+				}
+				setState(_me.selected)
+				//Viewers.getNavigate().setState(_me.selected)
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Group includeIn="State1" right="-7">
+		<s:TextInput id="pageNo" visible="false" x="-36" y="10" width="35" keyUp="onKeyDown(event)" textAlign="center" />
+		<s:BitmapImage includeIn="State1" x="0" y="0"
+					   source="@Embed('/embed/button/icon/navigatertools.png')"/>
+		<s:BitmapImage includeIn="State1" x="-27" y="0" width="404"
+					   source="@Embed('/embed/button/icon/navigatertools.png')"/>
+		<s:Button x="147" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnBack"
+				  skinClass="components.skin.Navi_Back"/>
+		<s:Button x="266" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnNext"
+				  skinClass="components.skin.Navi_Next"/>
+		<s:ToggleButton x="300" y="1" width="28" height="34" buttonMode="true"
+						click="onSetPreview(event)" selected="{Value.bShowPreviewOpen}"
+						skinClass="components.skin.Navi_Preview"/>
+		<s:Label x="185" y="9" width="42" height="22" buttonMode="true"
+				 click="onPageMouseEvent(event)" styleName="NormalText" text="{sPageNo1}"
+				 textAlign="center" useHandCursor="true" verticalAlign="middle"/>
+		<s:Label x="225" y="9" width="42" height="22" buttonMode="true"
+				 click="onPageMouseEvent(event)" styleName="NormalText" text="{sPageNo2}"
+				 textAlign="center" useHandCursor="true" verticalAlign="middle"/>
+		<s:HSlider x="1" y="7" width="105" buttonMode="true" maximum="{Value.nZoomMax}" mouseDown="onClose(event)" change="onChange(event)"
+				   minimum="{Value.nZoomMin}" name="slider" skinClass="components.skin.HSliderSkin"
+				   stepSize="0.05" value="{Value.nZoom}"/>
+		<s:ToggleButton x="334" y="1" width="38" height="38" buttonMode="true"
+						click="onToggleMouseEvent2(event)" selected="{bSelect}"
+						skinClass="components.skin.Navi_Book" useHandCursor="true"/>
+	</s:Group>
+	
+	<s:Group includeIn="State2" right="0">
+		<s:BitmapImage source="@Embed('/embed/button/icon/navigatertools2.png')"/>
+		<s:Button x="4" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnBack"
+				  skinClass="components.skin.Navi_Back"/>
+		<s:Button x="95" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnNext"
+				  skinClass="components.skin.Navi_Next"/>
+		<s:Label x="47" y="10" width="42" height="21" text="{sPageNo2}" textAlign="center"
+				 verticalAlign="middle" click="onPageMouseEvent(event)" useHandCursor="true" buttonMode="true"/>
+	</s:Group>
+	
+	<s:Group includeIn="State3" right="0">
+		<s:BitmapImage y="0" right="-42" width="390"
+					   source="@Embed('/embed/button/icon/navigatertools.png')"/>
+		<s:BitmapImage x="218" y="0" source="@Embed('/embed/button/icon/navigatertools2.png')"/>
+		<s:Button x="227" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnBack"
+				  skinClass="components.skin.Navi_Back"/>
+		<s:Button x="308" y="0" buttonMode="true" click="onMouseEvent(event)" name="btnNext"
+				  skinClass="components.skin.Navi_Next"/>
+		<s:Label x="265" y="10" width="42" height="21" text="{sPageNo2}" textAlign="center"
+				 verticalAlign="middle" click="onPageMouseEvent(event)" useHandCursor="true" buttonMode="true"/>
+		<s:ToggleButton  x="353" y="1" width="28" height="34" buttonMode="true" click="onSetPreview(event)"
+						selected="{Value.bShowPreviewOpen}" skinClass="components.skin.Navi_Preview"/>
+		<s:HSlider x="106" y="7" width="105" buttonMode="true" name="slider"
+				   skinClass="components.skin.HSliderSkin" change="onChange(event)" 
+				   maximum="{Value.nZoomMax}" minimum="{Value.nZoomMin}" value="{Value.nZoom}" 
+				   stepSize="0.05" />
+		<s:ToggleButton x="385" y="1" width="38" height="38" buttonMode="true" click="onToggleMouseEvent2(event)" selected="{bSelect}"
+						skinClass="components.skin.Navi_Book" useHandCursor="true"/>
+	</s:Group>
+	
+	<s:Group includeIn="State4" right="0">
+		<s:ToggleButton id="btnMax" x="335" y="1" skinClass="components.skin.Navi_Max"/>
+	</s:Group>
+</s:Group>

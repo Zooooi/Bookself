@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"   xmlns:books="components.books.*"
+		 preinitialize="Viewers.setBook(this)"
+		 addedToStage="onEvent(event)" xmlns:Tools="components.symbol.Tools.*"
+		 >
+
+	<fx:Metadata>
+		[Event(name="OPEN_HTML", type="jsProject.events.ComponentEvent")]
+		[Event(name="OPEN_OFFICE", type="jsProject.events.ComponentEvent")]
+		[Event(name="OPEN_MOVIE", type="jsProject.events.ComponentEvent")]
+		[Event(name="HOME", type="JsC.events.JEvent")]
+		[Event(name="RESIZE", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.events.FlexEvent;
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						stage.addEventListener(Event.RESIZE,onEvent)
+						addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						break;
+						
+					case Event.REMOVED_FROM_STAGE:
+						stage.removeEventListener(Event.RESIZE,onEvent)
+						break;
+					
+					case Event.RESIZE:
+						page.$resize()
+						break
+				}
+			}
+			
+			protected function onLoadDataBegin(event:Event):void
+			{
+				page.action_init()
+			} 
+			
+			protected function onLoadDataEnd(event:JEvent):void
+			{
+				toolbar2.$init()
+			}
+			
+		]]>
+	</fx:Script>
+	<books:BookPage id="page" width="100%" height="100%" LOADED="onLoadDataEnd(event)"/>
+	<Tools:BookToolsT id="toolbar" top="0" width="100%" height="43"/>
+	<Tools:BookToolsB id="toolbar2" bottom="-1" width="100%" height="43" COMPLETE="onLoadDataBegin(event)"/>
+</s:Group>

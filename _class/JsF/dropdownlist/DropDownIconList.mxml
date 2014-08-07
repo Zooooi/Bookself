@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dropdownlist:BaseDropDownList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:dropdownlist="JsF.dropdownlist.*"
+		labelField="label"
+		creationComplete="onFlexEvent(event)"
+		>
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.SWFK;
+			import JsC.xml.XmlCtrl;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			public var __path:String
+			public var __xml:XML
+			public var __xmlNode:String
+			public var __source:String = "file"
+			public var __label:String = "file"
+			public var __id:String = "id"
+			
+			private var xmlList:XMLList
+			
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						xmlList = XmlCtrl.getNodeByName(XMLList(__xml),__xmlNode)
+						var _array:ArrayCollection = new ArrayCollection
+						var _obj:Object
+						for (var i:int = 0; i < xmlList.children().length(); i++) 
+						{
+							_obj = new Object
+							_obj.source = String(__path + xmlList.children()[i][__source])
+							_obj.label = String(xmlList.children()[i][__label])
+							_obj.id = String(xmlList.children()[i][__id])
+							_array.addItem(_obj)
+						}
+						dataProvider = _array
+						onAutoSelect()
+						break;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+</dropdownlist:BaseDropDownList>

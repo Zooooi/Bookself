@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="onFlexEvent(event)"
+		 >
+	<fx:Metadata>
+		[Event(name="SELECT", type="JsC.events.JEvent")]
+		[Event(name="EXIT", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			
+			import JsC.events.JEvent;
+			
+			import caurina.TransData;
+			import caurina.transitions.Tweener;
+			
+			import components.symbol.Tools.ToolDraw_Base;
+			
+			
+			
+			[Bindable]protected var bEnbled:Boolean;
+			[Bindable]protected var bVisible:Boolean;
+			[Bindable]protected var bSelect:Boolean;
+			
+			
+			protected const nL:Number = 5
+			protected const grName:String = "grContent"
+			protected var grContent:Group
+			protected var currentPane:ToolDraw_Base
+			protected var bMenuClick:Boolean
+			
+			private const alpha1:Number = 0.1
+			private const alpha2:Number = 0.5
+			private var nAlpha:Number	
+			private var nWidth:uint
+			private var nToWidth:uint
+			private var sTrans:String
+			private var nduration:Number
+			
+			private static var currentbutton:BaseToolsPane
+			
+			protected function onMenuMouseEvent(event:MouseEvent=null):void
+			{
+				if (currentbutton && currentbutton!=this) currentbutton.action_close()
+				onClick()
+			}
+			
+			
+			protected function onClick():void
+			{
+				if (!bMenuClick)
+				{
+					bEnbled = true
+					nWidth = minWidth
+					nToWidth = maxWidth
+					nAlpha = alpha2
+					sTrans = TransData.easeinoutback
+					nduration = 0.6
+					currentbutton = this
+					bSelect = true
+					dispatchEvent(new JEvent(JEvent.SELECT))
+				}else{
+					bEnbled = false
+					nToWidth = nWidth
+					nAlpha = alpha1
+					sTrans = TransData.easenone
+					nduration = 0.5
+					bSelect = false
+					dispatchEvent(new JEvent(JEvent.EXIT))
+				}
+				
+				bMenuClick = !bMenuClick
+				//Tweener.addTween(background, {width:nToWidth,alpha:nAlpha, time:nduration,transition:sTrans,onUpdate:onUpdate});
+				doClear()
+			}
+			
+			
+			private function onUpdate():void
+			{
+				mask1.width = background.width - background.stroke.weight
+				this.width = background.width
+			}
+			
+			
+			protected function doClear():void
+			{
+				grContent.removeAllElements()
+				currentPane = null
+			}
+		
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				addElementAt(background,0)
+				width = background.width
+				this.width = background.width
+				bEnbled = false
+				grContent = Group(getChildByName(grName))
+			}
+			
+			
+			
+			
+			public function action_close():void
+			{
+				if (bMenuClick)
+				{
+					onClick()
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Rect id="background" 
+			width="{minWidth}" height="{height}" radiusX="10" radiusY="10" 
+			alpha="{alpha1}">
+		<s:fill >
+			<s:SolidColor color="0xffffff" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xffffff" weight="2"/>
+		</s:stroke>
+	</s:Rect>
+
+	<s:Graphic id="mask1" x="{-minWidth}" >
+		<s:Rect id="maskRect" width="{minWidth}" height="{height}" radiusX="0" radiusY="0" alpha="0">
+			<s:fill >
+				<s:SolidColor color="0xffffff"/>
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="0xffffff" weight="2"/>
+			</s:stroke>
+		</s:Rect>
+	</s:Graphic>
+
+	<!--<s:transitions>
+		<s:Transition toState="*"
+					  fromState="*" >
+			<s:Parallel targets="{aTransObject}" effectEnd="onEffectEvent(event)">
+				<s:Resize duration="500"/>
+				<s:Fade duration="1000"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	-->
+	
+	
+</s:Group>

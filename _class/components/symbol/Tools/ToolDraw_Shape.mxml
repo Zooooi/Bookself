@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:Tools="components.symbol.Tools.*"
+					 width="760" height="55" addedToStage="onEvent(event)"
+					 removedFromStage="onEvent(event)">
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+			
+			import jsProject.mdel.DrawData;
+			
+			import mx.events.FlexEvent;
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				super.onFlexEvent(event);
+				showHit(DrawData.getShapeIndex())
+			}
+			
+			 protected function onBtnMouseEvent2(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					
+					case MouseEvent.CLICK:
+						var _event:JEvent = new JEvent(JEvent.SEND)
+						_event.$setID(DrawData.getShapeIndex())
+						bHold = true
+						switch(event.currentTarget)
+						{
+							case btnStrok:
+								_event._id = 0
+								break;
+							case btnColor:
+								_event._id = 1
+								break;
+						}
+						dispatchEvent(_event)
+						break
+				}
+				
+				
+			}
+			
+			override protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						bSetButtonState = true;
+						bNeverRemove = true
+						super.onEvent(event);
+						nAlpha = 0
+						break;
+						
+					case Event.REMOVED_FROM_STAGE:
+						btnMove.alpha = 0
+						nAlpha = 0
+						break;
+				}
+				
+			}
+			
+			protected function onBtnMoveMouseEvent(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (btnMove.alpha==0)
+				{
+					btnMove.alpha = 1
+					dispatchEvent(new JEvent(JEvent.YES))
+				}else{
+					btnMove.alpha = 0
+					dispatchEvent(new JEvent(JEvent.NO))
+				}
+			}
+			
+			protected function onChooseShape(event:MouseEvent):void
+			{
+				if (btnMove.alpha == 1)
+				{
+					btnMove.alpha = 0
+					dispatchEvent(new JEvent(JEvent.NO))
+				}
+				
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="YES", type="JsC.events.JEvent")]
+		[Event(name="NO", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<s:BitmapImage width="759" height="55" smooth="true"
+			 source="controls/bookmenu/panel_drawing.png"/>
+	<s:HGroup x="113" y="11" width="314" height="30" gap="8" name="gr" paddingLeft="3">
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+		<s:BorderContainer width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onChooseShape(event)"/>
+	</s:HGroup>
+	<s:BorderContainer id="btnStrok" x="495" y="9" width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onBtnMouseEvent2(event)" buttonMode="true" alpha="0"/>
+	<s:BorderContainer id="btnColor" x="583" y="9" width="30" height="30" backgroundAlpha="0.2" cornerRadius="5" click="onBtnMouseEvent2(event)" buttonMode="true" alpha="0"/>
+	<s:BorderContainer id="btnMove" x="666" y="9" width="30" height="30" alpha="{nAlpha}"
+					   backgroundAlpha="0.2" backgroundColor="#08B6FF" borderVisible="false"
+					   buttonMode="true" click="onBtnMoveMouseEvent(event)" cornerRadius="5"/>
+</Tools:ToolDraw_Base>

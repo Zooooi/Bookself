@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:symbol="components.symbol.*"
+		 width="1024" minWidth="600" minHeight="400">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			
+			protected function onActiveInPreviewProjectEvent(event:ProjectEvent):void
+			{
+				
+				switch(event.type)
+				{
+					case ProjectEvent.SEND:
+						switch(event.currentTarget)
+						{
+							case setting:
+								preview.setNodePage(setting.__currentID__)
+								break;
+							case component:
+								break;
+						}
+						
+						break;
+						
+					case ProjectEvent.REMOVE:
+						switch(event.currentTarget)
+						{
+							case setting:
+								preview.action_Clear()
+								break;
+							case component:
+								preview.action_RemoveComplete()
+								break;
+						}
+						break
+					
+					case ProjectEvent.ADD:
+						preview.getComponent(component.getCoponentItem())
+						break
+					
+					case ProjectEvent.SELECT:
+						component.setComponentProperty(preview.getCurrentComponentNode())
+						break
+					
+					case ProjectEvent.RESULT:
+						preview.getResult()
+						break
+				}
+			}
+			
+			protected function onOpenMouseEvent(event:MouseEvent):void
+			{
+				setting.action_openXml()
+				preview.action_Clear()
+			}
+			
+			protected function onSaveMouseEvent(event:MouseEvent):void
+			{
+				setting.action_saveXml()
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+				  paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="增加或删减页面，并拖放组件到页面里面。  "/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="Path:"/>
+				<s:Label styleName="systemText" text="{Files.folder_book}"/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="Data:"/>
+				<s:Label styleName="systemText" text="{Files.file_book}"/>
+			</s:HGroup>
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="15%">
+		</s:HGroup>
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="15%" >
+			<s:Button width="59" label="open" click="onOpenMouseEvent(event)"/>
+			<s:Button width="59" label="save" click="onSaveMouseEvent(event)"/>
+		</s:HGroup >	
+		
+	</s:HGroup>
+	<s:HGroup left="10" right="10" top="50" bottom="165">
+		<symbol:Editor_Page_Preview id="preview" width="60%" height="100%"
+				__dragTarget__="{this}"
+				__path__="{Files.folder_book}"
+				SELECT="onActiveInPreviewProjectEvent(event)"
+				/>
+		<symbol:Editor_Page_Setting id="setting" width="40%" height="100%"
+				SEND="onActiveInPreviewProjectEvent(event)"
+				REMOVE="onActiveInPreviewProjectEvent(event)"
+				/>
+	</s:HGroup>
+	<symbol:Editor_Page_Components id="component"
+		__dragTarget__="{this}"
+		__hitTarget__="{preview}" 
+		ADD="onActiveInPreviewProjectEvent(event)"
+		RESULT="onActiveInPreviewProjectEvent(event)"
+		REMOVE="onActiveInPreviewProjectEvent(event)"
+		left="10" right="10" bottom="0" height="160"/>
+	
+</s:Group>

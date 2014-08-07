@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:view="Js.view.*" xmlns:view1="com.view.*">
+	
+	<fx:Declarations>
+		<s:HTTPService id="xmlLoader"  
+					   result="onLoadXMLComplete(event)"
+					   fault="onLoadXMLError(event)"
+					   resultFormat="xml"
+					   />
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="COMPLETE", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.Group;
+			
+			import Js.ctrl.PageFlipClass;
+			import Js.events.PageFilpEvents;
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.VConst;
+			import Js.mdel.Value;
+			import Js.mdel.XmlContent;
+			
+			private var xml:XML;
+			private var ui:UIComponent
+			private var nBindingX:uint;
+			private var nBindingY:uint;
+			private var pageMc:Sprite;
+			private var pageFilp:PageFlipClass;
+			private var _mask:Sprite
+			
+			private var gr:Group
+			
+			public function init():void
+			{
+				removeAllElements()
+				ui = new UIComponent
+				addElement(ui)
+				LoadXML_Components()
+			}
+			
+			private function LoadXML_Components():void
+			{
+				xmlLoader.url = Files.folder_components + Files.file_components
+				xmlLoader.send()
+			}
+			
+			private function LoadXML_Pages():void
+			{
+				xmlLoader.url = Files.folder_book + Files.file_book
+				xmlLoader.send()
+			}
+			
+			protected function onLoadXMLComplete(event:ResultEvent):void
+			{
+				xml = new XML(event.result.toString())
+				switch(String(xml.@id))
+				{
+					case VConst.KEY_COMPONENTS_ID:
+						// Load Components.xml
+						XmlContent.XML_COMPONENT = xml.copy()
+						LoadXML_Pages()
+						break;
+						
+					case VConst.KEY_BOOK:
+						//Load Book data.xml
+						XmlContent.XML_PAGE = xml.copy()
+						
+						nBindingX = xml.attribute("bindingX")
+						nBindingY = xml.attribute("bindingY")
+						
+						pageMc =  new MovieClip
+						
+						ui.addChild(pageMc)
+						
+						_mask = new Sprite
+						_mask.mouseEnabled = false
+						_mask.mouseChildren = false
+						ui.addChild(_mask)
+						
+						pageFilp = new PageFlipClass();
+						pageFilp.setPath(Files.folder_book)
+						pageFilp.setXML(xml)
+						pageFilp.setMain(pageMc)
+						pageFilp.setTimerNumer(20)
+						pageFilp.init()
+						
+						
+						pageFilp.addEventListener(PageFilpEvents.onLoadInit,onLoadinit)
+						pageFilp.addEventListener(PageFilpEvents.onResetLoc, onResetLoc)
+						//mypageflip.addEventListener(PageFilpEvents.onLoading,onLoading)
+						pageFilp.addEventListener(PageFilpEvents.onLoadEnd,onLoadEnd)
+						pageFilp.addEventListener(PageFilpEvents.onPageEnd,onPageEnd)
+						break;
+				}
+				
+				
+					
+				
+			}
+			
+			protected function onLoadXMLError(event:FaultEvent):void
+			{
+				trace("BookPage fault")
+			}
+			private function onLoadinit(evt:PageFilpEvents):void
+			{
+				onResize()
+				dispatchEvent(new ProjectEvent(ProjectEvent.COMPLETE))
+			}
+			private function onResetLoc(evt:PageFilpEvents=null):void
+			{
+				pageMc.x = nBindingX
+				pageMc.y = Value.nToolBarY + nBindingY
+				onResize()
+			}
+			public function onResize(evt:Event=null):void
+			{
+				var bookRect:Rectangle = getBooRect()
+				if (bookRect.width>VConst.minWidth && bookRect.height>VConst.minHeight) 
+				{
+					if (((pageMc.width) / (pageMc.height)) > (bookRect.width / bookRect.height) )
+					{
+						pageMc.width = bookRect.width
+						pageMc.scaleY=  pageMc.scaleX
+					}else {
+						pageMc.height = bookRect.height
+						pageMc.scaleX=  pageMc.scaleY
+					}
+					pageMc.x =  nBindingX + (bookRect.width - pageMc.width) / 2
+				}
+				drawMask(bookRect)
+			}
+			
+			public function getBooRect():Rectangle
+			{
+				return new Rectangle(nBindingX, Value.nToolBarY + nBindingY, stage.stageWidth - nBindingX * 2,  stage.stageHeight - (Value.nToolBarY) - nBindingY * 2)
+			}
+			private function onLoading(evt:PageFilpEvents):void
+			{
+			}
+			private function onLoadEnd(evt:PageFilpEvents):void
+			{
+				//加入控制组件
+				//pageFilp.getContent().addChild(new PageCtrlLayer(evt.nPage))
+				
+			}
+			private function onPageEnd(evt:PageFilpEvents):void
+			{
+			}
+			private function onPagePlaying(evt:PageFilpEvents):void
+			{
+			}
+			public function getPageFilp():PageFlipClass
+			{
+				return pageFilp
+			}
+			public function getMask():Sprite
+			{
+				return _mask
+			}
+			public function getUI():UIComponent
+			{
+				return ui
+			}
+			private function drawMask(_rect:Rectangle):void
+			{
+				_mask.graphics.clear()
+				_mask.graphics.beginFill(0x000000, 0)
+				_mask.graphics.drawRect(0,0, _rect.width, _rect.height)
+				_mask.graphics.endFill()
+				_mask.x = _rect.x
+				_mask.y = _rect.y
+			}
+			
+		]]>
+	</fx:Script>
+</s:Group>

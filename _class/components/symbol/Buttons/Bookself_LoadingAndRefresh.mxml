@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+	
+		 width="70" height="70" xmlns:ns="http://flex.apache.org/experimental/ns"
+		 >
+	<fx:Metadata>
+		[Event(name="RESTART", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Group;
+			
+			import JsC.events.JEvent;
+			public var myParent:Group
+			private var nTimer:Timer = new Timer(1);
+			
+
+			
+			public function getIn():void
+			{
+				myParent.addElement(this)
+				currentState="loading";
+			}
+			
+			public function getOut():void
+			{
+				if (this.stage!=null) myParent.removeElement(this);
+			}
+			
+			public function getRefresh():void
+			{
+				myParent.addElement(this)
+				currentState="refresh";
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="loading"/>
+		<s:State name="refresh"/>
+	</s:states>
+	<s:BusyIndicator includeIn="loading" width="100%" height="100%" horizontalCenter="0" verticalCenter="0"/>
+	
+	
+	<s:Image includeIn="refresh" id="picRefresh" width="100%" height="100%"  horizontalCenter="0" smooth="true"
+			 source="@Embed('/embed/icon/refresh.png')" verticalCenter="0" click="dispatchEvent(new JEvent(JEvent.RESTART));" useHandCursor="true"/>
+</s:Group>

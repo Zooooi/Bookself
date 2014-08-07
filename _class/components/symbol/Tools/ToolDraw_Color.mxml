@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:Tools="components.symbol.Tools.*"
+					preinitialize="cornerRadius=0"
+					>
+	<fx:Script>
+		<![CDATA[
+			
+			import flash.events.Event;
+			
+			import jsProject.mdel.DrawData;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var nValue:uint
+			[Bindable]private var nthisColor:uint
+			protected function onChange(event:Event):void
+			{
+				DrawData.setFillAlpha(HSlider(event.currentTarget).value)
+			}
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				super.onFlexEvent(event);
+				showHit(DrawData.getColorIndex(DrawData.currentFillColor))
+				nthisColor = DrawData.currentFillColor
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Image x="0" y="0" width="363" height="334" name="background" smooth="true"
+			 source="controls/bookmenu/panel_highlight_color.png"/>
+	<s:Group x="49" y="49" width="302" height="186" name="gr">
+		<s:BorderContainer x="2" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="39" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="74" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="111" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="146" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="185" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="221" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="256" y="2" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="38" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="74" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="110" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="145" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="184" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="220" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="256" y="37" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="39" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="74" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="110" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="145" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="184" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="220" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="256" y="74" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="39" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="74" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="110" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="145" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="184" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="220" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="256" y="109" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		
+		<s:BorderContainer x="2" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="40" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="74" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="111" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="146" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="184" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="221" y="147" width="33" height="33" cornerRadius="4"  backgroundAlpha="0.2"/>
+		<s:BorderContainer x="256" y="147" width="33" height="33" cornerRadius="4" backgroundAlpha="0.2"/>
+		
+	</s:Group>
+	<s:HSlider x="340" y="295" width="238" buttonMode="true" change="onChange(event)"
+			   click="onBackgroundMouseEvent(event)" maximum="1" minimum="0.1" stepSize="0.1" 
+			   mouseDown="onBackgroundMouseEvent(event)" rotation="180"  skinClass="components.skin.HSliderSkin"
+			   useHandCursor="true" value="{DrawData.currentFillAlpha}"/>
+	<s:BorderContainer id="colorPick" x="53" y="271" width="29" height="29" borderVisible="false" backgroundColor="{DrawData.currentFillColor}" backgroundAlpha="{DrawData.currentFillAlpha}"/>
+</Tools:ToolDraw_Base>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="onFlexEvent(event)" >
+	<fx:Script>
+		<![CDATA[
+			import JsC.mdel.SystemOS;
+			import JsC.xml.XmlCtrl;
+			
+			import components.symbol.bookUi.BaseMenuNode;
+			
+			import mx.events.FlexEvent;
+			import mx.events.FlexMouseEvent;
+			
+			import spark.components.Button;
+			
+			[Bindable]public var __xml:XML
+			public var __xmlName:String
+			public var __nodeClass:Class
+			public var __pageLength:uint
+			
+			protected var xmlList:XMLList
+			protected var soList:String
+			protected var nPage:uint
+			
+			protected var nEndNumber:uint
+			protected var nXmlLength:uint
+			
+			protected function createMenu(_b:Boolean=false):void
+			{
+				var i:int
+				var j:int
+				var _startNum:uint
+				if (soList==null ||  _b)
+				{
+					bPass = true
+				}else{
+					var bPass:Boolean
+					__pageLength = 0
+					if (soList != String(XmlCtrl.getNodeAndCreate(XMLList(__xml),__xmlName)))
+					{
+						bPass = true
+						_startNum = gr.numElements
+					}
+				}
+				
+				
+				if (bPass)
+				{
+					xmlList = XmlCtrl.getNodeAndCreate(XMLList(__xml),__xmlName)
+					nXmlLength = xmlList.children().length()
+					soList = (xmlList.toString())
+					
+					if (__pageLength == 0)
+					{
+						for (i = _startNum; i < nXmlLength; i++) 
+						{
+							onCreateNode(xmlList,i,nXmlLength)
+						} 
+					}else{
+						var _startNumber:uint = nPage * __pageLength
+						if (nXmlLength != 0)
+						{
+							nEndNumber = (nPage + 1) * (__pageLength) - 1
+							nEndNumber = (nEndNumber >= nXmlLength)? nXmlLength-1 : nEndNumber
+						}else{
+							nEndNumber = nXmlLength
+						}
+						
+						//trace(_startNumber,nEndNumber)
+						if (nEndNumber!=_startNumber)
+						{
+							for (i = _startNumber ; i <= nEndNumber; i++) 
+							{
+								onCreateNode(xmlList,i,nXmlLength)
+							} 
+						}
+						
+					}
+				}
+			}
+			
+			protected function onCreateNode(_xmlList:XMLList,i:uint,_length:uint):void
+			{
+				var _newList:BaseMenuNode = new __nodeClass
+				gr.addElement(_newList)
+				_newList.width = this.width
+				_newList.setContent(_xmlList,i,_length)
+			}
+			
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				init()
+			}
+			
+			private function init():void
+			{
+				if (__xml!=null)createMenu()
+				if (__pageLength!=0) 
+				{
+					scroller.addEventListener(FlexMouseEvent.MOUSE_WHEEL_CHANGING,onMouseWheelChanging)
+					scroller.addEventListener(MouseEvent.MOUSE_DOWN,onScrollMouseEvent)
+				}
+				
+			}
+			
+			
+			
+			public function refresh():void
+			{
+				if (soList!=null && __pageLength == 0)
+				{
+					init()
+				}
+			}
+			
+			protected function onMouseWheelChanging(event:FlexMouseEvent):void
+			{
+				onScrollEnd()
+			}
+			
+			protected function onScrollMouseEvent(event:MouseEvent):void
+			{
+				if (!onScrollEnd())stage.addEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+			}
+			
+			protected function onStageMouseEvent(event:MouseEvent):void
+			{
+				onScrollEnd()
+				stage.removeEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+			}
+			
+			protected function onScrollEnd():Boolean
+			{
+				var _bSroll:Boolean
+				if (scroller.verticalScrollBar)
+				{
+					if (checkEnd())
+					{
+						if (__xml!=null && nEndNumber!=nXmlLength-1 )
+						{
+							nPage ++
+							createMenu(true)
+							_bSroll = true
+						}
+					}
+				}
+				return _bSroll
+			}
+			
+			private function checkEnd():Boolean
+			{
+				var _b:Boolean
+				if (SystemOS.isPc)
+				{
+					_b = scroller.verticalScrollBar.value == scroller.verticalScrollBar.maximum
+				}else{
+					_b = scroller.verticalScrollBar.value == scroller.verticalScrollBar.maximum - gr.contentHeight
+				}
+				return _b
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Scroller id="scroller" left="0" right="0" top="0" bottom="0"  horizontalScrollPolicy="off">
+		<s:VGroup id="gr" width="100%" height="100%" gap="0"/>
+	</s:Scroller>
+</s:Group>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="1024" minWidth="600" minHeight="100" xmlns:cell="components.cell.*" 
+		 creationComplete="onFlexEvent(event)"
+		 >
+	
+	<fx:Metadata>
+		[Event(name="CHANGE", type="JsC.events.JEvent")]
+		[Event(name="SEND", type="JsC.events.DataGrid2Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.DataGrid2Event;
+			import JsC.sys.JObject;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var dataArray:ArrayCollection = new ArrayCollection;
+			[Bindable]private var bEnable:Boolean;
+			[Bindable]private var nColor:uint
+			[Bindable]private var nAlpha:uint
+			
+			private var dataList:Object= {x:"0",y:"0",width:"200",height:"50",text:""};
+			private var selectItemObj:Object
+			private var currentNode:XMLList
+			private var nSelectIndex:Number=-1
+			
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				getResult()
+			}
+			
+			
+			public function getResult():void
+			{
+				dataArray = new ArrayCollection
+				nSelectIndex = -1
+				var _b:Boolean
+				if (XmlContent.currentPageNode==null)
+				{
+					bEnable = false
+				}else{
+					bEnable = true
+					if(XmlContent.getPagesNodes().@color==undefined)XmlContent.getPagesNodes().@color = 16776960
+					if(XmlContent.getPagesNodes().@alpha==undefined)XmlContent.getPagesNodes().@alpha = 0.5
+					if(XmlContent.currentPageNode.child(NameDefine.KEY_SEARCH)==undefined)
+					{
+						XmlContent.currentPageNode[NameDefine.KEY_SEARCH] =  XmlContent.Edit_Search_root
+					}
+				}
+				
+				if (bEnable)
+				{
+					currentNode = XmlContent.currentPageNode[NameDefine.KEY_SEARCH]
+					nColor = uint(XmlContent.getPagesNodes().@color)
+					nAlpha = uint(XmlContent.getPagesNodes().@alpha * 100)
+					
+					var i:int
+					var _obj:Object
+					for (i = 0; i < currentNode.children().length(); i++) 
+					{
+						_obj = new Object
+						_obj.x = Number(currentNode.children()[i].@x)
+						_obj.y = Number(currentNode.children()[i].@y)
+						_obj.width = Number(currentNode.children()[i].@width)
+						_obj.height = Number(currentNode.children()[i].@height)
+						_obj.text = currentNode.children()[i].text
+						dataArray.addItem(_obj)
+					}
+				}
+			}
+			
+			public function update(_obj:Object):void
+			{
+				updateXmlList(_obj)
+				dg.dataProvider = dataArray
+				
+			}
+			
+		
+			protected function onDataGridEvent(event:DataGrid2Event):void
+			{
+				nSelectIndex = event.$listData.rowIndex
+				sendObject(event.$selectItem)
+			}
+			
+			private function sendObject(_obj:Object):void
+			{
+				var _event:DataGrid2Event = new DataGrid2Event(DataGrid2Event.SEND)
+				_event.$selectItem = _obj
+				if (_obj)
+				{
+					_event.$selectItem.alpha = nAlpha/100
+					_event.$selectItem.color = nColor
+					updateXmlList(_obj)
+				}
+				dispatchEvent(_event)
+			}
+			
+			private function updateXmlList(_obj:Object):void
+			{
+				for (var s:String in _obj)
+				{
+					if (s!="text")
+					{
+						currentNode.children()[nSelectIndex].@[s] = _obj[s]
+					}else{
+						currentNode.children()[nSelectIndex][s] = _obj[s]
+					}
+					if (dataArray.getItemAt(nSelectIndex)[s] != _obj[s]) dataArray.getItemAt(nSelectIndex)[s] = _obj[s]
+				}
+				
+			}
+			
+			
+			
+			protected function onAddMouseEvent(event:MouseEvent):void
+			{
+				switch(event.currentTarget)
+				{
+					case add:
+						var _obj:Object = JObject.cloneObject(dataList)
+						var _xml:XML = XmlContent.Edit_Search_Node.copy()
+						dataArray.addItem(_obj)
+						currentNode.appendChild(_xml)
+						nSelectIndex = dataArray.length-1
+						sendObject(_obj)
+						break;
+					
+					case del:
+						if (nSelectIndex!=-1)
+						{
+							dataArray.removeItemAt(nSelectIndex)
+							XmlCtrl.deleteByID(currentNode,nSelectIndex)
+							sendObject(null)
+							nSelectIndex = dataArray.length-1
+						}
+						
+						break
+						
+				}
+				
+					
+					
+			}
+			
+			
+			protected function onColorChange(event:ColorPickerEvent):void
+			{
+				XmlContent.getPagesNodes().@color = event.color
+				nColor = event.color
+			}
+			
+			protected function onAlphaChange(event:Event):void
+			{
+				XmlContent.getPagesNodes().@alpha = nAlpha
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<s:HGroup left="0" right="0" top="0" bottom="0">
+		<cell:DataGridCell id="dg" width="80%" height="100%"  dataProvider="{dataArray}" SEND="onDataGridEvent(event)">
+			<cell:columns>
+				<mx:DataGridColumn dataField="x" headerStyleName="centered" headerText="x"
+								   itemRenderer="components.cell.NumericStepperCell"
+								   paddingLeft="2" paddingRight="2"/>
+				<mx:DataGridColumn dataField="y" headerText="y"
+								   itemRenderer="components.cell.NumericStepperCell"
+								   />
+				<mx:DataGridColumn dataField="width" headerText="width"
+								   itemRenderer="components.cell.NumericStepperCell"/>
+				<mx:DataGridColumn dataField="height" headerStyleName="centered" headerText="height"
+								   itemRenderer="components.cell.NumericStepperCell"
+								   />
+				<mx:DataGridColumn dataField="text" headerStyleName="centered" headerText="text"
+								   itemRenderer="components.cell.TextInputCell"
+								   />
+			</cell:columns>
+			
+		</cell:DataGridCell>
+		<s:VGroup width="20%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="search:"/>
+				<s:Button id="add" label="add" click="onAddMouseEvent(event)" enabled="{bEnable}"/>
+				<s:Button id="del" label="del" click="onAddMouseEvent(event)" enabled="{bEnable}"/>
+			</s:HGroup>
+			<mx:HRule height="1" width="100%"/>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="color:"/>
+				<mx:ColorPicker change="onColorChange(event)" enabled="{bEnable}" color="{nColor}" selectedColor="#ffff00"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="alpha:"/>
+				<s:NumericStepper value="@{nAlpha}" maximum="100" minimum="20" enabled="{bEnable}" change="onAlphaChange(event)" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+</s:Group>

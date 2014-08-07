@@ -1,0 +1,9 @@
+<components fileID="JS_KEY_RESOURCE">
+  <icons>
+    <icon height="18" resourceID="resiconMovie" folder="" width="17" action="PLAY_MOV" file="resource_icon_movie.png"/>
+    <icon height="18" resourceID="resiconMP3" folder="" width="20" action="PLAY_SND" file="resource_icon_mp4.png"/>
+    <icon height="15" resourceID="resiconHTML" folder="" width="17" action="OPEN_HTML" file="resource_icon_rect.png"/>
+    <icon resourceID="resiconApp" width="20" action="OPEN_HTML" file="resource_icon_program.png" height="19"/>
+    <icon file="resource_icon_file.png" width="15" height="18" action="OPEN_DOC" resourceID="resiconDoc"/>
+  </icons>
+</components>

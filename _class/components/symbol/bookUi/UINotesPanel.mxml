@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseBookUI xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:bookUi="components.symbol.bookUi.*"
+				   xmlns:exclusive="exclusive.*"
+				   xmlns:dropdownlist="JsF.dropdownlist.*"
+				   creationComplete="onFlexEvent(event)" styleName="NormalText" xmlns:ext="components.ext.*">
+	<fx:Style source="css/book.css"/>
+	<fx:Metadata>
+		[Event(name="onXMLChange", type="Js.mdel.events.EditEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.mdel.SystemOS;
+			import JsC.shell.ShellSystem;
+			import JsC.xml.XmlCtrl;
+			
+			import JsF.text.TextConver;
+			
+			import components.books.BookPage;
+			
+			import flashx.textLayout.elements.TextFlow;
+			import flashx.textLayout.formats.TextAlign;
+			import flashx.textLayout.formats.TextLayoutFormat;
+			import flashx.textLayout.formats.WhiteSpaceCollapse;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.BaseUIButton;
+			import jsProject.view.UINoteButton;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			import spark.utils.TextFlowUtil;
+			
+			
+			[Bindable]public var __comment__:String
+			[Bindable]public var __promp__:String
+			[Bindable]private var __textFlow:TextFlow
+			
+			
+			[Bindable]private var aFontSize:ArrayCollection
+			[Bindable]private var aFontFamliy:ArrayCollection
+			[Bindable]private var currentFontFamliy:String
+			[Bindable]private var currentFontSize:String
+			[Bindable]private var currentColor:uint
+			
+			[Bindable]private var bEnable:Boolean
+			[Bindable]private var nAlpha:Number
+			
+			private const myXmlContent:XML = <node x="" y="" page="" date=""><text/></node>
+			
+			
+			public function set __FontSizeList__(_value:Vector.<uint>):void
+			{
+				theFontSizeList = _value
+				setFontSizeList()
+			}
+			
+			private var theFontSizeList:Vector.<uint> = Vector.<uint>([12,24,36])
+			private var txtflow:TextFlow;
+			private var textformat:TextLayoutFormat;
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				bEnable = true;//SystemOS.isPc
+				nAlpha = 1//(SystemOS.isPc)?1:0.2
+				textformat = new TextLayoutFormat 
+				setFontSizeList()
+				setFontList()
+				ddlFontSize.selectedIndex = 0
+				ddlFont.selectedIndex = 0
+				if (bNew)
+				{
+					createDate()
+				}
+				txtflow=txtInput.textFlow;
+				stage.focus = null
+				txtInput.setFocus();
+				
+				//txtInput.textDisplay.verticalScrollPosition = 0
+			}
+			
+			
+			private function setFontList():void
+			{
+				var fonts:Array = Font.enumerateFonts(true).sortOn("fontName");
+				aFontFamliy = new ArrayCollection
+				var _obj:Object
+				for (var i:int = 0; i < fonts.length; i++) {
+					_obj = new Object
+					_obj.id = fonts[i].fontName
+					_obj.name = fonts[i].fontName
+					aFontFamliy.addItem(_obj);
+				}
+			}
+			
+			private function setFontSizeList():void
+			{
+				var _array:Array = String(theFontSizeList).split(",")
+				var _obj:Object
+				aFontSize = new ArrayCollection
+				for (var i:int = 0; i < _array.length; i++) 
+				{
+					_obj = new Object
+					_obj.id = _array[i]
+					_obj.name = _array[i]
+					aFontSize.addItem(_obj)
+				} 
+			}
+			
+			public function setTextFlowFromeXML(xml:XML):void
+			{
+				txtflow = TextFlowUtil.importFromXML(xml,WhiteSpaceCollapse.PRESERVE);
+				txtInput.textFlow = txtflow;
+			}
+			
+			
+			public function getTextFlow():XML
+			{
+				var xml:XML = TextFlowUtil.export(txtflow);
+				if(xml.toString().indexOf("fontFamily")<0) txtInput.setFormatOfRange(textformat,0,txtInput.text.length);
+				return TextFlowUtil.export(txtflow);
+			}
+			
+			
+			
+			
+			private function onSelectionChangedHandler(evt:FlexEvent):void
+			{
+				var format:TextLayoutFormat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if(format!=null)
+				{
+					if(format.fontFamily!=null)
+					{
+						currentFontFamliy = format.fontFamily
+					}
+					
+					if(format.color!=null)
+					{
+						currentColor = format.color;
+					} 
+					if(format.fontSize!=null)
+					{
+						currentFontSize = format.fontSize
+					}
+					if(format.fontStyle!=null)
+					{
+						btnItalic.selected=format.fontStyle=="italic"?true:false;
+					}
+					if(format.textDecoration!=null)
+					{
+						btnUnderLine.selected=format.textDecoration=="underline"?true:false;
+					}
+					if(format.fontWeight!=null)
+					{
+						btnBold.selected=format.fontWeight=="bold"?true:false;
+					}
+					if(format.textAlign)
+					{
+						switch(format.textAlign)
+						{
+							case TextAlign.LEFT:
+								alignButtons.selectedIndex = 0
+								break;
+							case TextAlign.CENTER:
+								alignButtons.selectedIndex = 1
+								break;	
+							case TextAlign.JUSTIFY:
+								alignButtons.selectedIndex = 2
+								break;	
+						}
+					}
+				}
+				
+			}
+			
+			
+			private function setTextAlian(evt:IndexChangeEvent):void
+			{
+				
+				textformat = txtInput.getFormatOfRange(null,txtInput.selectionAnchorPosition,txtInput.selectionActivePosition);
+				if(alignButtons.selectedItem) 
+				{
+					switch(alignButtons.selectedItem.value)
+					{
+						case TextAlign.JUSTIFY:
+							if (textformat)textformat.whiteSpaceCollapse = WhiteSpaceCollapse.PRESERVE
+							break;
+						default:
+							break
+					}
+					if (textformat)textformat.textAlign = alignButtons.selectedItem.value;
+				}
+				setFormat();
+			}
+			
+			
+			private function setFormat():void
+			{
+				txtInput.setFocus()
+				if (textformat)
+				{
+					txtInput.setFormatOfRange(textformat,
+						txtInput.selectionAnchorPosition,
+						txtInput.selectionActivePosition);
+					txtInput_changeHandler(null);
+					onXmlSave()
+					//txtInput.setFocus();
+				}
+			}
+			
+			
+			private function fontlist_change(evt:IndexChangeEvent):void
+			{
+				textformat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if (textformat)textformat.fontFamily = currentFontFamliy
+				setFormat();
+			}
+			
+			
+			private function sizelist_change(event:IndexChangeEvent):void
+			{
+				textformat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if (textformat)textformat.fontSize= theFontSizeList[ddlFontSize.selectedIndex];
+				setFormat();
+			}
+			
+			
+			
+			
+			private function boldbtn_change(event:Event):void
+			{
+				textformat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if (textformat)textformat.fontWeight=btnBold.selected?"bold":"normal";
+				setFormat();
+				txtInput.setFocus();
+			}
+			
+			
+			private function italicbtn_change(event:Event):void
+			{
+				textformat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if (textformat)textformat.fontStyle=btnItalic.selected?"italic":"normal";
+				setFormat();
+			}
+			
+			
+			private function underlinebtn_change(event:Event):void
+			{
+				textformat = txtInput.getFormatOfRange(null,
+					txtInput.selectionAnchorPosition,
+					txtInput.selectionActivePosition);
+				if (textformat)textformat.textDecoration=btnUnderLine.selected?"underline":"none";
+				setFormat();
+			}
+			
+			
+			protected function txtInput_changeHandler(event:TextOperationEvent):void
+			{
+			}
+			
+			
+			protected function onXmlSave(event:Event=null):void
+			{
+				
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				onXmlSave()
+			}
+			
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				$remove()
+				var _me:BorderContainer = BorderContainer(event.currentTarget)
+				switch(_me)
+				{
+					case confirm:
+						
+						if (bNew)
+						{
+							var _xmllist:XMLList = XmlCtrl.getNodeByName(XMLList(XmlContent.XML_USER),NameDefine.KEY_USER_NOTE)
+							xList=  XMLList(myXmlContent.copy())
+							XmlCtrl.addChild(_xmllist,xList)
+							btn = new UINoteButton
+							btn.$setData(xList)
+							var _page:BookPage = Viewers.getPage()
+							_page.addButton(btn,true)
+							btn.$newAction()
+						}
+						xList.@date = __date__
+						if (txtflow)
+						{
+							xList.text = <text>{TextConver.textFlowToString(txtflow)}</text>
+						}else{
+							xList.text = (txtInput.text)
+						}
+						
+						if (!bNew)ShellSystem.current.saveUserFile()
+						break;
+					
+				}
+			}
+			
+			
+			override public function $setData(_btn:BaseUIButton):void
+			{
+				super.$setData(_btn)
+				setTextAction()
+				
+			}
+			
+			override public function $modData(_xmllist:XMLList):void
+			{
+				
+				bNew = false
+				xList = _xmllist
+				__date__ = xList.@date
+				setTextAction()
+			}
+			
+			
+			private function setTextAction():void
+			{
+				var _str:String = xList.text
+				var _obj:TextFlow = TextConver.stringToTextFlow(_str)
+				if (_obj !=null )
+				{
+					txtInput.$text = _obj
+				}else{
+					txtInput.text = _str
+				}
+			}
+			
+			/* protected function onColorChange(event:ColorPickerEvent):void
+			{
+			textformat = txtInput.getFormatOfRange(null,
+			txtInput.selectionAnchorPosition,
+			txtInput.selectionActivePosition);
+			if (textformat)textformat.color = currentColor
+			setFormat();
+			} */
+			
+		]]>
+	</fx:Script>
+	<s:BitmapImage width="560" height="573" smooth="true"
+				   source="controls/bookui/ipad_w_prepare_2_note.png"/>
+	<s:Label x="141" y="104" width="361" color="#767676" styleName="NormalTitle" text="{__date__}"
+			 textAlign="left"/>
+	<dropdownlist:jDropDownList id="ddlFont" x="183" y="156" width="132" change="fontlist_change(event);"
+								__valueRead="{currentFontFamliy}" __valueWrite="@{currentFontFamliy}"
+								dataProvider="{aFontFamliy}" enabled="{bEnable}" alpha="{nAlpha}" />
+	<dropdownlist:jDropDownList id="ddlFontSize" x="354" y="156" width="93" change="sizelist_change(event);"
+								__valueRead="{currentFontSize}" __valueWrite="@{currentFontSize}"
+								dataProvider="{aFontSize}" enabled="{bEnable}" alpha="{nAlpha}"/>
+	<s:ToggleButton id="btnBold" x="153" y="193" width="20" change="boldbtn_change(event);"
+					icon="@Embed('/embed/icon/icon_style_bold.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
+	<s:ToggleButton id="btnItalic" x="185" y="193" width="20" change="italicbtn_change(event);"
+					icon="@Embed('/embed/icon/icon_style_italic.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
+	<s:ToggleButton id="btnUnderLine" x="217" y="193" width="20" change="underlinebtn_change(event);"
+					icon="@Embed('/embed/icon/icon_style_underline.png')" enabled="{bEnable}" alpha="{nAlpha}"/>
+	<!--	<mx:ColorPicker id="textColor" x="444" y="194" change="onColorChange(event)" selectedColor="@{currentColor}">
+	
+	</mx:ColorPicker>-->
+	<exclusive:ExTextArea id="txtInput" x="141" y="225" width="361" height="205" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"
+						  maxChars="500" paste="onEvent(event)" selectionChange="onSelectionChangedHandler(event)"/>
+	
+	<s:ButtonBar id="alignButtons" x="287" y="193" width="80" change="setTextAlian(event)"
+				 skinClass="JsF.skin.Skin_ButtonBar" enabled="{bEnable}" alpha="{nAlpha}">
+		<s:dataProvider>
+			<s:ArrayCollection>
+				<fx:Object icon="@Embed('/embed/icon/icon_align_left.png')" value="{TextAlign.LEFT}" toolTip=""/>
+				<fx:Object icon="@Embed('/embed/icon/icon_align_center.png')"
+						   value="{TextAlign.CENTER}" toolTip=""/>
+				<fx:Object icon="@Embed('/embed/icon/icon_align_right.png')" value="{TextAlign.RIGHT}" toolTip=""/>
+				<fx:Object icon="@Embed('/embed/icon/icon_align_justify.png')"
+						   value="{TextAlign.JUSTIFY}" toolTip=""/>
+			</s:ArrayCollection>
+		</s:dataProvider>			
+	</s:ButtonBar>
+	
+	<s:BorderContainer id="confirm" x="376" y="503" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" click="onMouseEvent(event)"/>
+	<s:BorderContainer id="cancel" x="449" y="503" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" click="onMouseEvent(event)"/>
+	<s:Rect visible="{SystemOS.isMobile}" x="148" y="148" width="354" height="69">
+		<s:fill >
+			<s:SolidColor color="0xEFEFDE"/>
+		</s:fill>
+	</s:Rect>
+</bookUi:BaseBookUI>

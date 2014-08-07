@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseBookUI xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:bookUi="components.symbol.bookUi.*"
+				   xmlns:exclusive="exclusive.*"
+				   creationComplete="basebookui1_creationCompleteHandler(event)"
+				   styleName.State1="NormalText">
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import JsC.events.JEvent;
+			import JsC.shell.ShellSystem;
+			import JsC.xml.XmlCtrl;
+			
+			import JsF.text.TextConver;
+			
+			import components.books.BookPage;
+			import components.symbol.bookUi.BaseMenuNode;
+			
+			import jsProject.ctrl.FileSystem;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.ViewerControls;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.BaseUIButton;
+			import jsProject.view.UIResourceButton;
+			
+			
+			[Bindable]private var sName:String="";
+			[Bindable]private var sFile:String="";
+			[Bindable]private var sOption:String="";
+			[Bindable]private var sOpenFile:String="";
+			[Bindable]private var bwrite:Boolean = false;
+			[Bindable]private var bEnable:Boolean = false;
+			
+			private const myXmlContent:XML = <node x="" y="" page="" date="" file="" address="" name="" action="" option=""><text/></node>
+			private var selectFile:String
+			
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				$remove()
+				var _me:BorderContainer = BorderContainer(event.currentTarget)
+				switch(_me)
+				{
+					case confirm:
+						
+						if (bNew)
+						{
+							var _xmllist:XMLList = XmlCtrl.getNodeByName(XMLList(XmlContent.XML_USER),NameDefine.KEY_USER_RESOURCE)
+							xList=  XMLList(myXmlContent.copy())
+							XmlCtrl.addChild(_xmllist,xList)
+						}
+						if (selectFile!=null)
+						{
+							sOpenFile = ShellSystem.current.copyToUserAssets(selectFile)
+							var _arr:Array = sOpenFile.split(".")
+							var _type:String = _arr[_arr.length-1]
+						}
+						switch(sOption)
+						{
+							default:
+							case "0":
+								xList.@action = NameDefine.COM_OPEN_FILE
+								
+								if(txtInput.textFlow != null){
+									xList.text = <text>{TextConver.textFlowToString(txtInput.textFlow)}</text>
+								}else{
+									xList.text = <text>{txtInput.text}</text>
+								}
+								
+								break;
+							
+							case "1":
+								xList.@action =NameDefine.COM_OPEN_HTML
+								if (sOpenFile.indexOf("http://")!=0)
+								{
+									sOpenFile = "http://" + sOpenFile
+								}
+								break
+						}
+						xList.@date = __date__
+						xList.@name = sName
+						xList.@openfile = sOpenFile
+						xList.@option = sOption
+						if (bNew)
+						{
+							btn = new UIResourceButton
+							btn.$setData(xList) 
+							var _page:BookPage = Viewers.getPage()
+							_page.addButton(btn,true)
+							btn.$newAction()
+							ViewerControls.addResourceButton(btn)
+						}else{
+							item.updateData()
+							ShellSystem.current.saveUserFile()
+						}
+						break;
+					
+				}
+				
+				
+				
+			}
+			
+			
+			override protected function $setList(_xmlList:XMLList):void
+			{
+				super.$setList(_xmlList)
+				sName = xList.@name
+				sOpenFile = xList.@openfile
+				sOption = xList.@option
+				if(txtInput)txtInput.$text = TextConver.stringToTextFlow(xList.text.toString())
+				selectOption(uint(sOption))
+			} 
+			
+			private function selectOption(_num:uint):void
+			{
+				switch(_num)
+				{
+					case 0:
+						sOption = "0"
+						bwrite = false
+						/* exp.setStyle("backgroundAlpha",0)
+						exp.enabled=true */
+						currentState = "State1"
+						break;
+					
+					case 1:
+						sOption = "1"
+						bwrite = true
+						/* exp.setStyle("backgroundAlpha",0.7)
+						exp.enabled=false */
+						currentState = "State2"
+						break;
+				}
+			}
+			
+			
+			
+			
+			
+			
+			protected function basebookui1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if (bNew)
+				{
+					createDate()
+				}
+			}
+			
+			protected function onPop(event:MouseEvent):void
+			{
+				/*selectFile = ShellSystem.current.browser()
+				sOpenFile = selectFile*/
+				var fs:FileSystem = new FileSystem
+				fs.addEventListener(JEvent.COMPLETE,onFileSystemEvent)
+				fs.browser();
+			}
+			
+			
+			protected function onFileSystemEvent(event:JEvent):void
+			{
+				
+				//sOpenFile = selectFile
+			}
+			
+		]]>
+	</fx:Script>
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	
+	<s:BitmapImage width="560" height="575" smooth="true" source="controls/bookui/ipad_w_addresources.png"/>
+	<s:BitmapImage width="560" height="575" smooth="true" source="controls/bookui/ipad_w_addresources2.png" visible.State1="false"/>
+	
+	
+	<s:Group includeIn="State1" x="136" y="175" width="385" visible="{Value.bNewVersion}">
+		
+		<s:TextInput x="6" y="6" width="368" height="35" fontSize="18" styleName="NormalInput"
+					 text="@{sName}"/>
+		<s:TextInput x="6" y="50" width="305" height="35" editable="false" fontSize="18"
+					 styleName="NormalInput" text="@{sOpenFile}"/>
+		
+		<exclusive:ExTextArea id="txtInput" x="6" y="93" width="370" height="207" maxChars="500"  />
+		<s:BorderContainer id="exp" x="314" y="50" width="62" height="36" backgroundAlpha="0"
+						   borderAlpha="0" buttonMode="true" mouseDown="onPop(event)"/>
+	</s:Group>
+	
+	<s:Group includeIn="State2" x="136" y="175" width="385" height="284">
+		
+		<s:TextInput x="6" y="6" width="368" height="35" fontSize="18" styleName="NormalInput"
+					 text="@{sName}"/>
+		<s:TextArea x="6" y="50" width="369" height="203" fontSize="18" styleName="NormalInput"
+					text="@{sOpenFile}"/>
+	</s:Group>
+	
+	<s:Label x="141" y="104" width="361" color="#767676" text="{__date__}" textAlign="left"
+			 styleName.State1="NormalTitle"
+			 styleName.State2="NormalTitle"/>
+	<s:BorderContainer id="confirm" x="378" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" mouseDown="onMouseEvent(event)" visible="{Value.bNewVersion}"/>
+	<s:BorderContainer id="cancel" x="450" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" click="Viewers.closeWin()" />
+	<s:RadioButton visible="{Value.bNewVersion}" x="139" y="137" click="selectOption(0)"
+				   enabled="{bNew}" groupName="group1" selected="{!bwrite}"/>
+	<s:RadioButton visible="{Value.bNewVersion}" x="274" y="137" click="selectOption(1)"
+				   enabled="{bNew}" groupName="group1" selected="{bwrite}"/>
+</bookUi:BaseBookUI>

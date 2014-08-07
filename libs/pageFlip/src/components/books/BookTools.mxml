@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:books="components.books.*">
+	<fx:Declarations>
+		<s:HTTPService id="xmlLoader" url="{Files.file_navigater}"  
+					   result="onLoadXMLComplete(event)"
+					   fault="onLoadXMLError(event)"
+					   resultFormat="xml"
+					   />
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="COMPLETE", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.FilesData;
+			import Js.mdel.Value;
+			
+			
+			[Bindable]private var fileBackground:String;
+			
+			private var xmlData:XML
+			
+			public function init():void
+			{
+				xmlLoader.send()
+				
+			}
+			protected function onLoadXMLComplete(event:ResultEvent):void
+			{
+				xmlData = new XML(event.result.toString())
+				FilesData.xmlNavigate = xmlData
+				fileBackground = Files.folder_navigater + xmlData.toolbar.background.files.toString()
+				navigater.init()
+				Value.nToolBarY = height
+				
+				var _event:ProjectEvent = new ProjectEvent(ProjectEvent.COMPLETE)
+				dispatchEvent(_event)
+			}
+			protected function onLoadXMLError(event:FaultEvent):void
+			{
+				trace("BookNavigater fault")
+			}
+			public function setPageFlip(_page:BookPage):void
+			{
+				navigater.setPageFlip(_page)
+			}
+		]]>
+	</fx:Script>
+	<s:Image id="picBackground" left="0" right="0" top="0" scaleMode="stretch" source="{fileBackground}"/>
+	<books:BookToolsNavigater id="navigater" right="5" bottom="5"/>
+</s:Group>

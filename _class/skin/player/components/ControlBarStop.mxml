@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		width="20" height="20">
+	<fx:Metadata>[HostComponent("spark.components.RadioButton")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+		<s:State name="upAndSelected"/>
+		<s:State name="overAndSelected"/>
+		<s:State name="downAndSelected"/>
+		<s:State name="disabledAndSelected"/>
+	</s:states>
+	<s:BitmapImage x="0" y="0" smooth="true" source="@Embed('skin/player/assets/images/btn_stop_over.png')"
+				   visible.disabled="false"
+				   alpha.disabledAndSelected="0.5"
+				   visible.down="false"
+				   visible.over="false"
+				   visible.up="false">
+		<s:filters>
+			<s:BlurFilter includeIn="disabledAndSelected" blurX="4.0" blurY="4.0" quality="2"/>
+		</s:filters>
+	</s:BitmapImage>
+	<s:BitmapImage includeIn="disabled,down,over,up" x="0" y="0" smooth="true"
+				   source="@Embed('skin/player/assets/images/btn_stop.png')"
+				   alpha.disabled="0.5">
+		<s:filters>
+			<s:BlurFilter includeIn="disabled" blurX="4.0" blurY="4.0" quality="2"/>
+		</s:filters>
+	</s:BitmapImage>
+</s:Skin>

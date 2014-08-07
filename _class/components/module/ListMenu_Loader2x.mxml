@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:ListMenu_Loader xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:module="components.module.*">
+	<!--双层循环-->
+	<fx:Script>
+		<![CDATA[
+			override protected function onCreateNode(_xmlList:XMLList):void
+			{
+				var _xmlPage:XMLList = _xmlList
+				var _xmlCtrl:XMLList = XMLList(_xmlPage.controls)
+				var _xmlLength:uint = _xmlCtrl.children().length()
+				if (_xmlLength>0)
+				{
+					for (var j:int = 0; j < _xmlLength; j++) 
+					{
+						var _newList:Base_ListMenu_Item = new __class
+						gr.addElement(_newList)
+						_newList.setButtonContent(XMLList(_xmlCtrl.children()[j]),_xmlPage) 
+					} 
+				}
+			}
+		]]>
+	</fx:Script>
+</module:ListMenu_Loader>

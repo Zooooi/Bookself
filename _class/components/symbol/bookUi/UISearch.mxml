@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseSearch xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:base="components.base.*"
+				 creationComplete="onFlexEvent(event)" styleName="NormalText">
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import JsC.string.Maths;
+			
+			import jsProject.mdel.Viewers;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				def_input = input
+				def_searchNode = "TAG"
+				def_Display = false
+				super.onFlexEvent(event);
+			}
+			
+			
+			override protected function inputAction():void
+			{
+				aListData = new ArrayCollection
+				aNo = new Vector.<uint>
+				if (def_input.text!="")
+				{
+					for (var i:int = 0; i < aList.length; i++) 
+					{
+						var _text:String = aList[i]
+						if (_text.indexOf(def_input.text)>=0)
+						{
+							aListData.addItem("        " + aPage[i] + ":        "  + aList[i])
+							aNo.push(i)
+						}
+					}
+				}else{
+					init()
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>	
+	
+	<s:Image width="412" height="707" smooth="true" source="controls/bookui/ipad_w_search.png"/>
+	
+	<s:TextInput x="100" y="17" width="187" height="29" id="input" keyUp="onKeyDown(event)" change="input_changeHandler(event)" />
+	<s:BorderContainer id="confirm" x="294" y="18" width="56" height="27" backgroundAlpha="0"
+					   borderAlpha="0" buttonMode="true" click="onClick(event)"/>
+	
+	<s:List x="0" y="89" width="412" height="569" dataProvider="{aListData}" change="onChange(event)"></s:List>
+</base:BaseSearch>

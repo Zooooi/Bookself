@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:LoaderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:base="components.base.*"
+				 xmlns:Project="Project.*" xmlns:view1="com.view.*"
+				 preinitialize="Viewers.setPage(this)" xmlns:bookUi="components.symbol.bookUi.*"
+				 >
+	<fx:Metadata>
+		[Event(name="LOADED", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.setTimeout;
+			
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			
+			import JsC.effects.EffectDrag;
+			import JsC.effects.EffectScale;
+			import JsC.effects.Effect_GESTURE_ZOOM;
+			import JsC.events.JEffectEvent;
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			import JsC.shell.ShellSystem;
+			
+			import jsProject.ctrl.PageDrag;
+			import jsProject.events.PageFilpEvents;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.PageFlipContent;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.ViewerControls;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.BaseUIButton;
+			import jsProject.view.PageCtrlLayer;
+			import jsProject.view.PageDrawLayer;
+			import jsProject.view.PageSubGroupLayer;
+			import jsProject.view.Preview;
+			
+			[Bindable]private var nBookRect:Rectangle;
+			
+			private var nBindingX:uint = 10;
+			private var nBindingY:uint = 10
+			
+			private const nPec:uint = 3
+			private const nZoomTime:uint = 1
+			private const navigateToBegin:String = "navigateToBegin"
+			private const navigateToBack:String = "navigateToBack"
+			private const navigateToNext:String = "navigateToNext"
+			private const navigateToEnd:String = "navigateToEnd"
+			private const zoomIn:String = "zoomIn"
+			private const zoomOut:String = "zoomOut"
+			
+			private var xml:XML;
+			private var pageMc:Sprite;
+			private var pageHitTest:Sprite
+			
+			private var effectDrag:EffectDrag
+			private var effectScale:EffectScale
+			private var effectGZoom:Effect_GESTURE_ZOOM
+			private var bZoom:Boolean
+			private var nPoint:Point
+			private var nScaleMax:Number
+			private var nScaleMin:Number
+			private var nScaleStep:Number
+			private var bCanDrag:Boolean
+			private var preview:Preview
+			private var bDraw:Boolean
+			private var nPointInit:Point
+			
+			private var nPageFlipMouseDown:Point
+			private var bPageFlipMouseDown:Boolean
+			
+			private var pageDrag:PageDrag
+			private var nDownScale:Number
+			private var aDraw:Vector.<PageDrawLayer>
+			private var aCtrl:Vector.<PageCtrlLayer>
+			private var bGZoom:Boolean
+			private var bFilp:Boolean = true
+			private var nCurrentPage:uint
+			
+			override protected function initMdel():void
+			{
+				aDraw = new Vector.<PageDrawLayer>
+				aCtrl = new Vector.<PageCtrlLayer>
+				init_component()
+			}
+			
+			override protected function init():void
+			{
+				super.init()
+				while(ui.numChildren)ui.removeChildAt(0)
+				onLoadXMLComplete()
+				ViewerControls.init()
+			}
+			
+			protected function onLoadXMLComplete():void
+			{
+				xml = xmlData.copy()
+				switch(String(xml.@fileID))
+				{
+					case NameDefine.FILE_ID_COMPONENT:
+						XmlContent.XML_COMPONENT = xml
+						init_resource()
+						reLoadXml()
+						break;
+					
+					case NameDefine.FILE_ID_RESOURCE:
+						XmlContent.XML_RESOURCE = xml
+						init_user()
+						reLoadXml()
+						break
+					
+					case NameDefine.FILE_ID_USER:
+						XmlContent.XML_USER = xml
+						ShellSystem.current.createUserFolder()
+						init_page()
+						reLoadXml()
+						break
+					
+					case NameDefine.FILE_ID_BOOK:
+						//Load Book data.xml
+						XmlContent.XML_PAGE = xml
+						Value.sUrl = xml.@website
+						initPage()
+						dispatchEvent(new JEvent(JEvent.LOADED))
+						break;
+					
+					
+				}
+				
+			}
+			
+			private function initPage():void
+			{
+				nPointInit = new Point
+				
+				pageHitTest = new Sprite
+				pageHitTest.mouseEnabled = false
+				pageHitTest.mouseChildren = false
+				
+				pageDrag = new PageDrag();
+				pageDrag.addEventListener(Event.ADDED_TO_STAGE,onpageDragEvent)
+				ui.addChild(pageDrag)
+				ui.addChild(pageHitTest)
+				
+			}
+			
+			
+			
+			private function onPageFilpEvent(event:PageFilpEvents):void
+			{
+				switch(event.type)
+				{
+					case PageFilpEvents.onLoadInit:
+						pageMc = event.$currentPageContent
+						bCanDrag = true
+						$resizeLoc()
+						addActionGroup()
+						displayPageNo()
+						
+						if (stage.stageWidth>stage.stageHeight)
+						{
+							setTwoPage(true)
+						}else{
+							setOnePage(true)
+						}
+						break;
+					
+					case PageFilpEvents.onResetLoc:
+						break
+					
+					case PageFilpEvents.onLoading:
+						break
+					
+					case PageFilpEvents.onLoaded:
+						//addLayer 
+						if (SystemOS.isMobile)
+						{
+							if (event.$nPage==1)addLayer(event.$nPage,event.$currentPageLoader)
+						}else{
+							addLayer(event.$nPage,event.$currentPageLoader)
+						}
+						break
+					
+					case PageFilpEvents.onPageFlipEnd:
+						pageMc = event.$currentPageContent
+						if (SystemOS.isMobile)
+						{ 
+							var _length:uint = pageDrag.getCurrentDisplayPage().length
+							var _page:uint
+							for (var i:int = 0; i < _length; i++) 
+							{
+								_page = event.$nPage -_length + 1 + i
+								addLayer(_page ,pageDrag.getCurrentDisplayPage()[i])
+							} 
+						} 
+						displayPageNo()
+						bCanDrag = true
+						if (bZoom) 
+						{
+							setShowReview()
+						}else{
+							$resizeLoc()
+						}
+						addActionGroup()
+						bFilp = true
+						break
+					
+					case PageFilpEvents.onGoToPageError:
+						bCanDrag = true
+						if (bZoom) 
+						{
+							setShowReview()
+						}
+						displayPageNo()
+						bFilp = true
+						break
+				}
+				
+			}
+			
+			
+			private function addLayer(_uint:int,loader:PageFlipContent):void
+			{
+				var _index:uint = (_uint - 1 < 0) ? 0 : _uint - 1
+				if (aDraw[_index]==null) aDraw[_index] = new PageDrawLayer(_index)
+				if (aCtrl[_index]==null) aCtrl[_index] = new PageCtrlLayer(_index)
+				//加入DRAW
+				trace("BookPage->addLayer:  ",aDraw[_index].width,aDraw[_index].height)
+				loader.addChild(aDraw[_index])
+				//加入功能组件
+				loader.addChild(new PageSubGroupLayer(_index))
+				//加入控制组件
+				loader.addChild(aCtrl[_index]) 
+				
+			}
+			
+			
+			
+			private function addActionGroup():void
+			{
+				effectScale = new EffectScale(pageMc, pageHitTest.getRect(this))
+				effectDrag = new EffectDrag(pageMc, pageHitTest.getRect(this),30)
+				effectGZoom = new Effect_GESTURE_ZOOM(pageMc, pageHitTest.getRect(this),20)
+				
+				effectScale.setMinScale(nScaleMin, nScaleMin)
+				effectScale.setMaxScale(nScaleMax, nScaleMax)
+				effectScale.setTimeDuration(0.1)
+				
+				effectDrag.dynamicMask = true
+				effectDrag.setOffset(200,200)
+				
+				effectGZoom.setMaxScale(nScaleMax, nScaleMax)
+				effectGZoom.setMinScale(nScaleMin, nScaleMin)
+				effectGZoom.addEventListener(JEffectEvent.MIN,onZoomJEffectEvent)
+				effectGZoom.addEventListener(JEffectEvent.UPADTE,onZoomJEffectEvent)
+				
+				//pageMc.addEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
+				pageMc.addEventListener(MouseEvent.MOUSE_DOWN, onPageZoomMouseEvent)
+				pageDrag.addEventListener(PageFilpEvents.onRemoveAction,removeActionGroup)
+			}
+			
+			
+			protected function removeActionGroup(event:Event):void
+			{
+				effectDrag.remove()
+				effectScale.stop()
+				effectGZoom.removeEventListener(JEffectEvent.MIN,onZoomJEffectEvent)
+				effectGZoom.removeEventListener(JEffectEvent.UPADTE,onZoomJEffectEvent)
+				//pageMc.removeEventListener(MouseEvent.CLICK,onPageZoomMouseEvent)
+				pageMc.removeEventListener(MouseEvent.MOUSE_DOWN, onPageZoomMouseEvent)
+				
+				effectDrag = null
+				effectScale = null
+				effectGZoom = null
+				pageDrag.removeEventListener(PageFilpEvents.onRemoveAction,removeActionGroup)
+				
+				if (stage.hasEventListener(MouseEvent.MOUSE_MOVE))stage.removeEventListener(MouseEvent.MOUSE_MOVE,onStageMousePageFlip)
+				if (stage.hasEventListener(MouseEvent.MOUSE_UP))stage.removeEventListener(MouseEvent.MOUSE_UP,onStageMousePageFlip)
+				pageMc = null
+			}
+			
+			
+			private function onPageZoomMouseEvent(evt:MouseEvent):void
+			{
+				
+				if (bDraw || !bCanDrag){
+					return 
+				}else if (evt.target is SimpleButton) {
+					effectDrag.remove()
+				}else if (evt.target is Sprite){
+					if (Sprite(evt.target).buttonMode) effectDrag.remove()
+				}
+
+				switch (evt.type) 
+				{
+					case MouseEvent.MOUSE_DOWN:
+						nDownScale = pageMc.scaleX
+						nPageFlipMouseDown = new Point
+						nPageFlipMouseDown.x = stage.mouseX
+						nPageFlipMouseDown.y = stage.mouseY
+						stage.addEventListener(MouseEvent.MOUSE_MOVE,onStageMousePageFlip)
+						stage.addEventListener(MouseEvent.MOUSE_UP,onStageMousePageFlip) 
+						
+						break;
+				
+				}
+			}
+			
+			
+			private function onTweenerToResizeComplete():void
+			{
+				bZoom = false
+				hideReview()				
+				$resizeLoc()
+			}
+			
+			
+			private function setShowReview():void
+			{
+				/* if (pageDrag.$TimerFlag != "stop") 
+				{
+				pageMc.removeEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpShowPreview)
+				pageMc.addEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpShowPreview)
+				}else { */
+				showReview()
+				/* } */
+			}
+			
+			
+			private function showReview():void
+			{
+				if (preview == null && bCanDrag==true && Value.bShowPreviewOpen)
+				{
+					Value.bShowPreviewPro = true
+					preview = new Preview(this)
+				}
+			}
+			private function hideReview():void
+			{
+				if (preview != null)
+				{
+					preview.remove()
+					preview = null
+				}
+			}
+			
+			
+			private function navigateAction(_kind:String):void
+			{
+				if (!bCanDrag) return
+				bCanDrag = false
+				hideReview()
+				switch (_kind) 
+				{
+					case navigateToBegin:
+						pageDrag.PageToBegin()
+						break
+					
+					case navigateToBack:
+						pageDrag.PageToBack()
+						break
+					
+					case navigateToNext:
+						pageDrag.PageToNext()
+						break
+					
+					case navigateToEnd:
+						pageDrag.PageToEnd()
+						break
+				}
+				
+			}
+			
+			
+			private function zoom(_act:String):void
+			{
+				if (!bCanDrag) return
+				switch (_act) 
+				{
+					case zoomIn:
+						effectScale.ZoomByMask()
+						effectScale.scaleIn()
+						bZoom = true
+						setShowReview()
+						break
+					
+					case zoomOut:
+						effectScale.ZoomByMask()
+						effectScale.scaleOut()
+						bZoom = false
+						break
+				}
+				
+			}
+			
+			private function drawMask():void
+			{
+				pageHitTest.graphics.clear()
+				pageHitTest.graphics.beginFill(0x000000, 0)
+				pageHitTest.graphics.drawRect(0,0, nBookRect.width, nBookRect.height)
+				pageHitTest.graphics.endFill()
+				pageHitTest.x = nBookRect.x
+				pageHitTest.y = nBookRect.y
+			}
+			
+			private function displayPageNo():void
+			{
+				var _no:uint = pageDrag.book_page
+				var _vp:Vector.<uint> = pageDrag.getPageNumber()
+				var _text:String
+				var _t1:String=""
+				var _t2:String=""
+				switch (_no) 
+				{
+					case 0:
+						_text = pageDrag.getPageName(_vp[0])
+						_t1 =""
+						_t2 =  (_text=="")?String(1):_text
+						break
+					default:
+						if (_vp.length==2)
+						{
+							_text = pageDrag.getPageName(_vp[0])
+							_t1 =  (_text=="" )?String(_vp[0]+1):_text
+							_text = pageDrag.getPageName(_vp[1])
+							_t2 = (_text=="" )?String(_vp[1]+1):_text
+						}else{
+							_text = pageDrag.getPageName(_vp[0])
+							_t2 = (_text=="" )?String(_vp[0]+1):_text
+							if (pageDrag.getSimpage())
+							{
+								_t1 = _t2
+							}
+							else if (_no == pageDrag.book_totalpage)
+							{
+								_t1 = _t2
+								_t2 = ""
+							}
+						}
+						break
+				}
+				
+				Viewers.getNavigate().$displayPageNo(_t1,_t2)
+			}
+			
+			
+			
+			
+			protected function onPageFilpShowPreview(event:PageFilpEvents):void
+			{
+				event.target.removeEventListener(event.type, arguments.callee)
+				showReview()
+			}
+			
+			public function $stopMove():void
+			{
+				effectDrag.stop()
+			}
+			
+			public function action_init():void
+			{
+				initMdel()
+				reLoadXml()
+			}
+			
+			public function $navigateToBegin():void
+			{
+				navigateAction(navigateToBegin)
+			}
+			
+			public function $navigateToEnd():void
+			{
+				navigateAction(navigateToEnd)
+			}
+			
+			public function $navigateToNext():void
+			{
+				navigateAction(navigateToNext)
+			}
+			
+			public function $navigateToBack():void
+			{
+				navigateAction(navigateToBack)
+			}
+			public function $navigateByNum(_num:uint):void
+			{
+				if (!bFilp)return 
+				bFilp = false
+				hideReview()
+				pageDrag.PageGoto(_num)
+				displayPageNo()
+				
+			}
+			public function $zoomIn():void
+			{
+				zoom(zoomIn)
+			}
+			
+			public function $zoomOut():void
+			{
+				zoom(zoomOut)
+			}
+			
+			public function $resizeLoc():void
+			{
+				bZoom = false
+				$getBookRect()
+				var _w:uint = nBookRect.width
+				var _h:uint = nBookRect.height
+				if (pageMc==null)return
+				if ((pageMc.width / pageMc.height) > (nBookRect.width / nBookRect.height) )
+				{
+					pageMc.width = _w
+					pageMc.scaleY=  pageMc.scaleX
+				}else {
+					pageMc.height = _h
+					pageMc.scaleX=  pageMc.scaleY
+				}
+				pageMc.x =  nBookRect.x + (_w - pageMc.width) / 2
+				pageMc.y =  nBookRect.y + (_h - pageMc.height) / 2
+				
+				nScaleMin = pageMc.scaleX
+				pageDrag.getContent().minScale = nScaleMin	
+				nScaleMax = 1
+				Value.nZoom = nScaleMin
+				Value.nZoomMin = nScaleMin
+				Value.nZoomMax = nScaleMax
+				
+				nPointInit.x = pageMc.x
+				nPointInit.y = pageMc.y
+				pageDrag.setRect(nBookRect)
+			}
+			
+			
+			
+			public function $resize():void
+			{
+				
+				displayPageNo()
+				
+				if (stage.stageWidth>stage.stageHeight)
+				{
+					setTwoPage(true)
+				}else{
+					setOnePage(true)
+				}
+				
+				/*$resizeLoc()
+				hideReview()
+				if (effectDrag)
+				{
+					effectDrag.setRect(nBookRect)
+					effectDrag.refresh()
+					//effectDrag.run()
+				}
+				*/
+				
+				
+
+				
+			}
+			
+			
+			private function resizeDealy():void
+			{
+				
+			}
+			
+			public function $getBookRect():Rectangle
+			{
+				var _w:Number = stage.stageWidth
+				var _h:Number = stage.stageHeight
+				if (SystemOS.isMobile)
+				{
+					_w = width
+					_h = height
+				}
+				nBookRect = new Rectangle(nBindingX, Value.nToolBarY + nBindingY, _w - nBindingX * 2,  _h - (Value.nToolBarY*2) - nBindingY * 2)
+				drawMask()
+				return nBookRect
+			}
+			
+			public function $getPageFilp():PageDrag
+			{
+				return pageDrag
+			}
+			
+			public function getUI():UIComponent
+			{
+				return ui
+			}
+			
+			public function $pageOnDraw(_b:Boolean):void
+			{
+				bDraw = _b
+			}
+			
+			
+			public function $getHitTest():Sprite
+			{
+				return pageHitTest
+			}
+			
+			public function $getCurrentDisplayPage():Vector.<PageFlipContent>
+			{
+				return(pageDrag.getCurrentDisplayPage())
+			}
+			
+			
+			public function $getPreview():Preview
+			{
+				return preview
+			}
+			
+			
+			protected function onZoomJEffectEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case JEffectEvent.MIN:
+						bZoom = false
+						bGZoom = false
+						break;
+					case JEffectEvent.UPADTE:
+						bGZoom = true
+						bZoom = true
+						break;
+				} 
+				Value.nZoom = pageMc.scaleX
+			}
+			
+			protected function onStageMousePageFlip(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_MOVE:
+/*
+						if (Math.abs(stage.mouseX-nPageFlipMouseDown.x)>10 || Math.abs(stage.mouseY-nPageFlipMouseDown.y)>10)
+						{
+							effectDrag.start()
+						}
+						*/
+						if (nDownScale != pageMc.scaleX) return
+						if (pageMc.width<=nBookRect.width && pageMc.height<=nBookRect.height )
+						{
+							//pageMc.startDrag(false,new Rectangle(nPointInit.x-600,pageMc.y ,1200,0))
+							drapToPlayFlip()
+						}else{
+							if (pageMc.width<nBookRect.width)
+							{
+								drapToPlayFlip()
+							}else{
+								if (pageMc.x >nBookRect.width/4)
+								{
+									$navigateToBack()
+								}else if (nBookRect.width - pageMc.x - pageMc.width>nBookRect.width/4){
+									$navigateToNext()
+								}
+							}
+						}
+						break;
+					case MouseEvent.MOUSE_UP:
+						stage.removeEventListener(MouseEvent.MOUSE_MOVE,onStageMousePageFlip)
+						stage.removeEventListener(event.type,arguments.callee)
+						
+						if (bGZoom)
+						{
+							if (bZoom)
+							{
+								setShowReview()
+							}else{
+								hideReview()
+							}
+						}
+						bGZoom = false
+						break
+				}
+			}
+			
+			private function drapToPlayFlip():void
+			{
+				var _moveNum:Number = stage.mouseX - nPageFlipMouseDown.x
+				if (Math.abs(_moveNum)>300)
+				{
+					pageMc.stopDrag()
+					effectDrag.stop()
+					stage.dispatchEvent(new MouseEvent(MouseEvent.MOUSE_UP))
+					if(_moveNum < 0)
+					{
+						$navigateToNext()
+					}else{
+						$navigateToBack()
+					}
+				}
+			}
+			
+			
+			public function setOnePage(_resize:Boolean = false):void
+			{
+				hideReview()
+				pageDrag.setOnePage(_resize)
+			}
+			
+			public function setTwoPage(_resize:Boolean = false):void
+			{
+				hideReview()
+				pageDrag.setTwoPage(_resize)
+			}
+			
+			
+			public function setZoom():void
+			{
+				effectScale.setZoom(Value.nZoom,Value.nZoom)
+				if (Value.nZoom == nScaleMin)
+				{
+					onTweenerToResizeComplete()
+				}else{
+					bZoom = true
+					setShowReview()
+				}
+			}
+			
+			protected function onpageDragEvent(event:Event=null):void
+			{
+				pageDrag.setPath(Files.folder_book_Pages)
+				pageDrag.setEvent()
+				pageDrag.setXML(xml)
+				pageDrag.setRect($getBookRect())
+				pageDrag.init()
+				pageDrag.addEventListener(PageFilpEvents.onLoadInit,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onResetLoc,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onLoading,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onLoaded,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onResetLoc,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onPageFlipEnd,onPageFilpEvent)
+				pageDrag.addEventListener(PageFilpEvents.onGoToPageError,onPageFilpEvent)
+				for (var i:int = 0; i <=pageDrag.book_totalpage; i++) 
+				{
+					aDraw.push(null)
+					aCtrl.push(null)
+				}
+				
+			}
+			
+			
+			public function addUI(_iv:IVisualElement):void
+			{
+				grTip.removeAllElements()
+				grTip.addElement(_iv)
+				ui.addEventListener(MouseEvent.MOUSE_DOWN,ongrToolMouseEvent)
+			}
+			
+			public function addTool(_iv:IVisualElement):void
+			{
+				grTool.removeAllElements()
+				grTool.addElement(_iv)
+				ui.addEventListener(MouseEvent.MOUSE_DOWN,ongrToolMouseEvent)
+			}
+			
+			public function $close():void
+			{
+				grTip.removeAllElements()
+				if (grTool.numElements)ongrToolMouseEvent()
+				
+			}
+			
+			public function addButton(_iv:DisplayObject,_top:Boolean=false):void
+			{
+				var i:int
+				var pageCtrl:PageCtrlLayer
+				
+				for (i = 0; i < $getCurrentDisplayPage().length; i++) 
+				{
+					var pageContent:PageFlipContent = $getCurrentDisplayPage()[i]
+					if (pageContent.hitTestPoint(stage.mouseX,stage.mouseY,true))
+					{
+						pageCtrl = PageCtrlLayer($getCurrentDisplayPage()[i].$getCtrlLayer())
+						_iv.x = pageCtrl.mouseX
+						_iv.y = pageCtrl.mouseY
+						if (_top)
+						{
+							pageCtrl.parent.addChild(_iv)
+						}else{
+							pageCtrl.addChild(_iv)
+						}
+						if (_iv is BaseUIButton)BaseUIButton(_iv).setPageNo(pageCtrl.getPageNo())
+						break
+					}
+				}
+			}
+			
+			
+			
+			
+			protected function ongrToolMouseEvent(event:MouseEvent=null):void
+			{
+				grTip.removeAllElements()
+				grTool.removeAllElements()
+				if (ui.hasEventListener(MouseEvent.MOUSE_DOWN))ui.removeEventListener(MouseEvent.MOUSE_DOWN,ongrToolMouseEvent)
+			}
+			
+			
+			
+			
+			public function $setPreview():void
+			{
+				if (Value.bShowPreviewPro && Value.bShowPreviewOpen)
+				{
+					showReview()
+				}else{
+					hideReview()
+				}
+			}
+			
+			
+			
+			protected function onDIM(event:MouseEvent):void
+			{
+				setTimeout(effectDrag.add,300)
+				stage.removeEventListener(MouseEvent.MOUSE_UP,onDIM)
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<mx:UIComponent id="ui"/>
+	<s:HGroup id="grTip" left="0" right="0" top="0" bottom="0" horizontalAlign="center"
+			  mouseEnabled="false" paddingLeft="10" paddingTop="10" verticalAlign="middle">
+	</s:HGroup>
+	<s:HGroup id="grTool" left="-10" right="0" top="30" bottom="40" horizontalAlign="left"
+			  mouseEnabled="false" paddingLeft="10" paddingTop="10" verticalAlign="top">
+	</s:HGroup>
+</base:LoaderBase>

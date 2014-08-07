@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BorderBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="99.9%" xmlns:base="components.base.*"
+		 preinitialize="onFlexEvent(event)"
+		 creationComplete="onFlexEvent(event)"
+		 click="onMouseEvent(event)"
+		 >
+	<fx:Metadata>
+		[Event(name="REMOVE", type="JsC.events.JEvent")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.SWFK;
+			import JsC.shell.ShellSystem;
+			import JsC.string.Maths;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.IList;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]private var __width:uint
+			[Bindable]private var __height:uint;
+			[Bindable]private var __pic1:String = "";
+			[Bindable]private var __pic2:String = "";
+			[Bindable]private var __pic1Source:String;
+			[Bindable]private var __pic2Source:String;
+			[Bindable]private var __bookID:String = "";
+			[Bindable]private var __isbn:String = "";
+			[Bindable]private var __folder:String = "";
+			[Bindable]private var __mode:String = "";
+			[Bindable]private var __download:String = "";
+			
+			
+			private var xmlItem:XML = XmlContent.Edit_IntroBooks.copy()
+			private static var currentItem:Editor_Book_Item
+				
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.PREINITIALIZE:
+						__bookID = NameDefine.KEY_BOOKID + Maths.DataName()
+						xmlItem.@bookID = __bookID
+						break;
+					
+					case FlexEvent.CREATION_COMPLETE:
+						break
+				}
+			}
+			
+			
+			private function updateXML():void
+			{
+				xmlItem.@width = __width
+				xmlItem.@height = __height
+				xmlItem.@bookID = __bookID
+				xmlItem.@isbn = __isbn
+				xmlItem.@mode = __mode
+				xmlItem.@folder = __folder	
+				xmlItem.@download = __download
+				xmlItem.children()[0].@src = __pic1
+				xmlItem.children()[1].@src = __pic2
+			}
+			
+			private function getXMLValue():void
+			{
+				__width = xmlItem.@width
+				__height = xmlItem.@height
+				__bookID = xmlItem.@bookID
+				__isbn = xmlItem.@isbn
+				__mode = xmlItem.@mode
+				__folder = xmlItem.@folder
+				__download = xmlItem.@download
+				__pic1 = xmlItem.children()[0].@src
+				__pic2 = xmlItem.children()[1].@src
+				__pic1Source = Files.folder_bookself + __pic1
+				__pic2Source = Files.folder_bookself + __pic2
+			}
+			
+			
+			
+			
+			
+			//event------------------------------------------------------------------------------------------------------------------
+			protected function onKeyup(event:KeyboardEvent):void
+			{
+				if (event.keyCode == 13)
+				setText(TextInput(event.currentTarget))
+			}
+			
+			protected function onFocusout(event:FocusEvent):void
+			{
+				setText(TextInput(event.currentTarget))
+			}
+			
+			private function setText(_textInput:TextInput):void
+			{
+				setPic(_textInput)
+			}
+			
+			private function setPic(_textInput:TextInput):void
+			{
+				switch(_textInput)
+				{
+					case pic1:
+						__pic1Source = Files.folder_bookself + _textInput.text
+						break;
+					
+					case pic2:
+						__pic2Source = Files.folder_bookself + _textInput.text
+						break;
+				}
+				
+			}
+			
+			protected function onComplete(event:Event):void
+			{
+				switch(event.currentTarget)
+				{
+					case img1:
+						__pic1 = pic1.text
+						__pic1Source = Files.folder_bookself + __pic1
+						if (img2.source == null)
+						{
+							__pic2 = __pic1
+							__pic2Source = Files.folder_bookself + __pic1
+						}
+						__width = img1.sourceWidth
+						__height = img1.sourceHeight
+						break;
+					
+					case pic2:
+						__pic2 = pic2.text
+						__pic2Source = Files.folder_bookself +  __pic2
+						break;
+				}
+				
+			}
+			
+			protected function onLoadError(event:IOErrorEvent):void
+			{
+				switch(event.currentTarget)
+				{
+					case img1:
+						__pic1Source = null
+						__pic1 = ""
+						break;
+					
+					case img2:
+						__pic2Source = null
+						__pic2 = ""
+						break;
+					
+				}
+			}
+			
+			protected function onchange(event:Event):void
+			{
+			/* 	var _me:NumericStepper = NumericStepper(event.currentTarget)
+				switch(_me)
+				{
+					case textWidth:
+						__width = _me.value
+						break;
+					
+					case textHeight:
+						__height = _me.value
+						break;
+					
+				} */
+			}
+			protected function ondoubleclick(event:MouseEvent):void
+			{
+				var gr:Group = Group(parent)
+				gr.removeElement(this)	
+					
+			}
+			
+			protected function onMoveMouseEvent(event:MouseEvent):void
+			{
+				var gr:Group = Group(parent)
+				var _index:uint = gr.getElementIndex(this)
+				var _newIndex:uint
+				var _bPass:Boolean
+				switch(event.currentTarget)
+				{
+					case btnUP:
+						if (_index == 0) return
+						_newIndex = _index - 1
+						_bPass = true
+						break;
+					
+					case btnDW:
+						if (_index == gr.numElements-1) return
+						_newIndex = _index + 1
+						_bPass = true
+						break;
+				}
+				if (true)
+				gr.addElementAt(this,_newIndex)
+			}
+			
+			
+			
+			
+			
+			
+			
+			//public ----------------------------------------------------------------------------------------------------------------
+			public function setXML(_xml:XML):void
+			{
+				xmlItem = _xml
+				getXMLValue()
+			}
+			
+			public function getXML():XML
+			{
+				updateXML()
+				return xmlItem
+			}
+			
+			
+			protected function onMouseEvent(event:MouseEvent=null):void
+			{
+				Value.bEdit_Page_Content = false
+				if (__folder!="")
+				{
+					Files.book_isbn = __folder
+					if (currentItem!=null)currentItem.$mouseOT()
+					currentItem = this
+					$mouseDW()
+					Value.bEdit_Page_Content = true
+				}
+				
+			}
+			
+			protected function onCreateMouseEvent(event:MouseEvent):void
+			{
+				if (__folder!="")
+				{
+					onMouseEvent()
+					ShellSystem.current.createFolder(ShellSystem.current.$dir(Files.folder_books+__folder))
+					ShellSystem.current.createFolder(ShellSystem.current.$dir(Files.folder_book_Pages))
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	<s:HGroup width="100%" height="180" top="5" bottom="5" left="5" right="5" gap="20" >
+		
+		<s:HGroup width="60%" height="100%">
+			<s:BorderContainer width="100%" height="100%">
+				<s:layout>
+					<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10"  paddingTop="10"/>
+				</s:layout>
+				<s:Image  width="100%" height="100%" id="img1" complete="onComplete(event)" ioError="onLoadError(event)" source="{__pic1Source}"/>
+				<s:HGroup horizontalAlign="center" width="100%" verticalAlign="middle">
+					<s:Label text="pic:" />
+					<s:TextInput  width="100%" id="pic1" text="{__pic1}" keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+				</s:HGroup>
+			</s:BorderContainer>
+			
+			<s:BorderContainer width="100%" height="100%" >
+				<s:layout>
+					<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10"  paddingTop="10"/>
+				</s:layout>
+				<s:Image  width="100%" height="100%" id="img2" complete="onComplete(event)" ioError="onLoadError(event)" source="{__pic2Source}"/>
+				<s:HGroup horizontalAlign="center" width="100%" verticalAlign="middle">
+					<s:Label text="pic:"/>
+					<s:TextInput  width="100%" id="pic2" text="{__pic2}" keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+				</s:HGroup>
+			</s:BorderContainer>
+			
+			
+			
+		</s:HGroup>
+		
+		<s:VGroup width="30%" paddingTop="20">
+			
+			<s:HGroup width="100%" verticalAlign="middle">
+			</s:HGroup>
+			
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="bookId:" width="50" />
+				<s:Label  width="100%" id="bookID" text="{__bookID}"  keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+			</s:HGroup>
+			
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="isbn:" width="50"/>
+				<s:TextInput  width="100%" id="isbn" text="@{__isbn}"  keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+			</s:HGroup>
+			
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="folder:" width="50"/>
+				<s:TextInput  width="100%" id="folder" text="@{__folder}"  keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+				<s:Button label="create" id="btnCreate" click="onCreateMouseEvent(event) "/>
+			</s:HGroup>
+			
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="download:" width="58"/>
+				<s:TextInput  width="100%" text="@{__download}"  keyUp="onKeyup(event)" focusOut="onFocusout(event)"/>
+			</s:HGroup>
+			
+		<!--	<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="width:" width="50" />
+				<s:NumericStepper id="textWidth" maximum="2000"  value="{__width}"  change="onchange(event)" />
+			</s:HGroup>
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="height:" width="50" />
+				<s:NumericStepper id="textHeight" maximum="2000" value="{__height}"   change="onchange(event)" />
+			</s:HGroup>-->
+			
+		</s:VGroup>
+		<mx:VRule width="1" height="100%"/>
+		<s:VGroup width="10%" horizontalAlign="center">
+			<s:VGroup width="100%" verticalAlign="middle" horizontalAlign="center">
+				<s:Button width="50%" label="-" chromeColor="#F2B3B3" doubleClick="ondoubleclick(event)"
+						  doubleClickEnabled="true"/>
+				<s:Label color="#000000" fontSize="10" text="(double click)" textAlign="center"/>
+			</s:VGroup>
+			<s:Button label="↑" id="btnUP" click="onMoveMouseEvent(event)"/>
+			<s:Button label="↓" id="btnDW" click="onMoveMouseEvent(event)" />
+		</s:VGroup>
+	</s:HGroup>
+</base:BorderBase>

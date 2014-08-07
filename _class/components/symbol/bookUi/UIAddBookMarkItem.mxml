@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:bookUi="components.symbol.bookUi.*"
+					 >
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import JsF.text.TextConver;
+			
+			import flashx.textLayout.elements.TextFlow;
+			
+			import jsProject.ctrl.OpenComponentFiles;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.ViewerControls;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			//这个组件是组合，作为集合一页的资源，以及单个按钮
+			
+			private static var nCount:uint
+			[Bindable]private var sPage:String
+			[Bindable]private var sName:String
+			[Bindable]private var sUnit:String
+			[Bindable]private var txtFlow:TextFlow
+			
+			private var nPage:uint
+			private var xmlComponent:XMLList
+			//一页
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				
+				xmlList = XMLList(_xmlList.children()[i])
+				nPage = uint(xmlList.@page)
+				txtFlow = TextConver.stringToTextFlow(xmlList.text)
+				if (xmlList.@page!=undefined ||  xmlList.@page!="")
+				{
+					nPage = uint(xmlList.@page)
+					sUnit = Value.getPageNumber(nPage,"unit")
+					sPage = Value.getPageNumber(nPage)
+				}
+				sName = xmlList.@name
+				setBGcolor(i)
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent) 
+			}
+			
+		
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						switch(event.target)
+						{
+							case btnDEL:
+								onControlMouseEvent_DEL()
+								break;
+							
+							case btnEdit:
+								var note:UIAddBookMarkPanel = new UIAddBookMarkPanel
+								note.$setItem(this)
+								Viewers.getPage().$close()
+								Viewers.getPage().addUI(note)
+								break;
+							
+							default:
+								Viewers.getPage().$navigateByNum(nPage-1)
+								break;
+						}
+						//Viewers.getPage().$close()
+						/* var note:UIAddBookMarkPanel = new UIAddBookMarkPanel
+						note.$modData(xmlList)
+						Viewers.getPage().addUI(note) */
+						break;
+				}
+			}
+			
+			
+			override public function updateData():void
+			{
+				sName = xmlList.@name
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="10" paddingBottom="{cpB*1.2}" paddingLeft="10" paddingRight="{cpR}"
+			  paddingTop="{cpT*1.2}" verticalAlign="middle">
+		<s:Image x="15" y="0" width="20" height="20" smooth="true" source="@Embed('/embed/button/icon/bookmark.fw.png')" ioError="onIconLoadError(event)" />
+		<s:Label width="41" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sPage}" textAlign="center" verticalAlign="top"/>
+		<s:Label width="41" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold"
+				 text="{sUnit}" textAlign="center" verticalAlign="top"/>
+		<s:Spacer width="5"/>
+		<s:Label width="95%" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold" text="{sName}"/>
+		
+		<s:Button id="btnEdit" width="28" height="28" skinClass="components.skin.menu_button_edit"/>
+		<s:Button id="btnDEL" width="28" height="28" skinClass="components.skin.menu_button_del"/>
+	</s:HGroup>
+</bookUi:BaseMenuNode>

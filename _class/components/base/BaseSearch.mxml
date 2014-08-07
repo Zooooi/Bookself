@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.components.List;
+			import spark.components.TextInput;
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			[Bindable]protected var aListData:ArrayCollection = new ArrayCollection
+			protected var aList:Vector.<String> = new Vector.<String>
+			protected var aNo:Vector.<uint> = new Vector.<uint>
+			protected var _xmlList:XMLList
+			protected var aPage:Vector.<String>
+			
+			protected var def_Display:Boolean = true;
+			protected var def_input:TextInput
+			protected var def_searchNode:String
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				def_input.setFocus()
+				_xmlList = XmlContent.getPagesNodes()
+				init()
+			}
+			
+			protected function init():void
+			{
+				aList = new Vector.<String>
+				aPage = new Vector.<String>
+				for (var i:int = 0; i < _xmlList.children().length(); i++) 
+				{
+					var _text:String 
+					_text = String(_xmlList.children()[i].text[def_searchNode])
+					aList.push(_text)
+					aNo.push(i)
+					
+					_text = String(_xmlList.children()[i].text.pageNumber)
+					aPage.push(_text)
+				}
+				displist()
+			}
+			
+			protected function displist():void
+			{
+				aListData = new ArrayCollection
+				aNo = new Vector.<uint>
+				if (!def_Display) return
+				for (var i:int = 0; i < _xmlList.children().length(); i++) 
+				{
+					var _text:String = String(_xmlList.children()[i].text[def_searchNode])
+					aListData.addItem("   " + (i+1) + ":   " + _text)
+					aNo.push(i)
+				}
+			}
+			
+			protected function onKeyDown(event:KeyboardEvent):void
+			{
+				if (event.keyCode == 13)
+				{
+					onClick()
+				}else{
+					inputAction()
+				}
+			}
+			
+			protected function inputAction():void
+			{
+				aListData = new ArrayCollection
+				aNo = new Vector.<uint>
+				if (def_input.text!="")
+				{
+					for (var i:int = 0; i < aList.length; i++) 
+					{
+						var _text:String = aList[i]
+						if (_text.indexOf(def_input.text)>=0)
+						{
+							aListData.addItem("   " + (i+1) + ":   " + aList[i])
+							aNo.push(i)
+						}
+					}
+				}else{
+					init()
+				}
+			}
+			
+			protected function onClick(event:MouseEvent=null):void
+			{
+				if (aNo.length)
+				{
+					Viewers.closeWin()
+					Viewers.getPage().$navigateByNum(aNo[0])
+				}else{
+					def_input.text = ""
+					init()
+				}
+			}
+			
+			protected function onChange(event:IndexChangeEvent):void
+			{
+				if (aListData.length>0)
+				{
+					Viewers.closeWin()
+					var _me:List = List(event.currentTarget)
+					Viewers.getPage().$navigateByNum(aNo[_me.selectedIndex])
+				}
+			}
+			
+			protected function input_changeHandler(event:TextOperationEvent):void
+			{
+				inputAction()
+			}
+			
+		]]>
+	</fx:Script>
+</s:Group>

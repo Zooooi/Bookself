@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseIconButton xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*"
+		 xmlns:base="components.base.*"
+		 >
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.setTimeout;
+			
+			import mx.effects.Zoom;
+			
+			import caurina.TransData;
+			import caurina.transitions.Tweener;
+			
+			public var _num:uint
+			private var xmllist:XML
+			private var tween:Zoom
+			
+			public var transition:String = TransData.easeoutback
+			private const tweenDuration:uint =  1000
+			private var nW:Number
+			private var nH:Number
+				
+			public function $setData(_xml:XML):void
+			{
+				
+				xmllist = _xml
+				
+				for (var i:int = 0; i < xmllist.children().length(); i++) 
+				{
+					if (i==0)
+					{
+						sUp = _path + xmllist.children()[i].@src
+					}else{
+						sOv = _path + xmllist.children()[i].@src
+					}
+					
+				}
+				
+				useHandCursor = true
+				buttonMode = true
+				addEventListener(MouseEvent.ROLL_OVER,onMouseEvent)
+				addEventListener(MouseEvent.ROLL_OUT,onMouseEvent)
+			
+			}
+			
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				
+				switch(event.type)
+				{
+					
+					case MouseEvent.ROLL_OVER:
+						currentState = "over"
+						//onTween(event.type)
+						break;
+					
+					case MouseEvent.ROLL_OUT:
+						currentState = "up"
+						//setTimeout(onTween,200,event.type)
+						break;
+				}
+				
+			}
+			
+			private function onTween(_type:String):void
+			{
+				var _nW:Number
+				var _nH:Number
+				var _nP:Number
+				switch(_type)
+				{
+					case MouseEvent.ROLL_OVER:
+						_nW = maxWidth
+						_nH =  maxHeight
+						_nP =  ((maxWidth - width )/maxWidth + (maxHeight - height)/ maxHeight)/2
+						break;
+					
+					case MouseEvent.ROLL_OUT:
+						_nW = minWidth
+						_nH = minHeight
+						_nP =  (Math.abs(minWidth - width )/minWidth + Math.abs(minHeight - height)/ minHeight)/2
+						break;
+				}
+				Tweener.addTween(this,{width:_nW,height:_nH,time:_nP ,transition:transition})
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+</base:BaseIconButton>

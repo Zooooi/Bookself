@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseBookself xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 width="1024" minWidth="600" minHeight="400" xmlns:base="components.base.*" xmlns:symbol="components.symbol.*" xmlns:books="components.books.*"
+				 >
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			private const cPath:String = Files.folder_bookself
+			
+			
+			//override-----------------------------------------------------------------------------------------------------------------
+			override protected function initMdel():void
+			{
+				init_component()
+				//ShellSystem.current.getDocumentPath()
+			}
+			
+			override protected function init():void
+			{
+				
+				switch(xmlKey)
+				{
+					case NameDefine.FILE_ID_COMPONENT:
+						XmlContent.XML_COMPONENT = xmlData.copy()
+						init_resource()
+						reLoadXml()
+						break;
+					case NameDefine.FILE_ID_RESOURCE:
+						XmlContent.XML_RESOURCE = xmlData.copy()
+						init_bookself()
+						reLoadXml()
+						break;
+					case NameDefine.FILE_ID_BOOKSELF:
+						initData()
+						intro.setXML(xmlData)
+						break
+				}
+				
+				
+				
+			}
+			
+			
+			//event--------------------------------------------------------------------------------------------------------
+			protected function onComplete(event:Event):void
+			{
+				
+			}
+			
+			protected function onLoadError(event:IOErrorEvent):void
+			{
+				__backGround = ""
+				__backGroundSource = null
+			}
+			
+			protected function onKeyup(event:KeyboardEvent):void
+			{
+				if (event.keyCode == 13)
+				setText(TextInput(event.currentTarget))
+			}
+			
+			protected function onFocusout(event:FocusEvent):void
+			{
+				setText(TextInput(event.currentTarget))
+			}
+			
+			private function setText(_textInput:TextInput):void
+			{
+				/* switch(_textInput)
+				{
+					case background:
+						__backGround = _textInput.text
+						__backGroundSource = cPath  + __backGround
+						break
+				} */
+			}
+			
+			protected function onOpenMouseEvent(event:MouseEvent):void
+			{
+				openXmlFile()
+				
+			}
+			
+			protected function onSaveMouseEvent(event:MouseEvent):void
+			{
+				updateXML()
+				saveXmlFile(cPath)
+			}
+			
+			protected function onRefresh(event:MouseEvent=null):void
+			{
+				/* updateXML()
+				intro.setXML(xmlData) */
+				reLoadXml()
+			}
+			
+			protected function onChange(event:Event=null):void
+			{
+				updateXML()
+				intro.actionRefresh(xmlData)
+			}
+			
+			
+			//public--------------------------------------------------------------------------------------------------------
+		
+			
+			
+			
+			protected function onOpenFolder(event:MouseEvent):void
+			{
+				ShellSystem.current.openFile(cPath)
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="增加或删减书本"/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Path:"/>
+					<s:Label styleName="systemText" text="{Files.folder_bookself}"/>
+					<s:Button width="14" height="14" label="open folder" click="onOpenFolder(event)"
+							  icon="@Embed('embed/button/folder.png')" useHandCursor="true"  buttonMode="true"/>
+				</s:HGroup>
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Data:"/>
+					<s:Label styleName="systemText" text="{Files.file_bookself}"/>
+				</s:HGroup>
+			</s:HGroup>
+			
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="25"/>
+		<s:HGroup width="15%">
+			<s:Button width="59" label="refresh" click="onRefresh(event)"/>
+		</s:HGroup>
+		
+		<mx:VRule y="6" width="1" height="25"/>
+		<s:HGroup width="15%" verticalAlign="middle" horizontalAlign="center">
+			<s:Label styleName="systemText" text="XML File:"/>
+			<!--<s:Button width="59" label="open" click="onOpenMouseEvent(event)"/>-->
+			<s:Button width="59" label="save" click="onSaveMouseEvent(event)"/>
+		</s:HGroup >	
+	</s:HGroup>
+	
+	
+	<mx:HRule x="0" top="32" width="100%" height="1"/>	
+	
+	<s:VGroup left="10" right="10" top="34" bottom="5">
+		<s:HGroup width="100%" height="10%">
+			<s:VGroup width="50%" height="100%">
+				
+				<!--+Menu设定//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+		
+				<s:HGroup horizontalAlign="left" width="100%" verticalAlign="middle">
+					<s:Label text="auto:" />
+					<mx:VRule width="1" height="20"/>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="vGap:" />
+						<s:NumericStepper width="45" value="@{__autoVGap}" change="onChange(event)" maximum="1000" minimum="-1000"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="hGap:" />
+						<s:NumericStepper width="45" value="@{__autoHGap}" change="onChange(event)" maximum="1000" minimum="-1000"/>
+					</s:HGroup>
+					
+					
+					<mx:VRule width="10" height="20"/>
+					
+					<s:Label text="landscape:" />
+					<mx:VRule width="1" height="20"/>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="vGap:" />
+						<s:NumericStepper width="45" change="onChange(event)" maximum="1000"
+										  minimum="-1000" value="@{__landscapeVGap}"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="hGap:" />
+						<s:TextInput  text="@{__landscapeHGap}" width="60"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="line:" />
+						<s:TextInput  text="@{__landscapeLine}" width="40"/>
+					</s:HGroup>
+					
+					<mx:VRule width="10" height="20"/>
+					
+					<s:Label y="5" height="14" text="protrait:"/>
+					<mx:VRule width="1" height="20"/>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="vGap:" />
+						<s:NumericStepper width="45" change="onChange(event)" maximum="1000"
+										  minimum="-1000" value="@{__protraitVGap}"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="hGap:" />
+						<s:TextInput  text="@{__protraitHGap}"  width="60"/>
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="line:" />
+						<s:TextInput  text="@{__protraitLine}"  width="40"/>
+					</s:HGroup>
+					
+					<mx:VRule width="10" height="20"/>
+					
+					<s:Button width="51" label="apply" click="onChange()"/>
+				</s:HGroup>
+		
+				
+				<!--=Menu设定//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+				
+				
+			</s:VGroup>
+		</s:HGroup>
+		
+		<s:Group width="100%" height="100%">
+			<books:BookIntro_desktop id="intro" __autoLoad__="false" width="100%" height="100%" />
+		</s:Group>
+	</s:VGroup>
+	
+	
+</base:BaseBookself>

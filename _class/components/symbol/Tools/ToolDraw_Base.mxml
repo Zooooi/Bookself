@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="onFlexEvent(event)"
+		 addedToStage="onEvent(event)">
+	<fx:Metadata>
+		[Event(name="SEND", type="JsC.events.JEvent")]
+		[Event(name="COMPLETE", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.BorderContainer;
+			import spark.components.Image;
+			import spark.components.supportClasses.GroupBase;
+			
+			[Bindable]protected static var bHold:Boolean;
+			
+			public var nColor:uint
+			public var nStroke:uint
+			
+			protected var cornerRadius:uint = 5
+			protected var bSetButtonState:Boolean = true
+			protected var bNeverRemove:Boolean	
+			
+			private var gr:GroupBase
+			private var background:Image
+			private var currentBtn:Sprite
+			
+			[Bindable]protected var nAlpha:uint
+			
+			//Event------------------------------------------------------------------------------------------------------------------------------
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				gr = GroupBase(getChildByName("gr"))
+				setEvent(gr,onBtnMouseEvent)
+				
+				background = Image(getChildByName("background"))
+				if (background)
+				{
+					background.addEventListener(MouseEvent.CLICK,onBackgroundMouseEvent)
+					background.addEventListener(MouseEvent.MOUSE_DOWN,onBackgroundMouseEvent)
+				}
+			}
+			
+			
+			protected function setEvent(_group:GroupBase,_function:Function):void
+			{
+				if (_group)
+				{
+					for (var i:int = 0; i < _group.numElements; i++) 
+					{
+						var _sprite:BorderContainer = BorderContainer(_group.getElementAt(i))
+						if (bSetButtonState)
+						{
+							_sprite.setStyle("backgroundAlpha",0.0)
+							_sprite.setStyle("borderAlpha",0.5)
+							_sprite.setStyle("cornerRadius",cornerRadius)
+							_sprite.setStyle("borderColor",0xff0000)
+						}
+						_sprite.alpha = 0
+						_sprite.buttonMode = true
+						_sprite.addEventListener(MouseEvent.CLICK,_function)
+						_sprite.addEventListener(MouseEvent.MOUSE_DOWN,_function)
+					}
+				}
+			}
+			
+			protected function showHit(_value:uint):void
+			{
+				gr = GroupBase(getChildByName("gr"))
+				BorderContainer(gr.getElementAt(_value)).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+			}
+			protected function showHit2(_value:uint,_group:GroupBase):void
+			{
+				BorderContainer(_group.getElementAt(_value)).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+			}
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						if (!bNeverRemove)
+						{
+							stage.addEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+							addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						}
+						break;
+					case Event.REMOVED_FROM_STAGE:
+						stage.removeEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+						break
+				}
+			}
+			
+			
+			//mouseEvent------------------------------------------------------------------------------------------------------------------------------
+			
+			protected function onBtnMouseEvent(event:MouseEvent):void
+			{
+				var _me:BorderContainer = BorderContainer(event.currentTarget)
+				var _group:GroupBase = GroupBase(_me.parent)
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						bHold = true
+						break;
+					case MouseEvent.CLICK:
+						bHold = false
+						if (bSetButtonState)
+						{
+							for (var i:int = 0; i < _group.numElements; i++) 
+							{
+								BorderContainer(_group.getElementAt(i)).alpha = 0
+							}
+							_me.alpha = 1
+							/* if (currentBtn) currentBtn.alpha = 0
+							currentBtn = _me */
+							
+						}
+						 if (Group(_me.parent) == gr)
+						{ 
+							var _event:JEvent = new JEvent(JEvent.SEND)
+							_event.$setID(gr.getElementIndex(IVisualElement(event.currentTarget)))
+							dispatchEvent(_event)
+						 } 
+						
+						break
+				}
+			}
+			
+			
+			protected function onBackgroundMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						bHold = true
+						break;
+					case MouseEvent.CLICK:
+						bHold = false
+						break
+				}
+			}
+			
+			
+			protected function onStageMouseEvent(event:MouseEvent):void
+			{
+				//if (!bHold)Group(parent).removeElement(this)
+			}
+			
+			
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+</s:Group>

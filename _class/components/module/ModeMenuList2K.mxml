@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:ModeMenuList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:module="components.module.*">
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			protected var aXmlList:Vector.<String>
+			override protected function createMenu(_b:Boolean=false):void
+			{
+				var i:int
+				var j:int
+				var _aName:Array = __xmlName.split(",")
+				var _startNum:uint
+				if (aXmlList==null || _aName.length > 1 || _b)
+				{
+					bPass = true
+				}else{
+					var bPass:Boolean
+					__pageLength = 0
+					for (j = 0; j < aXmlList.length; j++) 
+					{
+						var _old:String = aXmlList[j]
+						var _new:String = String(XmlCtrl.getNodeAndCreate(XMLList(__xml),_aName[j]))
+						if (_old!=_new)
+						{
+							bPass = true
+							_startNum = gr.numElements
+							break
+						}
+					}
+				}
+				
+				
+				if (bPass)
+				{
+					aXmlList = new Vector.<String>
+					for (j = 0; j < _aName.length; j++) 
+					{
+						xmlList = XmlCtrl.getNodeAndCreate(XMLList(__xml),_aName[j])
+						nXmlLength = xmlList.children().length()
+						aXmlList.push(xmlList.toString())
+						
+						if (__pageLength == 0)
+						{
+							for (i = _startNum; i < nXmlLength; i++) 
+							{
+								onCreateNode(xmlList,i,nXmlLength)
+							} 
+						}else{
+							var _startNumber:uint = nPage * __pageLength
+							nEndNumber = (nPage + 1) * __pageLength
+							nEndNumber = (nEndNumber>nXmlLength)? nXmlLength : nEndNumber - 1
+							for (i = nPage * __pageLength ; i < nEndNumber; i++) 
+							{
+								onCreateNode(xmlList,i,nXmlLength)
+							} 
+						}
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+</module:ModeMenuList>

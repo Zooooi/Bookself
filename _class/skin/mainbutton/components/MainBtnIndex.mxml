@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		width="31" height="24">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<s:BitmapImage smooth="true" source="@Embed('skin/mainbutton/assets/images/btn2_dowm.png')"
+				   visible.disabled="false" x.disabled="0" y.disabled="0"
+				   visible.down="false" x.down="0" y.down="0"
+				   left.over="0" right.over="0" top.over="0" bottom.over="0"
+				   x.up="0" y.up="0"/>
+	<s:BitmapImage x="0" y="0" smooth="true" source="@Embed('skin/mainbutton/assets/images/btn2_normal.png')"
+				   visible.disabled="false"
+				   visible.over="false"/>
+	<s:BitmapImage smooth="true" source="@Embed('skin/mainbutton/assets/images/btn2_over.png')"
+				   x.disabled="0" y.disabled="0"
+				   visible.down="false" x.down="0" y.down="0"
+				   visible.over="false" x.over="0" y.over="0"
+				   left.up="0" right.up="0" top.up="0" bottom.up="0"/>
+	<s:RichText id="labelDisplay" includeIn="down,over,up" width="18" color="#FFFFFF"
+				fontFamily="Arial" fontSize="12" tabStops="S0" textAlign="center"
+				verticalAlign="middle" verticalCenter="1"
+				width.down="17" horizontalCenter.down="0"
+				visible.over="false" horizontalCenter.over="0.5"
+				width.up="17" color.up="#000000" horizontalCenter.up="0"/>
+	<s:RichText includeIn="disabled,down,over" width="18" color="#000000" fontFamily="Arial"
+				fontSize="12" tabStops="S0" text="0" textAlign="center" verticalAlign="middle"
+				verticalCenter="1"
+				visible.disabled="false" horizontalCenter.disabled="-0.5"
+				visible.down="false" horizontalCenter.down="0.5"
+				width.over="17" horizontalCenter.over="0"/>
+	<s:RichText includeIn="disabled" width="17" color="#999999" fontFamily="Arial" fontSize="12"
+				horizontalCenter="0" tabStops="S0" text="0" textAlign="center"
+				verticalAlign="middle" verticalCenter="1"/>
+</s:Skin>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tools:ToolDraw_Base xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:Tools="components.symbol.Tools.*"
+					 >
+	<fx:Metadata>
+		[Event(name="YES", type="JsC.events.JEvent")]
+		[Event(name="NO", type="JsC.events.JEvent")]
+		[Event(name="DEL", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.books.BookPage;
+			
+			import jsProject.mdel.Viewers;
+			
+			import spark.components.Group;
+			protected function onPopup(event:MouseEvent):void
+			{
+				Group(parent).removeElement(this)
+				var _pop:ToolDraw_Earse = new ToolDraw_Earse
+				_pop.currentState = "State2"
+				_pop.addEventListener(JEvent.YES,onJEvent)
+				_pop.addEventListener(JEvent.NO,onJEvent)
+					
+				var _book:BookPage = Viewers.getPage()
+				_book.addUI(_pop)
+			}
+			
+			protected function onJEvent(event:Event):void
+			{
+				var _book:BookPage = Viewers.getPage()
+				_book.$close()
+				dispatchEvent(new JEvent(event.type))
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<Tools:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</Tools:states>
+	
+	<s:Image name="background" smooth="true"
+			 width.State1="291" height.State1="56"
+			 source.State1="controls/bookmenu/panel_rubber1-1.png"
+			 width.State2="562" height.State2="249"
+			 source.State2="controls/bookmenu/panel_rubber2-1.png"/>
+	<s:BorderContainer x="110" y="10" width="83" height="37" backgroundAlpha="0.0" buttonMode="true"
+					   borderVisible="false" cornerRadius="5"
+					   x.State2="344" y.State2="171" width.State2="73" height.State2="37"
+					   click.State2="dispatchEvent(new JEvent(JEvent.YES))"
+					   />
+	<s:BorderContainer x="200" y="10" width="80" height="37" backgroundAlpha="0.0" buttonMode="true"
+					   borderVisible="false" cornerRadius="5"
+					   x.State2="425" y.State2="171" width.State2="72"
+					   click.State2="dispatchEvent(new JEvent(JEvent.NO))"
+					   />
+	<s:BorderContainer includeIn="State1" x="110" y="10" width="83" height="37" useHandCursor="true" buttonMode="true" alpha="0"
+			  />
+	<s:BorderContainer includeIn="State1" x="200" y="10" width="80" height="37" useHandCursor="true" buttonMode="true" alpha="0"
+			  click.State1="onPopup(event)"/>
+</Tools:ToolDraw_Base>

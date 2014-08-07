@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<subgroup:Editor_subgroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:subgroup="components.editors.symbol.subgroup.*">
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.NameDefine;
+			
+			[Bindable]protected var sPath:String
+			[Bindable]protected var bDefaultDisplay:Boolean
+			[Bindable]protected var sFile:String
+			
+			public static var currentSubGroupButton:Editor_subgroup_PlayList_Button
+			public static var hitTextBackgroup:Editor_subgroup_PlayList_Button
+			
+			protected var xmlLang:XML=<language id="" x="" y="" width="" height="" color="" addEvent="0"/>
+			protected var xmlPara:XML=<paragraph file=""/>
+			protected var xmlShape:XML=<shape x="" y="" width="" height="" />
+			protected var xmlAdv:XML=<advance><kinds/></advance>
+			protected var xmlPlayAll:XML = <playAll/>
+			protected var xmlListAdv:XMLList
+			protected var xmlListKinds:XMLList
+			protected var xmlKind:XML=<kind id="" x="" y="" width="" height="" group=""/>
+			protected var nInitY:Number
+			
+			protected var currentLangugeIndex:uint
+			protected var currentLangugeXML:XMLList
+			
+			protected var currentParaIndex:uint
+			protected var currentParaXML:XMLList
+			
+			protected var currentShapeXML:XMLList
+			protected var currentShapeIndex:uint
+			
+			protected var currentPartXML:XMLList
+			protected var currentPartIndex:int=-1
+				
+			protected var sPagesPath:String
+			
+			protected function getCurrentUnitXML(_num:int=-1):XMLList
+			{
+				if (_num!=-1) currentLangugeIndex = _num
+				currentLangugeXML = XMLList(xList.language[currentLangugeIndex])
+				return currentLangugeXML
+			}
+			
+			protected function getCurrentParaXML(_num:int=-1):XMLList
+			{
+				if (_num!=-1) currentParaIndex = _num
+				currentParaXML = XMLList(getCurrentUnitXML().children()[currentParaIndex])
+				return currentParaXML
+			}
+			
+			protected function getCurrentShapeXML(_num:int=-1):XMLList
+			{
+				if (_num!=-1) currentShapeIndex = _num
+				currentShapeXML = XMLList(getCurrentParaXML().children()[currentShapeIndex])
+				return currentShapeXML
+			}
+			
+			
+			
+			protected function baseInitMdel():void
+			{
+				switch(__ID__)
+				{
+					case NameDefine.KEY_SUBGROUP_PLAYLIST:
+						bFileDisplay = true
+						nBtnColor=0x3366ff
+						nGraphicApha = 0.5
+						break;
+					case NameDefine.KEY_SUBGROUP_SHOWHIDE:
+						bFileDisplay = false
+						nBtnColor=0xcc0000
+						nGraphicApha = 1
+						break;	
+				}
+			}
+		]]>
+	</fx:Script>
+</subgroup:Editor_subgroup>

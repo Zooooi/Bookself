@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:NumericStepper xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   maximum="2000"
+				   minimum="0"
+				   change="onChange(event)"
+				   focusOut="numericstepper1_focusOutHandler(event)"
+				   mouseFocusChange="numericstepper1_focusOutHandler(event)"
+				   >
+	<fx:Script>
+		<![CDATA[
+			import mx.events.NumericStepperEvent;
+			
+			import JsC.events.DataGrid2Event;
+			
+			public var text:String
+			
+			protected function onChange(event:NumericStepperEvent):void
+			{
+				text = String(value)
+				onSendJEvent()
+			}
+			
+			
+			protected function numericstepper1_focusOutHandler(event:FocusEvent):void
+			{
+				switch(event.type)
+				{
+					case FocusEvent.MOUSE_FOCUS_CHANGE:
+						text = String(value)
+						break;
+					case FocusEvent.FOCUS_OUT:
+						onSendJEvent()
+						break;
+				}
+				
+			}
+			
+			private function onSendJEvent():void
+			{
+				var _event:DataGrid2Event = new DataGrid2Event(DataGrid2Event.CHANGE)
+				_event.$label =  text
+				_event.$listData = listData
+				this.parent.parent.dispatchEvent(_event)
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+</mx:NumericStepper>

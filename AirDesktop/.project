@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Bookself_airDesktop</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.adobe.flexbuilder.project.flexbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.adobe.flexbuilder.project.apollobuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.adobe.flexbuilder.project.apollonature</nature>
+		<nature>com.adobe.flexbuilder.project.flexnature</nature>
+		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>[source path] Bookself_assets_online</name>
+			<type>2</type>
+			<location>D:/JasonLee/Job/output/Bookself_assets_online</location>
+		</link>
+		<link>
+			<name>[source path] _air</name>
+			<type>2</type>
+			<location>D:/JasonLee/Job/@me/Bookself/source/_air</location>
+		</link>
+		<link>
+			<name>[source path] _class</name>
+			<type>2</type>
+			<location>D:/JasonLee/Job/@me/Bookself/source/_class</location>
+		</link>
+		<link>
+			<name>[source path] _editor</name>
+			<type>2</type>
+			<location>D:/JasonLee/Job/@me/Bookself/source/_editor</location>
+		</link>
+		<link>
+			<name>bin-debug</name>
+			<type>2</type>
+			<location>D:/JasonLee/Job/output/Bookself</location>
+		</link>
+	</linkedResources>
+</projectDescription>

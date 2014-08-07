@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseBookself xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*" 
+		 addedToStage="onEvent(event)" 
+		 >
+	
+	<fx:Declarations>
+		<s:TileGroup id="grTile" horizontalAlign="center" 
+					 orientation="columns" 
+					 verticalAlign="middle" 
+					 horizontalCenter="0" 
+					 verticalGap="{__autoVGap}" horizontalGap="{__autoHGap}"
+					 requestedColumnCount="{nColumn}" requestedRowCount="{nRow}"/>
+		
+		<s:VGroup id="grFree" width="100%" height="100%" gap="{nVGap}">
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center"/>
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center"/>
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center"/>
+		</s:VGroup>
+		
+		<s:VGroup id="grDown" width="100%" height="100%" gap="10">
+			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+				<s:Button label="download" click="grDown.dispatchEvent(new JEvent(JEvent.DOWNLOAD))"/>
+				<s:Button label="cancel" click="grDown.dispatchEvent(new JEvent(JEvent.CANCEL))"/>
+			</s:HGroup>
+		</s:VGroup>
+		
+		<s:VGroup id="grDowning" width="100%" height="100%" gap="10" horizontalAlign="center" verticalAlign="middle">
+			<s:HGroup width="90%" verticalAlign="middle" horizontalAlign="center">
+				<mx:ProgressBar id="grDowningBar" width="100%"  labelPlacement="center" textAlign="center" mode="manual"
+								/>
+			 
+			</s:HGroup>
+			<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center">
+				<s:Button label="cancel" click="grDowning.dispatchEvent(new JEvent(JEvent.CANCEL))"/>
+			</s:HGroup>
+		</s:VGroup>
+		
+		
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="SELECT", type="JsC.events.JEvent")]
+		[Event(name="FINISH", type="JsC.events.JEvent")]
+		[Event(name="RESIZE", type="JsC.events.JEvent")]
+		[Event(name="OPEN_HTML", type="jsProject.events.ComponentEvent")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import JsA.loader.LoadFile;
+			
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			import JsC.shell.ShellSystem;
+			
+			import flash.utils.setTimeout;
+			
+			import jsProject.ctrl.StageCtrl;
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Start;
+			import jsProject.mdel.Value;
+			
+			import spark.components.Group;
+			
+			[Bindable]private var nColumn:uint
+			[Bindable]private var nRow:uint
+			[Bindable]private var nLength:uint
+			[Bindable]private var nVGap:uint
+			
+			private const cLength:uint = 6
+			protected var aButton:Vector.<Group> = new Vector.<Group>
+			protected var aFolder:Vector.<String>
+			
+			private var nCount:uint
+			private var nGrWidth:uint
+			
+			private var loadZip:LoadFile
+			private var nCurrent:uint
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			
+			override protected function initMdel():void
+			{
+				init_bookself()
+				loadZip = new LoadFile
+				loadZip.addEventListener(JEvent.CHANGE,onLoadZipEvent)
+			}
+			
+			override protected function init():void
+			{
+				initView()
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				addEventListener(JEvent.RESIZE,onStageEvent)
+				onResize(true)
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				if (StageCtrl.resize(stage,_b))
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+				if (nLength)
+				{
+					if (nLength<=cLength)
+					{
+						setTileGroupValue()
+					}else{
+						assignGroup()
+					}
+				}
+				
+			}
+			
+			protected function initView():void
+			{
+				var i:uint
+				gr.removeAllElements()
+				aButton = new Vector.<Group>
+				aFolder = new Vector.<String>
+				initData()
+				Value.sUrl = xmlData.@website
+				nLength = pageList.children().length()
+				if (nLength<=cLength)
+				{
+					setTileGroupValue()
+				}
+				for (i = 0; i < nLength; i++) 
+				{
+					var _img:Image = new Image
+					var _folder:String = pageList.children()[i].@folder
+					var _download:String = pageList.children()[i].@download
+					_img.source = filesPath + pageList.children()[i].children()[0].@src
+					_img.smooth = true
+						
+					var _group:Group = new Group
+					_group.percentWidth = 100;
+					_group.percentHeight = 100;
+						
+					if (_folder!="")
+					{
+						if (_download == "")
+						{
+							_img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+						}else{
+							_img.addEventListener(MouseEvent.CLICK,onCheckDownloadMouseEvent)
+						}
+						_group.useHandCursor = true
+						_group.buttonMode = true
+					}else{
+						_group.alpha = 50
+					}
+					_group.addElement(_img);
+					aButton.push(_group)
+					aFolder.push(_folder)
+				}
+					
+				if (nLength<=cLength)
+				{
+					gr.addElement(grTile)
+					setTileGroupValue()
+					for (i = 0; i < nLength; i++) grTile.addElement(aButton[i]) 
+				}else{
+					assignGroup()
+				}
+			}
+			
+			
+			private function assignGroup():void
+			{
+				if (nLength>cLength)
+				{
+					var i:uint
+					var _aGap:Array 
+					var _aLine:Array
+					var _group:HGroup
+					var _count:uint
+					gr.addElement(grFree)
+					
+					switch(currentState)
+					{
+						case "State1":
+							nVGap = __landscapeVGap
+							_aGap = __landscapeHGap.split("|")
+							_aLine = __landscapeLine.split("|")
+							break;
+						case "State2":
+							nVGap = __protraitVGap
+							_aGap = __protraitHGap.split("|")
+							_aLine = __protraitLine.split("|")
+							break;
+					}
+					
+					for (i = 0; i < grFree.numElements; i++) 
+					{
+						_group = HGroup(grFree.getElementAt(i))
+						_group.removeAllElements()
+						_group.gap = _aGap[i]
+						
+						for (var j:int = 0; j < _aLine[i]; j++) 
+						{
+							if (_count<aButton.length)
+							{
+								_group.addElement(aButton[_count])
+								_count ++
+							}else{
+								break
+							}
+						}
+					}
+				}
+				
+			}
+			
+			
+			private function setTileGroupValue():void
+			{
+				if (nLength!=0)
+				{
+					var _c:uint
+					switch(currentState)
+					{
+						case "State1":
+							_c = 3
+							break;
+						case "State2":
+							_c = 2
+							break;
+					}
+					nColumn = (nLength<_c)?nLength:_c
+					nRow = Math.ceil(nLength/_c)
+				}
+			}
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			public function setXML(_xml:XML):void
+			{
+				actionRefresh(_xml)
+				initView()
+			}
+			
+			public function actionRefresh(_xml:XML):void
+			{
+				xmlData = _xml
+				initData()
+				assignGroup()
+			}
+			
+			
+			
+			//event------------------------------------------------------------------------------------------------------------------------
+		
+			protected function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _me:Group = Group(event.currentTarget)
+				Files.book_isbn = aFolder[aButton.indexOf(_me)]
+				dispatchEvent(new JEvent(JEvent.SELECT))
+			}
+			
+			protected function onCheckDownloadMouseEvent(event:MouseEvent):void
+			{
+				var _me:Group = Group(event.currentTarget.parent)
+				var _index:uint = aButton.indexOf(_me);
+				var _img:Image = Image(event.currentTarget)
+				_img.alpha = 0.5
+				_me.addElement(grDown);
+				Files.book_isbn = aFolder[_index]
+				nCurrent = _index
+					
+				grDown.addEventListener(JEvent.DOWNLOAD,function(event:JEvent):void{
+					if (grDown.parent)_me.removeElement(grDown);
+					_me.addElement(grDowning)
+					grDowningBar.indeterminate = true
+					var _download:String = pageList.children()[_index].@download //"http://www.zooooi.com/download/books/pic.zip"//
+					var _file:String = Files.folder_books + aFolder[_index] + ".zip"
+					loadZip.start(_download, _file,onLoadZipFunction); 
+				});
+				grDown.addEventListener(JEvent.CANCEL,function(event:JEvent):void{
+					if (grDown.parent)_me.removeElement(grDown);
+					_img.alpha = 1;
+				});
+				
+				
+			}
+			
+			private function onLoadZipFunction(_type:String=""):void
+			{
+				switch(_type)
+				{
+					case "open":
+						grDowningBar.indeterminate = false
+						break
+					case "complete":
+						break;
+				}
+			}
+			
+			protected function onLoadZipEvent(event:JEvent):void
+			{
+				
+				var l:Number = event._x
+				var t:Number = event._y
+				grDowningBar.setProgress(Math.round(l/t*100),100)
+				grDowningBar.label = String(Math.round(l/100)+"KB / " +Math.round(t/100) + "KB : " + Math.round(l/t*100)+"%")
+			}
+			
+			
+			protected function onGoWeb(event:MouseEvent):void
+			{
+				if (SystemOS.isMobile)
+				{
+					var _event:ComponentEvent = new ComponentEvent(ComponentEvent.OPEN_HTML)
+					_event._url = Value.sUrl
+					dispatchEvent(_event)
+				}else{
+					navigateToURL(new URLRequest(Value.sUrl))
+				}
+			}
+			
+			protected function onPop(event:MouseEvent):void
+			{
+				var _file:String
+				switch(event.currentTarget)
+				{
+					case btnUG:
+						_file = Files.path_app + "user_guide.pdf"
+						break;
+					
+					case btnCR:
+						_file = Files.path_app + "copyright.html"
+						break;	
+					
+				}
+				ShellSystem.current.openFile(_file)
+			}
+			
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<base:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</base:states>
+	
+	<s:BorderContainer left="0" right="0" top="0" bottom="0" backgroundColor="#333333"/>
+	<s:BitmapImage left="0" right="0" top="0" source="@Embed('/embed/intro/topbar.png')"/>
+	<s:BitmapImage left="0" right="0" bottom="0" source="@Embed('/embed/intro/bottombar.png')"/>
+	<s:HGroup left="0" right="0" top="0" height="45" horizontalAlign="center" verticalAlign="middle">
+		<s:Image source="controls/bookself/title.png"/>
+	</s:HGroup>
+	<s:Image top="65" width="95%" horizontalCenter="0" smooth="true"
+			 source="controls/bookself/company.png"/>
+	<s:Button right="115" top="2" buttonMode="true" click="onGoWeb(event)" skinClass="components.skin.fun_Web" useHandCursor="true"/>
+	<s:Button id="btnCR" right="69" top="2" buttonMode="true" click="onPop(event)" skinClass="components.skin.fun_CopyRight" useHandCursor="true"/>
+	<s:Button id="btnUG" right="22" top="2" buttonMode="true" click="onPop(event)" skinClass="components.skin.fun_UserGuide" useHandCursor="true"/>
+	
+	<s:HGroup id="gr" left="0" right="0" top="200" bottom="50" horizontalAlign="center"
+			  verticalAlign="middle"
+			  left.State1="0" right.State1="0" top.State1="200" bottom.State1="50">
+		
+	</s:HGroup>
+	
+	
+</base:BaseBookself>

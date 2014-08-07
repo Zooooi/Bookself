@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BaseToolsPane xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:base="components.base.*"
+					xmlns:Tools="components.symbol.Tools.*"
+					xmlns:sound="JsC.sound.*"
+					width="309" height="38" minWidth="309" maxWidth="309"
+					preinitialize="onFlexEvent(event)" visible="{bEnbled}"
+					removedFromStage="onEvent(event)">
+	<fx:Style source="css/book.css"/>
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="SOUND_COMPLETE", type="JsC.events.JEvent")]
+		[Event(name="SOUND_UPLOAD", type="JsC.events.JEvent")]
+		[Event(name="SOUND_STOP", type="JsC.events.JEvent")]
+		[Event(name="SOUND_PLAY", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import JsA.platform.AssignLoader;
+			
+			import JsC.events.JEvent;
+			import JsC.sound.SoundControl;
+			import JsC.string.Maths;
+			
+			import jsProject.mdel.Viewers;
+			
+			[Bindable]private var nPosition:Number
+			[Bindable]private var nLength:uint
+			[Bindable]private var bCtrl:Boolean
+			[Bindable]private var nVol:Number = 50;
+			[Bindable]private var sLength:String = cLength;
+			[Bindable]private var sPosition:String = cLength;
+				
+			private const cLength:String = "00:00"
+			private const nOffset:uint = 35
+			private var soundControl:SoundControl
+			private var sUrl:String=""
+			private var sound:Sound
+			private var channel:SoundChannel
+			private var playingTimer:Timer
+			private var stopTimer:Timer
+			private var bMute:Boolean
+			
+			
+			override protected function onFlexEvent(event:FlexEvent):void
+			{
+				// TODO Auto Generated method stub
+				super.onFlexEvent(event);
+				switch(event.type)
+				{
+					case FlexEvent.PREINITIALIZE:
+						Viewers.setMusic(this)
+						playingTimer = new Timer(20)
+						playingTimer.addEventListener(TimerEvent.TIMER,onPlaying)
+						stopTimer = new Timer(3000,1)
+						stopTimer.addEventListener(TimerEvent.TIMER_COMPLETE,onStopTimerEvent)
+						break;
+				}
+			}
+			
+			public function $play(_url:String):void
+			{
+				bCtrl = false
+				if (!bMenuClick) onClick()
+				if (sUrl!=_url)
+				{
+					if (sUrl!="")
+					{
+						var _event:JEvent = new JEvent(JEvent.SOUND_UPDATE)
+						_event._url = _url
+						dispatchEvent(_event)
+					}
+					sUrl = _url
+					bMute = false
+					if (channel)channel.stop()
+					sound = new Sound
+					sound.addEventListener(Event.COMPLETE,onLoadComplete)
+					sound.addEventListener(IOErrorEvent.IO_ERROR,onIoError)
+					//sound.load(new URLRequest(sUrl))
+					var _loader:AssignLoader = new AssignLoader
+					_loader.setSoundLoader(sound,sUrl)
+				}else{
+					onLoadComplete()
+				}
+			}
+			
+			private function muteAction():void
+			{
+				if (bMute)
+				{
+					setVolume(0)
+				}else{
+					setVolume(nVol)
+				}
+				volSlider.enabled = !bMute
+			}
+			
+			public function $playMute(_b:Boolean):void
+			{
+				bMute = _b
+				muteAction()
+			}
+			
+			
+			public function $stop():void
+			{
+				dispatchEvent(new JEvent(JEvent.SOUND_STOP))
+				stopAction()
+			}
+			
+			
+			public function $addEvent(_type:String,_function:Function):void
+			{
+				if (hasEventListener(_type)) removeEventListener(_type,arguments.callee)
+				addEventListener(_type,_function)
+			}
+			
+			public function $removeEvent(_type:String,_function:Function):void
+			{
+				if (hasEventListener(_type)) removeEventListener(_type,_function)
+			}
+			
+			private function playMusic():void
+			{
+				if (channel)channel.stop()
+				channel = sound.play(nPosition)
+				initChannel()
+				playingTimer.start()
+				radioPlay.selected = true
+				stopTimer.stop()
+			}
+			
+			private function stopMusicTimer():void
+			{
+				playingTimer.stop()
+				radioPlay.selected = false
+			}
+			
+			private function displayTimeLength():void
+			{
+				nLength = sound.length
+				var _time:Array = Maths.TimeCode(nLength)
+				sLength = _time[1]+":"+_time[2]
+			}
+			
+			private function displayTimePosition(_position:Number):void
+			{
+				var _time:Array = Maths.TimeCode(_position)
+				var _L:uint = 5
+				var _w:uint = 28
+				sPosition = _time[1]+":"+_time[2]
+				var _x:Number = slider.thumb.x + slider.thumb.width/2 - _w/2 + 4
+				if (_x<_L) _x =_L
+				if (_x>_L + slider.width -_w) _x = _L + slider.width - _w
+				timeDisplay.x = _x + nOffset
+			}
+			
+			
+			
+			private function initChannel():void
+			{
+				channel.addEventListener(Event.SOUND_COMPLETE,onPlayComplete)
+				muteAction()
+			}
+			
+			private function setVolume(_vol:uint):void
+			{
+				if (channel!=null)
+				{
+					var transform:SoundTransform=channel.soundTransform;
+					transform.volume = _vol /100;
+					channel.soundTransform=transform;
+				}
+			}
+			
+			
+			
+			
+			
+			protected function onVolChange(event:Event):void
+			{
+				setVolume(nVol)
+			}
+			
+			
+			
+			protected function onLoadComplete(event:Event=null):void
+			{
+				nPosition = 0
+				playMusic()
+				bCtrl = true
+				displayTimeLength()
+				displayTimePosition(sound.length)
+				muteAction()
+			}
+			
+			
+		
+			
+			protected function onPlaying(event:TimerEvent):void
+			{
+				nPosition = channel.position
+				displayTimePosition(nPosition)
+			}
+			
+			protected function onPlayingChange(event:Event):void
+			{
+				displayTimePosition(slider.value)
+				stopMusicTimer()
+			}
+			
+			
+			protected function onPlayingChangeEnd(event:FlexEvent):void
+			{
+				playMusic()
+			}
+			
+			
+			
+			protected function onPlayMouseEvent(event:MouseEvent):void
+			{
+				var _me:ToggleButton = ToggleButton(event.currentTarget)
+				if (_me.selected)
+				{
+					playMusic()
+					var _event:JEvent = new JEvent(JEvent.SOUND_PLAY)
+					_event._url = sUrl
+					dispatchEvent(_event)
+				}else{
+					channel.stop()
+					stopMusicTimer()
+					stopTimer.start()
+				}
+			}
+			
+			protected function onStopMouseEvent(event:MouseEvent):void
+			{
+				dispatchEvent(new JEvent(JEvent.SOUND_STOP))
+				stopAction()
+			}
+			
+			private function stopAction():void
+			{
+				channel.stop()
+				nPosition = 0
+				stopMusicTimer()
+				stopTimer.start()
+				displayTimePosition(nPosition)
+				timeDisplay.x=nOffset
+			}
+			
+			protected function onPlayComplete(event:Event):void
+			{
+				dispatchEvent(new JEvent(JEvent.SOUND_COMPLETE))
+				stopAction()
+				stopTimer.start()
+			}
+			
+			protected function onStopTimerEvent(event:TimerEvent):void
+			{
+				action_close()
+			}
+			
+			protected function onIoError(event:IOErrorEvent):void
+			{
+				
+			}
+			
+			
+			
+			protected function onEvent(event:Event):void
+			{
+				if (channel)stopAction()
+			}
+			
+		]]>
+	</fx:Script>
+	<s:BitmapImage x="0" y="0" source="@Embed('/embed/button/icon/panel_audioplayer.png')"/>
+	<s:Group > 
+		<s:ToggleButton x="2" y="2" buttonMode="true" 
+						selected="{bSelect}" skinClass="components.skin.Toggle_MusicButton"/>
+		<s:Group  width="100%" height="100%" cacheAsBitmap="true"  >
+			<s:Label left="44" top="29" height="10" cacheAsBitmap="true" color="#FFFFFF"
+					 styleName="NormalNumber" text="00:00"/>
+			<s:Label right="144" top="29" height="10" cacheAsBitmap="true" color="#FFFFFF"
+					 styleName="NormalNumber" text="{sLength}"/>
+			<s:Label id="timeDisplay" x="44" top="2" width="28" height="10" cacheAsBitmap="true"
+					 color="#FFFFFF" styleName="NormalNumber" text="{sPosition}"/>
+			<s:HSlider id="slider" x="41" y="10" width="125" change="onPlayingChange(event)"
+					   changeEnd="onPlayingChangeEnd(event)" maximum="{nLength}"
+					   skinClass="components.skin.HSliderSkin" value="@{nPosition}"/>
+			
+			<s:ToggleButton id="radioPlay" x="175" y="1" buttonMode="true"
+							click="onPlayMouseEvent(event)"
+							skinClass="components.skin.Radio_Music_Play"/>
+			<s:Button id="radioStop" x="206" y="1" buttonMode="true"
+					  click="onStopMouseEvent(event)"
+					  skinClass="components.skin.Radio_Music_Stop"/>
+			<s:HSlider id="volSlider" x="240" y="15" width="63" change="onVolChange(event)"
+					   liveDragging="true" maximum="100" skinClass="components.skin.HSliderSkin"
+					   value="@{nVol}"/>
+		</s:Group >
+	</s:Group>
+	
+	<s:Group id="gr" name="{grName}" width="100%" height="40" visible="false">
+		
+		
+	</s:Group>
+	
+	
+</base:BaseToolsPane>

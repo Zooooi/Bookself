@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:bookUi="components.symbol.bookUi.*">
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Viewers;
+			
+			[Bindable]private var sFile:String
+			[Bindable]private var nPage:uint
+			[Bindable]private var sText:String
+			override public function setContent(_xmlList:XMLList, i:uint, _length:uint):void
+			{
+				xmlList = XMLList(_xmlList.children()[i])
+				sFile = Files.folder_book_Pages + xmlList.@src
+				nPage = i
+				sText = xmlList.text.pageNumber
+				setBGcolor(i)
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent)
+			}
+			
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						Viewers.getPage().$navigateByNum(nPage)
+						break;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup paddingBottom="{cpB}" paddingLeft="{cL}" paddingRight="{cpR}" paddingTop="{cpT}"
+			  verticalAlign="bottom">
+		<s:Image x="15" y="0" width="120" height="160" smooth="true" source="{sFile}"/>
+		<s:Label width="100%" text="{sText}" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold" />
+	</s:HGroup>
+</bookUi:BaseMenuNode>

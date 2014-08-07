@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseBookUI xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:bookUi="components.symbol.bookUi.*"
+				   xmlns:exclusive="exclusive.*"
+				   creationComplete="onFlexEvent(event)" styleName="NormalText">
+	<bookUi:layout>
+		<s:BasicLayout/>
+	</bookUi:layout>
+	<fx:Style source="css/book.css">
+		
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import JsC.shell.ShellSystem;
+			import JsC.xml.XmlCtrl;
+			
+			import components.books.BookPage;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.BaseUIButton;
+			import jsProject.view.UIAddBookMarkButton;
+			
+			import mx.events.FlexEvent;	
+			
+			
+			[Bindable]private var sName:String;
+			
+			private var sPage:String
+			private const myXmlContent:XML = <node x="" y="" page="" date="" name=""/>;
+				
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				var i:int
+				
+				if (bNew)
+				{
+					createDate()
+				}
+				stage.focus = null
+				txtInput.setFocus();
+				txtInput.textDisplay.verticalScrollPosition = 0
+					
+				gr.removeAllElements()
+					
+				var _page:BookPage = Viewers.getPage()
+				for (i = 0; i < _page.$getCurrentDisplayPage().length; i++) 
+				{
+					var _option:RadioButton = new RadioButton
+					var _pageNumber:uint = _page.$getCurrentDisplayPage()[i].id + 1
+					_option.useHandCursor = true
+					_option.label = Value.aPageNumber[_pageNumber].content
+					_option.addEventListener(MouseEvent.CLICK,onOptionMouseEvent)
+					gr.addElement(_option)
+					if (bNew)
+					{
+						if (i==0)
+						{
+							_option.selected = true
+							sPage = _pageNumber.toString()
+						}
+					}else{
+						if (String(_pageNumber) == xList.@page)
+						{
+							_option.selected = true
+							sPage = _pageNumber.toString()
+						}
+					}
+				}
+				
+					
+			}	
+				
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				$remove()
+				var _me:BorderContainer = BorderContainer(event.currentTarget)
+				switch(_me)
+				{
+					case confirm:
+						
+						
+						if (bNew)
+						{
+							var _xmllist:XMLList = XmlCtrl.getNodeByName(XMLList(XmlContent.XML_USER),NameDefine.KEY_USER_BOOKMARK)
+							xList=  XMLList(myXmlContent.copy())
+							XmlCtrl.addChild(_xmllist,xList)
+							btn = new UIAddBookMarkButton
+							btn.$setData(xList) 
+							/* var bp:BookPage = Viewers.getPage()
+							bp.addButton(btn,true)
+							btn.$newAction() */
+						}
+						xList.@page = sPage 
+						xList.@date = __date__
+						xList.@name = sName
+						ShellSystem.current.saveUserFile()
+						if (!bNew)
+						{
+							item.updateData()
+						}
+						break;
+					
+				}
+			}
+			
+			
+			override protected function $setList(_xmlList:XMLList):void
+			{
+				bNew = false
+				xList = _xmlList
+				__date__ = xList.@date
+				sName = xList.@name
+				gr.enabled = false
+			}
+			
+			
+			protected function onOptionMouseEvent(event:MouseEvent):void
+			{
+				var _index:uint = gr.getElementIndex(RadioButton(event.currentTarget))
+				var _page:BookPage = Viewers.getPage()
+				var _pageNumber:uint = _page.$getCurrentDisplayPage()[_index].id+1
+				sPage = _pageNumber.toString()	
+			}
+			
+		]]>
+	</fx:Script>
+	<s:BitmapImage width="560" height="575" smooth="true" source="controls/bookui/ipad_w_bookmarkpanel.png"/>
+	<s:Label x="141" y="104" width="361" color="#767676" styleName="NormalTitle" text="{__date__}"
+			 textAlign="left"/>
+	
+	<s:HGroup id="gr" visible="{Value.bNewVersion}" x="142" y="144" width="360" gap="20"
+			  styleName="NormalText">
+		<s:RadioButton label="单选框"/>
+	</s:HGroup>
+	
+	<exclusive:ExTextArea id="txtInput" x="141" y="186" width="365" height="155" maxChars="500"
+						  styleName="NormalText" text="@{sName}"/>
+	<s:BorderContainer id="confirm" x="377" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" mouseDown="onMouseEvent(event)" visible="{Value.bNewVersion}"/>
+	<s:BorderContainer id="cancel" x="450" y="504" width="56" backgroundAlpha="0" borderAlpha="0"
+					   buttonMode="true" click="Viewers.closeWin()"/>
+</bookUi:BaseBookUI>

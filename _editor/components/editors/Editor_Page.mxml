@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:symbol="components.symbol.*"
+		 width="1024" minWidth="600" minHeight="400"
+		 preinitialize="EViewers.setEditPage(this)"
+		 addedToStage="onEvent(event)"
+		 creationComplete="onFlexEvent(event)" xmlns:subgroup="components.editors.symbol.subgroup.*" xmlns:editors="components.editors.*" xmlns:symbol1="components.editors.symbol.*"
+		 
+		 >
+	<fx:Metadata>
+		[Event(name="INIT", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.DataGrid2Event;
+			import JsC.events.JEvent;
+			import JsC.shell.ShellSystem;
+			
+			import jsProject.mdel.Files;
+			import jsProject.view.EViewers;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			private var currentProp:NavigatorContent
+			
+			protected function onActiveInPreviewProjectEvent(event:JEvent):void
+			{
+				switch(event.type)
+				{
+					case JEvent.SEND:
+						switch(event.currentTarget)
+						{
+							case setting:
+								//显示新一页
+								preview.setNodePage(setting.__currentID__)
+								if (search)search.getResult()
+								break;
+						}
+						
+						break;
+						
+					case JEvent.REMOVE:
+						switch(event.currentTarget)
+						{
+							case setting:
+								preview.action_Clear()
+								
+								break;
+							case buttons:
+								preview.action_RemoveComplete()
+								break;
+						}
+						break
+					
+					case JEvent.ADD:
+						switch(event.currentTarget)
+						{
+							case buttons:
+								preview.getComponent(buttons.getCoponentItem())
+								break;
+							case comp:
+								preview.getSubGroup(comp.getCoponentItem())
+								break;
+						}
+						
+						break
+					
+					case JEvent.SELECT:
+						buttons.setComponentProperty(preview.getCurrentComponentNode())
+						break
+					
+					case JEvent.RESULT:
+						preview.getResult()
+						break
+					
+					case JEvent.UPDATE:
+						// preview => search : update hightlight
+						search.update(event.$getObject())
+						break
+				}
+			}
+			
+			protected function onOpenMouseEvent(event:MouseEvent):void
+			{
+				setting.action_openXml()
+				preview.action_Clear()
+			}
+			
+			protected function onSaveMouseEvent(event:MouseEvent):void
+			{
+				setting.action_saveXml()
+			}
+			
+			
+			protected function onAddMouseEvent(event:MouseEvent):void
+			{
+				setting.action_Add()
+			}
+			
+			protected function onOpenFolder(event:MouseEvent):void
+			{
+				ShellSystem.current.openFile(Files.folder_book_Pages)
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				dispatchEvent(new JEvent(JEvent.INIT))
+			}
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				addEventListener(JEvent.INIT,onInit)
+				dispatchEvent(new JEvent(JEvent.INIT))
+			}
+			
+			protected function onInit(event:Event=null):void
+			{
+				//grBottom.addElement(mainTab)
+				setting.reload()
+				if (buttons)buttons.reload()
+				preview.action_Clear()
+			}
+			
+			protected function onDataGridEvent(event:DataGrid2Event):void
+			{
+				preview.drawHightLight(event.$selectItem)
+			}
+			
+			protected function onRefresh(event:MouseEvent):void
+			{
+				onInit()
+			}
+			
+		 
+			public function $dispProperty(_iv:IVisualElement,_name:String=""):void
+			{
+				currentProp = new NavigatorContent
+				_iv.percentHeight = 100
+				_iv.percentWidth = 100
+				currentProp.addElement(_iv)
+				currentProp.label = _name
+					
+				setGrBotoomResize()
+					
+				mainTab.addElement(currentProp)
+				mainTab.getTabAt(mainTab.numElements-1).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+			}
+			public function $removeProerty():void
+			{
+				if (currentProp)
+				{
+					mainTab.removeElement(currentProp)
+					currentProp=null
+				}
+				mainTab.getTabAt(0).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+			}
+			
+			protected function onMinBottom(event:MouseEvent):void
+			{
+				var _button:Button = Button(event.currentTarget)
+				if (grBottom.height == 0)
+				{
+					setGrBotoomResize()
+				}else{
+					setGrBotoomResize(false)
+				}
+			}
+			
+			protected function setGrBotoomResize(_b:Boolean=true):void
+			{
+				if (_b)
+				{
+					grBottom.height = mainTab.height - 20
+					btnResize.rotation = 0
+					btnResize.y = -17
+				}else{
+					grBottom.height = 0
+					btnResize.rotation = 180
+					btnResize.y = 5
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup top="0" width="100%" paddingLeft="10" paddingRight="20" verticalAlign="middle">
+		<s:VGroup width="60%" gap="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+				  paddingTop="0">
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:Label styleName="systemText" text="介绍:"/>
+				<s:Label styleName="systemText" text="增加或删减页面，并拖放组件到页面里面。  "/>
+			</s:HGroup>
+			<s:HGroup width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Path:"/>
+					<s:Label styleName="systemText" text="{Files.folder_book_Pages}"/>
+					<s:Button width="14" height="14" label="open folder" click="onOpenFolder(event)"
+							  icon="@Embed('embed/button/folder.png')"
+							  useHandCursor="true"  buttonMode="true"/>
+				</s:HGroup>
+				<s:HGroup width="50%" verticalAlign="middle">
+					<s:Label styleName="systemText" text="Data:"/>
+					<s:Label styleName="systemText" text="{Files.file_book}"/>
+				</s:HGroup>
+			</s:HGroup>
+		</s:VGroup> 
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="20%" verticalAlign="middle">
+			<s:Label styleName="systemText" text="page:"/>
+			<s:Button width="59" label="add" click="onAddMouseEvent(event)"/>
+			<s:Button width="75" label="refresh" click="onRefresh(event)"/>
+		</s:HGroup>
+		
+		<mx:VRule y="6" width="1" height="36"/>
+		<s:HGroup width="10%" verticalAlign="middle" horizontalAlign="center">
+			<s:Label styleName="systemText" text="XML File:"/>
+			<!--<s:Button width="59" label="open" click="onOpenMouseEvent(event)"/>-->
+			<s:Button width="59" label="save" click="onSaveMouseEvent(event)"/>
+		</s:HGroup >	
+		
+	</s:HGroup>
+	
+	<s:VGroup left="10" right="10" top="40" bottom="5">
+		<s:HGroup height="100%" width="100%">
+			<s:Group width="100%" height="100%">
+				
+				<symbol1:Editor_Page_Preview id="preview" width="100%" height="100%"
+											 __dragTarget__="{this}"
+											 SELECT="onActiveInPreviewProjectEvent(event)"
+											 UPDATE="onActiveInPreviewProjectEvent(event)" 
+											 />
+				<s:HSlider visible="{!isNaN(preview.__scaleMin)}" top="0" width="200"
+						   buttonMode="true" change="preview.$onSliderEvent(event)"
+						   horizontalCenter="0" maximum="{preview.__scaleMax}"
+						   minimum="{preview.__scaleMin}" scaleX="2" scaleY="2" stepSize="0.05"
+						   value="@{preview.__scaleCurrent}"/>
+			</s:Group>
+			
+			<symbol1:Editor_Page_Setting id="setting" height="100%" 
+										 SEND="onActiveInPreviewProjectEvent(event)"
+										 REMOVE="onActiveInPreviewProjectEvent(event)"
+										 __autoLoad__="false"
+										 />
+		</s:HGroup>
+		<s:Group width="100%" id="grBottom">
+			<s:Button id="btnResize" y="-17" width="20" buttonMode="true" horizontalCenter="0" click="onMinBottom(event)"
+					  icon="@Embed('embed/button/icon/Edit_Page_Arrow.png')" rotation="0"
+					  skinClass="components.skin.IconButtonSkin"
+					  />
+			<mx:TabNavigator id="mainTab" width="100%" height="180" y="-20">
+				<s:NavigatorContent id="buttonsContent"  width="100%" height="100%" label="Button">
+					<symbol1:Editor_Page_Buttons id="buttons" width="100%" height="100%"
+												 __dragTarget__="{this}"
+												 __hitTarget__="{preview}" 
+												 ADD="onActiveInPreviewProjectEvent(event)"
+												 RESULT="onActiveInPreviewProjectEvent(event)"
+												 REMOVE="onActiveInPreviewProjectEvent(event)"
+												 />
+				</s:NavigatorContent>
+				
+				<s:NavigatorContent width="100%" height="100%" label="Search">
+					<symbol1:Editor_Page_Search id="search" width="100%" height="100%" SEND="onDataGridEvent(event)"/>
+				</s:NavigatorContent>
+				
+				
+				<s:NavigatorContent width="100%" height="100%" label="Component" id="compPanel" >
+					<symbol1:Editor_Page_Components id="comp" width="100%" height="100%" 
+													__dragTarget__="{this}"
+													__hitTarget__="{preview}" 
+													ADD="onActiveInPreviewProjectEvent(event)"
+													/>
+				</s:NavigatorContent>
+				
+			</mx:TabNavigator>
+		</s:Group>
+	</s:VGroup>
+	
+	
+	
+	
+	
+	
+</s:Group>

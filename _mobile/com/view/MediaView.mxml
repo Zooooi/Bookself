@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:ViewBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"  xmlns:view="com.view.*"
+		addedToStage="onEvent(event)"
+		>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import components.symbol.bookUi.UIAddBookMark;
+			
+			import flash.events.MouseEvent;
+			
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			private var netConnection:NetConnection;
+			private var netStream:NetStream;
+			private var video:Video
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+						netConnection = new NetConnection();
+						netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+						netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+						netConnection.connect(null);
+						//addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						break;
+					
+					case Event.REMOVED_FROM_STAGE:
+						break
+					
+				}
+				
+				
+				
+			}
+			
+			protected function netStatusHandler(event:NetStatusEvent):void {
+				switch (event.info.code) {
+					case "NetConnection.Connect.Success" :
+						connectStream();
+						break;
+					case "NetStream.Play.Start" :
+						break;
+					case "NetStream.Buffer.Full" :
+						break;
+					case "NetStream.Play.StreamNotFound" :
+						break;
+					case "NetStream.Seek.InvalidTime" :
+						break;
+					case "NetStream.Play.Stop" :
+					case "NetStream.Buffer.Flush" :
+						NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.NORMAL;
+						break;
+					default :
+				}
+			}
+			
+			private function connectStream():void
+			{
+				var h264Settings:H264VideoStreamSettings=new H264VideoStreamSettings();  
+				h264Settings.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_5_1);  
+				h264Settings.setMode(1280, 720, 24);  
+				h264Settings.setQuality(0, 80);  
+				
+				var client:Object = new Object();
+				client.onMetaData = MetaDataHandler;
+				netStream = new NetStream(netConnection);
+				netStream.client = this;
+				netStream.bufferTime=10
+				netStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				netStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+				netStream.client = client;
+				netStream.videoStreamSettings=h264Settings;  
+				netStream.publish("mp4:myvideo.mp4","record"); 
+				netStream.play(_url);
+				
+				var video:Video = new Video
+				video.attachNetStream(netStream);
+				video.smoothing=true;
+				video.cacheAsBitmap=true;
+				video.width = width
+				video.height = height
+				stage.addChild(video)
+			}
+			
+			
+			private function MetaDataHandler(info:Object):void {
+				
+			}
+			protected function securityErrorHandler(event:SecurityErrorEvent):void
+			{
+				
+			}
+			protected function asyncErrorHandler(event:AsyncErrorEvent):void
+			{
+				
+			}
+			
+			
+			override protected function onExit(event:MouseEvent):void
+			{
+				netStream.pause()
+				netStream.close()
+				netConnection.connect(null)
+				while(stage.stageVideos.length)stage.removeChildAt(0)
+				dispatchEvent(new JEvent(JEvent.EXIT))
+			}
+			
+			
+		]]>
+	</fx:Script>
+</view:ViewBase>

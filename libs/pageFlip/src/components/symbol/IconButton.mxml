@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="components.*">
+	
+	<fx:Declarations>
+		<fx:String id="_path"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import EPD.string.Maths;
+			
+			import Js.mdel.VConst;
+			
+			
+			[Bindable] private var sUp:String
+			[Bindable] private var sOv:String
+			[Bindable] private var sDw:String
+			[Bindable] private var sDi:String
+			
+			private var bDown:Boolean
+			private var xmllist:XML
+			
+			private var ID:String
+			public var NUM:uint
+			
+			
+			
+			public function $setData(_xml:String,bEdit:Boolean=false):void
+			{
+				xmllist = new XML(_xml)
+				var _name:String	
+				var i:int
+				
+				ID = xmllist.@id
+					
+				x = xmllist.@x
+				y = xmllist.@y
+					
+				if (xmllist.@width!=undefined)width = xmllist.@width
+				if (xmllist.@heigh!=undefined)height = xmllist.@height
+				
+				for (i = 0; i < states.length; i++) 
+				{
+					
+					if (xmllist.files.children()[i]!=null && xmllist.files.children()[i]!="") _name = _path + xmllist.files.children()[i]
+					
+					switch(i)
+					{
+						case 0:sUp = _name;	break;
+						case 1:sOv = _name;	break;
+						case 2:sDw = _name;	break;
+						case 3:sDi = _name;	break;
+					}
+				}
+				
+				if (!bEdit)
+				{
+					bDown = false
+					useHandCursor = true
+					buttonMode = true
+					addEventListener(MouseEvent.ROLL_OVER,onMouseEvent)
+					addEventListener(MouseEvent.ROLL_OUT,onMouseEvent)
+					addEventListener(MouseEvent.MOUSE_DOWN,onMouseEvent)
+					addEventListener(MouseEvent.MOUSE_UP,onMouseEvent)
+				}
+				
+			}
+			
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_UP:
+						if(bDown)dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+					
+					case MouseEvent.ROLL_OVER:
+						bDown = false
+						currentState = "over"
+						break;
+					
+					case MouseEvent.MOUSE_DOWN:
+						bDown = true
+						currentState = "down"
+						break;
+					
+					case MouseEvent.ROLL_OUT:
+						bDown = false
+						currentState = "up"
+						break;
+				}
+			}
+			
+			
+			public function getXML():XML
+			{
+				return xmllist
+			}
+			
+			
+			public function $createID():void
+			{
+				ID = Maths.DataName(VConst.KEY_COMPONENTS_KEY)
+				xmllist.@id= ID
+			}
+			
+			public function getID():String
+			{
+				return ID 
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	
+	<s:Image includeIn="up" 
+			 width="100%" height="100%" horizontalCenter="0" smooth="true" source="{sUp}" verticalCenter="0"/>
+	<s:Image includeIn="up,over" 
+			 width="100%" height="100%" horizontalCenter="0" smooth="true" source="{sOv}" verticalCenter="0"
+			 visible.up="false"/>
+	<s:Image includeIn="up,down" 
+			 width="100%" height="100%" horizontalCenter="0" smooth="true" source="{sDw}" verticalCenter="0"
+			 visible.up="false"/>
+	<s:Image includeIn="up,disabled" 
+			 width="100%" height="100%" alpha="0.5" horizontalCenter="0" smooth="true" source="{sDi}" verticalCenter="0"
+			 visible.up="false"/>
+	
+</s:Group>

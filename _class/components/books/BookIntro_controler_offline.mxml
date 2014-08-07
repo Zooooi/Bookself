@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- offline -->
+<books:BookIntro_viewer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:books="components.books.*" xmlns:Buttons="components.symbol.Buttons.*">
+	
+	<fx:Declarations>
+		<s:TileGroup id="grTile" horizontalAlign="center" horizontalCenter="0"
+					 horizontalGap="{__autoHGap}" orientation="columns"
+					 requestedColumnCount="{nColumn}" requestedRowCount="{nRow}"
+					 verticalAlign="middle" verticalGap="{__autoVGap}"/>
+		
+		<s:VGroup id="grFree" width="100%" height="100%" gap="{nVGap}">
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+			<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle"/>
+		</s:VGroup>
+		<Buttons:Bookself_DownloadComfirm id="grDownPane" width="100%" height="100%"/>
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="LOADER_START", type="JsC.events.JEvent")]
+		[Event(name="LOADER_COMPLETE", type="JsC.events.JEvent")]
+		[Event(name="SELECT", type="JsC.events.JEvent")]
+		[Event(name="FINISH", type="JsC.events.JEvent")]
+		[Event(name="RESIZE", type="JsC.events.JEvent")]
+		[Event(name="OPEN_HTML", type="jsProject.events.ComponentEvent")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.HGroup;
+			import spark.components.Image;
+			
+			import JsA.loader.LoadFile;
+			
+			import JsC.events.JEvent;
+			
+			import components.symbol.Buttons.Bookself_BookButton;
+			import components.symbol.Buttons.Bookself_DownloadPane;
+			
+			import jsProject.ctrl.StageCtrl;
+			import jsProject.ctrl.UrlData;
+			import jsProject.events.ComponentEvent;
+			import jsProject.mdel.Files;
+			import jsProject.mdel.Value;
+			
+			
+			private const cLength:uint = 6
+			protected var aButton:Vector.<Image> = new Vector.<Image>
+			protected var aFolder:Vector.<String>
+			
+			private var nCount:uint
+			private var nGrWidth:uint
+			
+			private var loadZip:LoadFile
+			private var nCurrent:uint
+			
+			private var currentLoadPane:Bookself_BookButton
+			
+			private var zipFile:String;
+			private var zipPath:String;
+			private var sInfo:String=""
+			
+			private var grDowning:Bookself_DownloadPane
+			
+			private var checkUser:UrlData 
+			//override---------------------------------------------------------------------------------------------------------------
+			
+			override protected function initMdel():void
+			{
+				init_bookself()
+				
+				
+			}
+			
+			override protected function init():void
+			{
+				initView()
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				addEventListener(JEvent.RESIZE,onStageEvent)
+				onResize(true)
+			}
+			
+			protected function onStageEvent(event:JEvent):void
+			{
+				onResize(Value.bStageSize)
+			}
+			
+			private function onResize(_b:Boolean):void
+			{
+				if (StageCtrl.resize(stage,_b))
+				{
+					currentState = "State1"
+				}else{
+					currentState = "State2"
+				}
+				if (nLength)
+				{
+					if (nLength<=cLength)
+					{
+						setTileGroupValue()
+					}else{
+						assignGroup()
+					}
+				}
+				
+			}
+			
+			protected function initView():void
+			{
+				var i:uint
+				gr.removeAllElements()
+				aButton = new Vector.<Image>
+				aFolder = new Vector.<String>
+				initData()
+				Value.sUrl = xmlData.@website
+				nLength = pageList.children().length()
+				
+				for (i = 0; i < nLength; i++) 
+				{
+					var _img:Image = new Image
+					var _folder:String = pageList.children()[i].@folder
+					_img.source = filesPath + pageList.children()[i].children()[0].@src
+					trace(filesPath + pageList.children()[i].children()[0].@src);
+					if (_folder!="")
+					{
+						_img.addEventListener(MouseEvent.CLICK,onItemMouseEvent)
+						_img.useHandCursor = true
+						_img.buttonMode = true
+					}else{
+						_img.alpha = 50
+					}
+					aButton.push(_img)
+					aFolder.push(_folder)
+				}
+				
+				if (nLength<=cLength)
+				{
+					gr.addElement(grTile)
+					setTileGroupValue()
+					for (i = 0; i < nLength; i++) grTile.addElement(aButton[i]) 
+				}else{
+					assignGroup()
+				}
+			}
+			
+			
+			private function assignGroup():void
+			{
+				if (nLength>cLength)
+				{
+					var i:uint
+					var _aGap:Array 
+					var _aLine:Array
+					var _group:HGroup
+					var _count:uint
+					gr.addElement(grFree)
+					
+					switch(currentState)
+					{
+						case "State1":
+							nVGap = __landscapeVGap
+							_aGap = __landscapeHGap.split("|")
+							_aLine = __landscapeLine.split("|")
+							break;
+						case "State2":
+							nVGap = __protraitVGap
+							_aGap = __protraitHGap.split("|")
+							_aLine = __protraitLine.split("|")
+							break;
+					}
+					
+					trace(_aGap)
+					trace(_aLine)
+					for (i = 0; i < grFree.numElements; i++) 
+					{
+						_group = HGroup(grFree.getElementAt(i))
+						_group.removeAllElements()
+						_group.gap = _aGap[i]
+						
+						for (var j:int = 0; j < _aLine[i]; j++) 
+						{
+							if (_count<aButton.length)
+							{
+								_group.addElement(aButton[_count])
+								_count ++
+							}else{
+								break
+							}
+						}
+					}
+				}
+				
+			}
+			
+			
+			private function setTileGroupValue():void
+			{
+				if (nLength!=0)
+				{
+					var _c:uint
+					switch(currentState)
+					{
+						case "State1":
+							_c = 3
+							break;
+						case "State2":
+							_c = 2
+							break;
+					}
+					nColumn = (nLength<_c)?nLength:_c
+					nRow = Math.ceil(nLength/_c)
+				}
+			}
+			
+			//override---------------------------------------------------------------------------------------------------------------
+			public function setXML(_xml:XML):void
+			{
+				actionRefresh(_xml)
+				initView()
+			}
+			
+			public function actionRefresh(_xml:XML):void
+			{
+				xmlData = _xml
+				initData()
+				assignGroup()
+			}
+			
+			
+			
+			//event------------------------------------------------------------------------------------------------------------------------
+			
+			protected function onItemMouseEvent(event:MouseEvent):void
+			{
+				var _me:Image = Image(event.currentTarget)
+				Files.book_isbn = aFolder[aButton.indexOf(_me)]
+				dispatchEvent(new JEvent(JEvent.SELECT))
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+</books:BookIntro_viewer>

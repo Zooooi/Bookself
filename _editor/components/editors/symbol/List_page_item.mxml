@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:Base_ListMenu_Item xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						 xmlns:s="library://ns.adobe.com/flex/spark" 
+						 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:symbol="components.editors.symbol.*"
+						 height="35" xmlns:module="components.module.*" xmlns:dropdownlist="JsF.dropdownlist.*" 
+						 >
+	<fx:Script>
+		<![CDATA[
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.components.Group;
+			[Bindable]protected var sPageID:String;
+			[Bindable]protected var sUnit:String;
+			[Bindable]protected var sChapter:String;
+			[Bindable]protected var sNumber:String;
+			[Bindable]protected var sTag:String;
+			
+			
+			override public function setContent(_xmlList:XMLList):void
+			{
+				super.setContent(_xmlList)
+				refreshNo()
+				sPageID = xmlList.@pageID
+				sUnit = xmlList.@unit
+				sChapter = xmlList.@chapter
+				sNumber = xmlList.text.pageNumber
+				sTag = xmlList.text.tag
+			}
+			
+			override protected function onChange():void
+			{
+				xmlList.@pageID = sPageID
+				xmlList.@unit = sUnit
+				xmlList.@chapter = sChapter
+				xmlList.text.pageNumber = <pageNumber>{sNumber}</pageNumber>
+				xmlList.text.tag = <tag>{sTag}</tag>
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<module:layout>
+		<s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+	</module:layout>
+	<s:Label width="33" textAlign="right">{sNum}</s:Label>
+	<mx:VRule height="80%"/>
+	<s:Label>pageID:</s:Label><s:TextInput width="200" text="@{sPageID}" change="onChange()"/>
+	<mx:VRule height="80%"/>
+	<s:Label>unit:</s:Label><s:TextInput width="80" text="@{sUnit}" change="onChange()"/>
+	<mx:VRule height="80%"/>
+	<s:Label>chapter:</s:Label><s:TextInput width="80" text="@{sChapter}" change="onChange()"/>
+	<mx:VRule height="80%"/>
+	<s:Label>pageNumber:</s:Label><s:TextInput width="80" text="@{sNumber}" change="onChange()"/>
+	<mx:VRule height="80%"/>
+	<s:Label>tag:</s:Label><s:TextInput width="100" text="@{sTag}" change="onChange()"/>
+</module:Base_ListMenu_Item>

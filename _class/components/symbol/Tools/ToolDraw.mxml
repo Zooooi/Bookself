@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="components.base.*"
+					xmlns:Tools="components.symbol.Tools.*"
+					preinitialize="addEventListener(JEvent.SELECT,onMainJEvent);addEventListener(JEvent.EXIT,onMainJEvent)"
+					height="42"
+					>
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			
+			import SWFKit.Global;
+			
+			import components.books.BookPage;
+			
+			import jsProject.ctrl.DrawCtrl;
+			import jsProject.mdel.DrawData;
+			import jsProject.mdel.Viewers;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable]private var bSelect:Boolean
+			private var drawCtrl:DrawCtrl 
+			protected var currentPane:ToolDraw_Base
+			protected function onMainJEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case JEvent.SELECT:
+						DrawData.setMode_Pen()
+						addDrawAction()
+						break;
+					case JEvent.EXIT:
+						if(drawCtrl)drawCtrl.remove()
+						break;
+				}
+			}
+			
+			protected function onRootMouseEvent(event:MouseEvent):void 
+			{
+				var _bookpage:BookPage = Viewers.getPage()
+				_bookpage.$close()
+				var _me:RadioButton = RadioButton(event.currentTarget)
+				switch(_me)
+				{
+					case radioArrow:
+						gr.removeAllElements()
+						if(drawCtrl)drawCtrl.remove()
+						break
+					
+					case radioPen:
+						DrawData.setMode_Pen()
+						addDrawAction()
+						if(setting_pen.parent!=null)
+						{
+							gr.removeAllElements()
+						}else{
+							gr.removeAllElements()
+							gr.addElement(setting_pen)
+						}
+						break;
+					case radioNite:
+						DrawData.setMode_Nite()
+						addDrawAction()
+						if(setting_stroke2.parent!=null)
+						{
+							gr.removeAllElements()
+						}else{
+							gr.removeAllElements()
+							gr.addElement(setting_stroke2)
+						}
+						break;
+				/* 	case radioLayer:
+						DrawData.setMode_Layer() */
+						break;
+					/* case radioMove:
+						gr.removeAllElements()
+						addDrawAction()
+						DrawData.setMode_Move()
+						break; */
+						
+					case radioErase:
+						if(setting_earse.parent!=null)
+						{
+							gr.removeAllElements()
+						}else{
+							gr.removeAllElements()
+							gr.addElement(setting_earse)
+						}
+						addDrawAction()
+						DrawData.setMode_Earse()
+						break;
+				}
+			}
+			
+			protected function onPanel_JEvent(event:JEvent):void //
+			{
+				var _me:ToolDraw_Base = ToolDraw_Base(event.currentTarget)
+				var _index:uint = event.$getID()
+				var _index2:int = event._id
+				//.................................................................................................2级清除3级	
+				switch(_me)
+				{
+					case setting_pen:			
+					case setting_nite:
+						/* if (currentPane!=null)
+						{
+							for (var i:int = 0; i < gr.numElements; i++) 
+							{
+								if (currentPane ==  gr.getElementAt(i))
+								{
+									gr.removeElementAt(i)
+									currentPane = null
+									break
+								}
+							}
+							
+						}  */ 
+						break;
+				}
+				
+				//.................................................................................................2、3级所返回的事件
+				switch(_me)
+				{
+					//2级 Pen
+					case setting_pen:
+						DrawData.setShape(_index)
+						if (_index2>-1)
+						{
+							switch(_index2)
+							{
+								case 0:	
+									checkCurrentPane(setting_stroke1)
+									break;
+								case 1:	
+									checkCurrentPane(setting_color1)
+									break;
+							}
+						}
+						
+						break;
+					
+					//.................................................................................................2级 nite write pen
+					case setting_nite:
+						switch(_index)
+						{
+							case 0:	currentPane = setting_stroke2;break;
+							case 1:	currentPane = setting_color2;break;
+						}
+						gr.addElement(currentPane)
+						break;
+					
+					//.................................................................................................3级-shape形状
+						
+						break;
+					
+					//.................................................................................................3级-stroke
+					case setting_stroke1:
+					case setting_stroke2:
+						DrawData.setStroke(_index)
+						break;
+					
+					//.................................................................................................3级-color
+					case setting_color1:
+					case setting_color2:
+						DrawData.setFillColor(_index)
+						break;
+				}
+				
+			}
+			
+			private function checkCurrentPane(_tools:ToolDraw_Base):void
+			{
+				if (currentPane)
+				{
+					if (currentPane.parent!=null && currentPane!=_tools)gr.removeElement(currentPane)
+				}
+				currentPane = _tools
+				if(currentPane.parent!=null)
+				{
+					gr.removeElement(currentPane)
+				}else{
+					gr.addElement(currentPane)
+				}
+			}
+			
+			
+			private function addDrawAction():void
+			{
+				if (drawCtrl)drawCtrl.remove()
+				drawCtrl = new DrawCtrl()
+			}
+			
+			public function $close():void
+			{
+				bSelect = false
+				for (var i:int = 0; i < gr2.numElements; i++) 
+				{
+					RadioButton(gr2.getElementAt(i)).selected = false
+				}
+				radioArrow.selected = true
+				gr.removeAllElements()
+				if(drawCtrl)drawCtrl.remove()
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<fx:Declarations>
+		<s:Group id="gr"></s:Group>
+		<!-- pen  -->
+		<Tools:ToolDraw_Shape id="setting_pen" x="1" y="-55" SEND="onPanel_JEvent(event)" 
+							  YES="DrawData.setMode_Move();" 
+							  NO="DrawData.setMode_Pen();"
+							  />
+		<Tools:ToolDraw_Stroke id="setting_stroke1" x="80" y="-400" SEND="onPanel_JEvent(event)"/>
+		<Tools:ToolDraw_Color id="setting_color1" x="215" y="-400" SEND="onPanel_JEvent(event)"/>
+		<!-- nite  -->
+		<Tools:ToolDraw_NitePenPanel id="setting_nite" x="80" y="-55" SEND="onPanel_JEvent(event)" />
+		<Tools:ToolDraw_Color id="setting_color2" x="-10" y="-400" SEND="onPanel_JEvent(event)"/>
+		<Tools:ToolDraw_Stroke id="setting_stroke2" x="20" y="-350" SEND="onPanel_JEvent(event)"/>
+		
+		<!-- earse  -->
+		<Tools:ToolDraw_Earse id="setting_earse" x="20" y="-60" YES="DrawData.setMode_EarseAll();addDrawAction()" DEL="DrawData.setMode_Earse();addDrawAction()"/>
+	</fx:Declarations>
+	
+	<s:HGroup id="gr2" height="100%" verticalAlign="middle" > 
+		<s:RadioButton id="radioArrow" width="43" height="43" buttonMode="true" groupName="1" skinClass="components.skin.Radio_Draw_Arrow" click="onRootMouseEvent(event)" selected="{true}"/>
+		<s:RadioButton id="radioPen" width="43" height="43" buttonMode="true"
+					   click="onRootMouseEvent(event)" groupName="1" selected="{bSelect}"
+					   skinClass="components.skin.Radio_Draw_Pan"/>
+		<s:RadioButton id="radioNite" width="43" height="43" buttonMode="true"
+					   click="onRootMouseEvent(event)" groupName="1" selected="{bSelect}"
+					   skinClass="components.skin.Radio_Draw_Brush"/>
+		<s:RadioButton id="radioErase" width="43" height="43" buttonMode="true"
+					   click="onRootMouseEvent(event)" groupName="1" selected="{bSelect}"
+					   skinClass="components.skin.Radio_Draw_Earse"/>
+	</s:HGroup>
+	
+	
+	
+	
+	
+</s:Group>

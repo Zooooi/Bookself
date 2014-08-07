@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="onFlexEvent(event)">
+	
+	<fx:Declarations>
+		<s:HTTPService
+			id="xmlLoader" 
+			resultFormat="xml" 
+			result="onLoadXmlComplete(event)" 
+			fault="onLoadXmlError(event)" 
+			/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import JsC.events.JEvent;
+			import JsC.mdel.SystemOS;
+			import JsC.shell.ShellSystem;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Value;
+			import jsProject.mdel.XmlContent;
+			
+			
+			protected var xmlData:XML
+			protected var xmlFileName:String
+			protected var xmlPath:String
+			protected var xmlKey:String
+			protected var filesPath:String
+		
+			public var __autoLoad__:Boolean = true
+			public var __alert__:Boolean = true
+			
+			protected function initMdel():void
+			{
+				//xmlData = ""
+				//xmlFileName = ""
+				//xmlPath = ""
+				//xmlKey = ""
+				
+			}
+			
+			private function loadXML(_path:String):void
+			{
+				if (_path!=null)
+				{
+					
+					
+					if(SystemOS.isAndroid())
+					{
+						var _file:File = new File(_path)
+						if (_file.exists){
+							var stream:FileStream = new FileStream
+							stream.open(_file,FileMode.READ)
+							var _data:String = stream.readUTFBytes(stream.bytesAvailable)
+							stream.close();
+							checkAndLoad(_data);
+						}else{
+							xmlLoader.url = new File(_path).url
+							xmlLoader.send()	
+						}
+						
+					}else{
+						xmlLoader.url = new File(_path).url
+						xmlLoader.send()
+					}
+				}
+				
+			}
+			
+			protected function onLoadXmlError(event:FaultEvent):void
+			{
+				if (__alert__)
+				{
+					trace("LoaderBase:",event)
+				}
+				init()
+			}
+			
+			protected function onOpenLoadComplete(event:JEvent):void
+			{
+				checkAndLoad(event.$getString())
+			}
+			
+			protected function onLoadXmlComplete(event:ResultEvent):void
+			{
+				checkAndLoad(event.result.toString())
+			}
+			
+			protected function checkAndLoad(_data:String):void
+			{
+				var _xml:XML = new XML(_data)
+				if (_xml.@fileID == xmlKey || xmlKey == "")
+				{
+					xmlData = _xml.copy()
+					init()
+				}else{
+					//DebugCtrl.show("xml ID is " + xmlKey + ", " + _xml.@fileID + "not exist!" )
+				}
+			}
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				switch(event.type)
+				{
+					case FlexEvent.CREATION_COMPLETE:
+						initMdel()
+						
+						if (__autoLoad__)reLoadXml()
+						break;
+				}	
+			}
+			
+			
+			protected function saveXmlFile(_path:String=""):void
+			{
+				ShellSystem.current.saveText(xmlData,xmlFileName,_path)
+			}
+			
+			protected function openXmlFile():void
+			{
+				var _file:ShellSystem = new ShellSystem
+				_file.addEventListener(JEvent.COMPLETE,onOpenLoadComplete)
+				_file.selectFile(xmlFileName)
+			}
+			
+			protected function init():void
+			{
+				switch(xmlKey)
+				{
+					case NameDefine.FILE_ID_COMPONENT:
+						XmlContent.XML_COMPONENT = xmlData
+						break;
+					case NameDefine.FILE_ID_RESOURCE:
+						XmlContent.XML_RESOURCE = xmlData					
+						break;
+					case NameDefine.FILE_ID_USER:
+						XmlContent.XML_USER = xmlData					
+						break;
+					case NameDefine.FILE_ID_BOOK:
+						XmlContent.XML_PAGE = xmlData
+						Value.setPageNumberArray(XmlCtrl.getNodeByName(XMLList(XmlContent.XML_PAGE),NameDefine.KEY_PAGES))
+						break
+				}
+				trace(xmlKey);
+				
+			}
+			
+			
+			protected function init_languge():void
+			{
+				filesPath = Files.folder_language
+				xmlData = XmlContent.Edit_Language.copy()
+				xmlFileName = Files.file_language
+				xmlKey = NameDefine.FILE_ID_LANGUAGE
+				xmlPath = filesPath+xmlFileName
+			}
+			
+			protected function init_bookself():void
+			{
+				filesPath = Files.folder_bookself
+				xmlData = XmlContent.Edit_BookSelf.copy()
+				xmlFileName = Files.file_bookself
+				xmlKey = NameDefine.FILE_ID_BOOKSELF
+				xmlPath = filesPath+xmlFileName
+			}
+			
+			protected function init_component():void
+			{
+				filesPath = Files.folder_components
+				xmlData = XmlContent.Edit_Component.copy()
+				xmlFileName = Files.file_components
+				xmlKey = NameDefine.FILE_ID_COMPONENT
+				xmlPath = filesPath + xmlFileName
+			}
+			
+			protected function init_resource():void
+			{
+				filesPath = Files.folder_components
+				xmlData = XmlContent.Edit_Resource.copy()
+				xmlFileName = Files.file_resource
+				xmlKey = NameDefine.FILE_ID_RESOURCE
+				xmlPath = filesPath + xmlFileName
+			}
+			
+			protected function init_page():void
+			{
+				filesPath = Files.folder_book_Pages
+				xmlData = XmlContent.Edit_Pages.copy()
+				xmlFileName = Files.file_book
+				xmlKey = NameDefine.FILE_ID_BOOK
+				xmlPath = filesPath + xmlFileName
+			}
+			
+			protected function init_user():void
+			{
+				filesPath = Files.folder_documentAssets//folder_document
+				xmlData = XmlContent.Edit_USER.copy()
+				xmlFileName = Files.file_document
+				xmlKey = NameDefine.FILE_ID_USER
+				xmlPath = filesPath + xmlFileName //"D:\\Documents\\ebooks\\s2pth\\usr.xml"//
+				//ShellSystem.current.traceInfo("fromFlash:  " +xmlPath)
+				
+			}
+			
+			protected function init_download_bookself():void
+			{
+				filesPath = Files.folder_bookself_download
+				xmlData = XmlContent.Edit_BookSelf_Download.copy()
+				xmlFileName = Files.file_bookself_download
+				xmlKey = NameDefine.FILE_ID_DOWNLOAD_BOOKSELF
+				xmlPath = filesPath+xmlFileName
+				
+			}
+			
+			public function reLoadXml():void
+			{
+				loadXML(xmlPath)
+			}
+			
+			public function reload():void
+			{
+				initMdel()
+				reLoadXml()
+			}
+		]]>
+	</fx:Script>
+</s:Group>

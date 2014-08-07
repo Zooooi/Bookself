@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenu xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:bookUi="components.symbol.bookUi.*"
+				 xmlns:module="components.module.*"
+				 width="373" addedToStage="onEvent(event)"
+				 styleName.State4="NormalText">
+	<fx:Style source="css/book.css"/>
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						switch(currentState)
+						{
+							case "State3":
+								addResource.refresh()
+								break;
+							
+							case "State4":
+								addBookMark.refresh()
+								break;
+						}
+						
+						break;
+					
+					case Event.RESIZE:
+						
+						break
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+		<s:State name="State3"/>
+		<s:State name="State4"/>
+	</bookUi:states>
+	
+	<s:BitmapImage includeIn="State1" width="373" height="86" smooth="true"
+				   source="controls/bookui/ipad_w_multimedia.png"/>
+	<module:ModeMenuList includeIn="State1" top="89" bottom="0" left="0" right="0" 
+						 __xml="{XmlContent.XML_PAGE}"
+						 __xmlName="menu.resources"
+						 __nodeClass="{UIFav_Resource_Item}"
+						 __pageLength="50"
+						 />
+	
+	<s:BitmapImage includeIn="State2" width="373" height="48" smooth="true"
+				   source="controls/bookui/ipad_w_teacher_resources.png"/>
+	<module:ModeMenuList includeIn="State2" top="51" bottom="0" left="0" right="0" 
+						 __xml="{XmlContent.XML_PAGE}"
+						 __xmlName="menu.teachersResource"
+						 __nodeClass="{UIFav_TeacherResource_Item}"
+						 __pageLength="50"
+						 />
+	
+	<s:Image includeIn="State3" width="373" height="86" smooth="true" 
+			 source="controls/bookui/ipad_w_self_resources.png"/>
+	<module:ModeMenuList id="addResource" includeIn="State3" top="89" bottom="0" left="0" right="0" 
+						 __xml="{XmlContent.XML_USER}"
+						 __xmlName="{NameDefine.KEY_USER_RESOURCE}"
+						 __nodeClass="{UIAddResourceItem}"
+						 />
+	
+	
+	<s:Image includeIn="State4" width="373" height="86" smooth="true" 
+			 source="controls/bookui/ipad_w_bookmark.png"/>
+	<module:ModeMenuList id="addBookMark" includeIn="State4" top="89" bottom="0" left="0" right="0" 
+						 __xml="{XmlContent.XML_USER}"
+						 __xmlName="{NameDefine.KEY_USER_BOOKMARK}"
+						 __nodeClass="{UIAddBookMarkItem}"
+						 />
+	
+	
+	<s:BorderContainer width="89" height="48" backgroundAlpha="0.01" borderVisible="false"
+					   buttonMode="true" click="currentState = 'State1'"/>
+	<s:BorderContainer x="88" y="0" width="86" height="48" backgroundAlpha="0.01"
+					   borderVisible="false" buttonMode="true" click="currentState = 'State2'"/>
+	<s:BorderContainer x="173" y="0" width="88" height="48" backgroundAlpha="0.01"
+					   borderVisible="false" buttonMode="true"
+					   click="currentState = 'State3';addResource.refresh()"/>
+	<s:BorderContainer x="262" y="0" width="86" height="48" backgroundAlpha="0.01"
+					   borderVisible="false" buttonMode="true" click="currentState = 'State4';addBookMark.refresh()"/>
+</bookUi:BaseMenu>

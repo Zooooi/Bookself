@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bookUi:BaseMenuNode xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:bookUi="components.symbol.bookUi.*"
+		  >
+	<fx:Script>
+		<![CDATA[
+			import jsProject.mdel.Viewers;
+			
+			
+			[Bindable]private var sContent:String;
+			[Bindable]private var nL:uint;
+			
+			
+			
+			private var nPage:int
+			private var nNd:int
+			
+			override public function setContent(_xmlList:XMLList,i:uint,_length:uint):void
+			{
+				xmlList = XMLList(_xmlList.children()[i])
+				nPage = xmlList.@page
+				nNd = xmlList.@node
+				sContent = xmlList.text
+				nL = cL + cL * nNd	
+				
+				setBGcolor(i)
+				
+				var j:uint = i+1
+				if (j<_length && _xmlList.children()[j].@node>nNd) currentState = "State2"
+				
+				definedHandle()
+				addEventListener(MouseEvent.CLICK,onMouseEvent)	
+			} 
+			
+			override protected function onMouseEvent(event:MouseEvent):void
+			{
+				super.onMouseEvent(event)
+				switch(event.type)
+				{
+					case MouseEvent.CLICK:
+						//數字大一
+						Viewers.getPage().$navigateByNum(nPage-1)
+						break;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<bookUi:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</bookUi:states>
+	<s:Rect height="100%" width="100%">                              
+		<s:fill>
+			<s:SolidColor color="{nBGColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup paddingBottom="{cpB}" paddingLeft="{nL}" paddingRight="{cpR}" paddingTop="{cpT}">
+		<s:HGroup height="14" paddingBottom="5" paddingTop="5" verticalAlign="middle">
+			<!--<s:Image includeIn="State1" source="controls/components/icon_open.png"/>
+			<s:Image includeIn="State2" source="controls/components/icon_page.png"/>-->
+			<s:Image includeIn="State1" source="{icon_page}"/>
+			<s:Image includeIn="State2" source="{icon_open}"/>
+		</s:HGroup>
+		<s:Label width="100%" color="{nFontColor}" fontSize="{nFontSize}" fontWeight="bold" text="{sContent}" />
+	</s:HGroup>
+</bookUi:BaseMenuNode>

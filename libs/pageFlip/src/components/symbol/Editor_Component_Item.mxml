@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   height="70" minWidth="900" width="100%" creationComplete="onFlexEvent(event)" xmlns:components="components.*" xmlns:symbol="components.symbol.*">
+	<s:layout>
+		<s:HorizontalLayout verticalAlign="middle"/>
+	</s:layout>
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="REMOVE", type="Js.events.ProjectEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.components.DropDownList;
+			import spark.components.TextInput;
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			import EPD.string.Maths;
+			
+			import Js.events.ProjectEvent;
+			import Js.mdel.Files;
+			import Js.mdel.VConst;
+			import Js.mdel.XmlContent;
+			
+			[Bindable]private var sPicName:String
+			[Bindable]private var sPrompt:String
+			[Bindable]private var sPath:String
+			[Bindable]private var nSelect:uint
+			
+			private var aButton:Vector.<Editor_Component_Button> 
+			private var currentButton:Editor_Component_Button
+			
+			private var xmlItem:XML = XmlContent.Edit_Component_Item.copy()
+				
+			
+			private const _function:ArrayCollection = new ArrayCollection(
+				[
+					{id:VConst.COM_OPEN_HTML,name:"Open Html"},
+					{id:VConst.COM_OPEN_APP,name:"Open APP"},
+					{id:VConst.COM_OPEN_DOC,name:"Open DOC"},
+					{id:VConst.COM_OPEN_XLS,name:"Open XLS"},
+					{id:VConst.COM_OPEN_PPT,name:"Open PPT"},
+					{id:VConst.COM_PLAY_SND,name:"Play Sound"},
+					{id:VConst.COM_PLAY_MOV,name:"Play Movie"},
+					{id:VConst.COM_SHOW_PIC,name:"Show Picture"}
+				]
+			);
+			
+			public function action_new():void
+			{
+				xmlItem.@componentID = Maths.DataName(VConst.KEY_COMPONENTS_KEY)
+				xmlItem.@id = Maths.DataName(VConst.KEY_COMPONENTS_KEY)
+			}
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+					
+				aButton = new Vector.<Editor_Component_Button>
+				aButton.push(btnUP)
+				aButton.push(btnOV)
+				aButton.push(btnDW)
+				aButton.push(btnDI)
+					
+				var _btn:Editor_Component_Button
+				var i:int
+				for (i = 0; i < aButton.length; i++) 
+				{
+					_btn = aButton[i]
+					_btn._key = i
+					_btn._path = Files.folder_components
+					_btn.addEventListener(MouseEvent.CLICK,onButtonMouseEvent)
+					_btn.addEventListener(ProjectEvent.IOERROR,onPicButtonProjectEvent)
+					_btn.addEventListener(ProjectEvent.LOADED,onPicButtonProjectEvent)
+				}
+					
+				mouseClick(btnUP)
+				xmlItem.@action = dropFunction.selectedItem.id
+			}
+			
+			protected function onButtonMouseEvent(event:MouseEvent):void
+			{
+				currentButton.mouseOT()
+				mouseClick(Editor_Component_Button(event.currentTarget))
+				picName.text = currentButton._pic
+			}
+			
+			private function mouseClick(_me:Editor_Component_Button):void
+			{
+				currentButton = _me
+				currentButton.mouseDW()
+				picName.setFocus()
+			}
+			
+			
+			protected function onTextInput(event:KeyboardEvent):void
+			{
+				
+				if(event.keyCode==13)
+				{
+					textAction()
+				}
+			}
+			
+			
+			private function textAction():void
+			{
+				var i:int
+				for (i = 0; i < aButton.length; i++) 
+				{
+					if(aButton[i]._pic==""||aButton[i]._pic==null )
+					{
+						aButton[i].loadPic(picName.text)
+						
+					}
+				}
+				currentButton.loadPic(picName.text)
+			}
+			
+			
+			
+			protected function onPicButtonProjectEvent(event:ProjectEvent):void
+			{
+				var _me:Editor_Component_Button = Editor_Component_Button(event.currentTarget)
+				switch(event.type)
+				{
+					case ProjectEvent.IOERROR:
+						picName.text = ""
+						if (_me._key==0)
+						{
+							xmlSetFiles()
+						}
+						break;
+					case ProjectEvent.LOADED:
+						if (_me._key==0)
+						{
+							xmlItem.@width = _me._width
+							xmlItem.@height = _me._height
+							numericWidth.value = xmlItem.@width
+							numericHeight.value = xmlItem.@height
+						}
+						xmlSetFiles()
+						
+						break;
+					default:
+						
+						break;
+				}
+				
+			}
+			
+			protected function onDoubleClick(event:MouseEvent):void
+			{
+				dispatchEvent(new ProjectEvent(ProjectEvent.REMOVE))
+			}
+			
+			protected function onFunctionChange(event:IndexChangeEvent):void
+			{
+				var _me:DropDownList=DropDownList(event.currentTarget)
+				xmlItem.@action = _me.selectedItem.id
+				nSelect = _me.selectedIndex
+			}
+			
+			
+			private function xmlSetFiles():void
+			{
+				var i:int
+				var _xml:XML
+				for (i = 0; i < aButton.length; i++) 
+				{
+					_xml = <files>{aButton[i]._pic}</files>
+					xmlItem.files[i] =_xml
+					/*if (i>xmlItem.files.children().length())
+					{
+						xmlItem.appendChild(_xml)
+					}else{
+						xmlItem.files[i] =_xml
+					}*/
+				}
+				
+			}
+			
+			public function getXML():XML
+			{
+				return xmlItem
+			}
+			
+			public function setXML(_xml:XML):void
+			{
+				addEventListener(FlexEvent.CREATION_COMPLETE,onLoadinit)
+				xmlItem = _xml.copy()
+			}
+			
+			protected function onPrompMouseEvent(event:TextOperationEvent):void
+			{
+				var _me:TextInput = TextInput(event.currentTarget)
+				switch(_me)
+				{
+					case textPrompt:
+						xmlItem.@prompt = _me.text
+						break;
+					
+					case textPrompt:
+						xmlItem.@path = _me.text
+						break;
+				}
+				
+			}
+			
+			protected function onLoadinit(event:FlexEvent):void
+			{
+				removeEventListener(event.type,arguments.callee)
+				var i:int
+				for (i = 0; i < aButton.length; i++) 
+				{
+					if (i ==0) sPicName = xmlItem.files[i]
+					aButton[i].loadPic(xmlItem.files[i])
+				}
+				sPrompt = xmlItem.@prompt
+				sPath = xmlItem.@path
+				numericWidth.value = xmlItem.@width
+				numericHeight.value = xmlItem.@height
+				
+				for (i = 0; i < _function.length; i++) 
+				{
+					if(_function.getItemAt(i).id ==  xmlItem.@action)
+					{
+						nSelect = i
+						break
+					}
+				}
+				
+			}
+			
+			protected function onTextFocusOut(event:FocusEvent):void
+			{
+				textAction()
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:HGroup width="240" height="60" gap="10" paddingLeft="5" verticalAlign="middle">
+		<symbol:Editor_Component_Button id="btnUP" _text="UP"/>
+		<symbol:Editor_Component_Button id="btnOV" _text="OV"/>
+		<symbol:Editor_Component_Button id="btnDW" _text="DW"/>
+		<symbol:Editor_Component_Button id="btnDI" _text="DI"/>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:VGroup width="155" height="60" paddingLeft="2">
+		<s:HGroup verticalAlign="middle">
+			<s:Label styleName="systemText" text="Name:"/>
+			<s:TextInput width="108" styleName="systemText" id="picName" text="{sPicName}" keyUp="onTextInput(event)" focusOut="onTextFocusOut(event)"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Label styleName="systemText" text="size:"/>
+			<s:NumericStepper id="numericWidth" width="50" maximum="1000"/>
+			<s:Label styleName="systemText" text="x"/>
+			<s:NumericStepper id="numericHeight" width="50" maximum="1000"/>
+		</s:HGroup>
+	</s:VGroup>
+	<mx:VRule width="1" height="40"/>
+	
+	<s:HGroup width="159" height="50" paddingLeft="2" verticalAlign="middle">
+		<s:Label styleName="systemText" text="Fuction: "/>
+		<s:DropDownList id="dropFunction" width="99" dataProvider="{_function}" labelField="name" change="onFunctionChange(event)" selectedIndex="{nSelect}">
+		</s:DropDownList>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:HGroup width="135" height="50" paddingLeft="2" verticalAlign="middle">
+		<s:Label styleName="systemText" text="Folder:"/>
+		<s:TextInput id="textPrompt" width="80" styleName="systemText" change="onPrompMouseEvent(event)" text="{sPath}">
+		</s:TextInput>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:HGroup width="135" height="50" paddingLeft="2" verticalAlign="middle">
+		<s:Label styleName="systemText" text="Prompt: "/>
+		<s:TextInput id="textPath" width="80" styleName="systemText" change="onPrompMouseEvent(event)" text="{sPrompt}">
+		</s:TextInput>
+	</s:HGroup>
+	<mx:VRule width="1" height="40"/>
+	<s:VGroup gap="2" horizontalAlign="center">
+		<s:Button width="28" label="-" chromeColor="#F2B3B3" doubleClick="onDoubleClick(event)"
+				  doubleClickEnabled="true"/>
+		<s:Label color="#000000" fontSize="10" text="(double click)" textAlign="center"/>
+	</s:VGroup>
+	
+</s:BorderContainer>

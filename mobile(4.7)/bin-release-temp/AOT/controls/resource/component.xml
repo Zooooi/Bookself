@@ -1,0 +1,122 @@
+<components fileID="JS_KEY_COMPONENTS">
+  <component componentID="componentexopen" folder="exercise" prompt="" width="64" height="62" action="OPEN_HTML" openfile="">
+    <files>icon_ex.png</files>
+    <files>icon_ex_on.png</files>
+    <files>icon_ex_on.png</files>
+    <files>icon_ex_on.png</files>
+  </component>
+  <component componentID="componentpptopen" folder="resources" prompt="" width="64" height="62" action="OPEN_PPT" openfile="">
+    <files>icon_ppt.png</files>
+    <files>icon_ppt_on.png</files>
+    <files>icon_ppt_on.png</files>
+    <files>icon_ppt_on.png</files>
+  </component>
+  <component componentID="componentanswershow" action="SHOW_PIC" prompt="" width="64" height="62" folder="images" openfile="">
+    <files>icon_ans.png</files>
+    <files>icon_ans_on.png</files>
+    <files>icon_ans_on.png</files>
+    <files>icon_ans_on.png</files>
+  </component>
+  <component componentID="componentanswerallshow" action="SHOW_PIC" prompt="" width="64" height="62" folder="images" openfile="">
+    <files>icon_allans.png</files>
+    <files>icon_allans_on.png</files>
+    <files>icon_allans_on.png</files>
+    <files>icon_allans_on.png</files>
+  </component>
+  <component componentID="componentdemoopen" width="220" height="62" action="OPEN_APP" prompt="" folder="resources" openfile="">
+    <files>icon_demo.png</files>
+    <files>icon_demo_on.png</files>
+    <files>icon_demo_on.png</files>
+    <files>icon_demo_on.png</files>
+  </component>
+  <component componentID="componentegopen" width="64" height="62" action="OPEN_HTML" prompt="" folder="popups" openfile="">
+    <files>icon_eg.png</files>
+    <files>icon_eg_on.png</files>
+    <files>icon_eg_on.png</files>
+    <files>icon_eg_on.png</files>
+  </component>
+  <component componentID="componentfigureopen" width="64" height="62" action="OPEN_HTML" prompt="" folder="figure" openfile="">
+    <files>icon_fig.png</files>
+    <files>icon_fig_on.png</files>
+    <files>icon_fig_on.png</files>
+    <files>icon_fig_on.png</files>
+  </component>
+  <component componentID="componentflashdemoopen" prompt="" width="228" height="62" action="OPEN_APP" folder="resources" openfile="">
+    <files>icon_flash.png</files>
+    <files>icon_flash_on.png</files>
+    <files>icon_flash_on.png</files>
+    <files>icon_flash_on.png</files>
+  </component>
+  <component componentID="componentgreatmathman" width="180" height="62" action="OPEN_DOC" prompt="" folder="videos" openfile="">
+    <files>icon_gm.png</files>
+    <files>icon_gm_on.png</files>
+    <files>icon_gm_on.png</files>
+    <files>icon_gm_on.png</files>
+  </component>
+  <component componentID="componentmagnifyopen" width="220" height="62" action="OPEN_APP" prompt="" folder="resources" openfile="">
+    <files>icon_magnify.png</files>
+    <files>icon_magnify_on.png</files>
+    <files>icon_magnify_on.png</files>
+    <files>icon_magnify_on.png</files>
+  </component>
+  <component componentID="componentsolnguideopen" width="212" height="62" action="OPEN_DOC" prompt="" folder="resources" openfile="">
+    <files>icon_sg.png</files>
+    <files>icon_sg_on.png</files>
+    <files>icon_sg_on.png</files>
+    <files>icon_sg_on.png</files>
+  </component>
+  <component componentID="componentsimopen" width="212" height="62" action="OPEN_HTML" prompt="" folder="resources" openfile="">
+    <files>icon_sim.png</files>
+    <files>icon_sim_on.png</files>
+    <files>icon_sim_on.png</files>
+    <files>icon_sim_on.png</files>
+  </component>
+  <component componentID="componentsolnopen" width="64" height="62" action="OPEN_HTML" prompt="" folder="popups" openfile="">
+    <files>icon_soln.png</files>
+    <files>icon_soln_on.png</files>
+    <files>icon_soln_on.png</files>
+    <files>icon_soln_on.png</files>
+  </component>
+  <component componentID="componentstepsopen" width="212" height="62" action="SHOW_PIC" prompt="" folder="resources" openfile="">
+    <files>icon_steps.png</files>
+    <files>icon_steps_on.png</files>
+    <files>icon_steps_on.png</files>
+    <files>icon_steps_on.png</files>
+  </component>
+  <component componentID="componenttestbankopen" width="180" height="62" action="OPEN_HTML" prompt="" folder="" openfile="">
+    <files>icon_tb.png</files>
+    <files>icon_tb_on.png</files>
+    <files>icon_tb_on.png</files>
+    <files>icon_tb_on.png</files>
+  </component>
+  <component componentID="componentteachplanopen" width="228" height="62" action="OPEN_DOC" prompt="" folder="resources" openfile="">
+    <files>icon_tp.png</files>
+    <files>icon_tp_on.png</files>
+    <files>icon_tp_on.png</files>
+    <files>icon_tp_on.png</files>
+  </component>
+   <component componentID="componentgraphpaperopen" width="180" height="62" action="OPEN_PDF" prompt="" folder="resources" openfile="">
+    <files>icon_graph.png</files>
+    <files>icon_graph_on.png</files>
+    <files>icon_graph_on.png</files>
+    <files>icon_graph_on.png</files>
+  </component>  
+  <component componentID="componentvideoopen" width="212" height="62" action="OPEN_DOC" prompt="" folder="videos" openfile="">
+    <files>icon_video.png</files>
+    <files>icon_video_on.png</files>
+    <files>icon_video_on.png</files>
+    <files>icon_video_on.png</files>
+  </component>
+  <component componentID="componentworksheetopen" width="180" height="62" action="OPEN_DOC" prompt="" folder="resources" openfile="">
+    <files>icon_ws.png</files>
+    <files>icon_ws_on.png</files>
+    <files>icon_ws_on.png</files>
+    <files>icon_ws_on.png</files>
+  </component>
+  <component componentID="componentfootnoteopen" width="150" height="40" action="SHOW_PIC" prompt="" folder="explain" openfile="">
+    <files>icon_footnote.png</files>
+    <files>icon_footnote.png</files>
+    <files>icon_footnote.png</files>
+    <files>icon_footnote.png</files>
+  </component>
+</components>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fc="http://ns.adobe.com/flashcatalyst/2009"
+		width="31" height="24" xmlns:mx="library://ns.adobe.com/flex/mx" >
+	
+	<fx:Metadata>
+		[HostComponent("spark.components.RadioButton")]
+	</fx:Metadata> 
+	
+	<s:states>
+		<s:State name="up" />
+		<s:State name="over"  />
+		<s:State name="down"  />
+		<s:State name="disabled"  />
+		<s:State name="upAndSelected" />
+		<s:State name="overAndSelected"  />
+		<s:State name="downAndSelected"  />
+		<s:State name="disabledAndSelected" />
+	</s:states>
+	
+	<s:BitmapImage includeIn="disabledAndSelected,down,downAndSelected,over,up,upAndSelected" x="0" y="0" smooth="true"
+				   source="@Embed('skin/mainbutton/assets/images/btn2_dowm.png')"/>
+	<s:BitmapImage includeIn="disabled,down,overAndSelected,up,upAndSelected" x="0" y="0"
+				   smooth="true" source="@Embed('skin/mainbutton/assets/images/btn2_normal.png')"
+				   visible.disabled="false"
+				   visible.down="false"
+				   visible.upAndSelected="false"/>
+	<s:BitmapImage includeIn="disabled,down,up,upAndSelected" x="0" y="0" width="31" height="24"
+				   smooth="true" source="@Embed('skin/mainbutton/assets/images/btn2_over.png')"
+				   visible.down="false"
+				   visible.upAndSelected="false"/>
+	<s:RichText id="labelDisplay" left="3" right="3" height="13" color="#464646" fontFamily="Arial"
+				fontSize="12" tabStops="S0" textAlign="center" verticalCenter="1.5">
+	</s:RichText>
+	
+	<!-- Label -->
+	
+</s:Skin>

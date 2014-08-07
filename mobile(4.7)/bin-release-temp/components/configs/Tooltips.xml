@@ -1,0 +1,27 @@
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<root>
+	<editor>
+		<subgroup>
+			<checkBox_language>false:(默认)
+true:当按钮点击后，所属按钮组才能获得点击事件</checkBox_language>
+			<checkBox_paragraph_active>true:(默认)
+false:失去鼠标点击事件</checkBox_paragraph_active>
+			<checkBox_paragraph_force>false:(默认)
+true:例如在播放模式的角色扮演之下，忽略靜音，當前的聲音(單句或段落)進行有聲播放.</checkBox_paragraph_force>
+			<button_playAll_ADD>增加 playAll / showAll 按鍵</button_playAll_ADD>
+			<button_playAll_Text1>播放全部執行靜音</button_playAll_Text1>
+			<button_playAll_Text2>播放全部忽略靜音</button_playAll_Text2>
+			<iconButton_playAll>PlayAll</iconButton_playAll>
+			<iconButton_unit>單位</iconButton_unit>
+			<iconButton_kind>分類</iconButton_kind>
+			<iconButton_shape>按鍵</iconButton_shape>
+			<button_advKind>進入角色分類设置版面</button_advKind>
+			<checkBox_defaultDisplay>true:(默认)加載內容時為顯示狀態
+false:加載內容時為隱藏狀態</checkBox_defaultDisplay>
+			<radioButton_PLAYLIST_NORMAL>Show/Hide模式以簡單顯示/隱藏方式</radioButton_PLAYLIST_NORMAL>
+			<radioButton_PLAYLIST_SLIDER>Show/Hide模式以按順序逐行循環顯示方式</radioButton_PLAYLIST_SLIDER>
+		</subgroup>
+	</editor>
+</root>

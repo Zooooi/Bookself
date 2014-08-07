@@ -1,0 +1,1260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<subgroup:Editor_subgroup_PlayList_Base xmlns:fx="http://ns.adobe.com/mxml/2009"
+										 xmlns:s="library://ns.adobe.com/flex/spark"
+										 xmlns:mx="library://ns.adobe.com/flex/mx"
+										 xmlns:subgroup="components.editors.symbol.subgroup.*"
+										 currentState="open"
+										 stateChangeComplete.adv="onStageChange(event)"
+										 creationComplete="onFlexEvent(event)"
+										 >
+	
+	
+	<fx:Declarations>
+		<s:HGroup  height="100%" gap="2" id="modePic">
+			<s:RadioButton label="顯示/隱藏答案" name="{NameDefine.KEY_SUBGROUP_PLAYLIST_NORMAL}" 
+						   click="{xList.@mode = NameDefine.KEY_SUBGROUP_PLAYLIST_NORMAL}"
+						   toolTip="{Tooltips.toolstip_editor_subgroup.radioButton_PLAYLIST_NORMAL}"
+						   />
+			<s:RadioButton label="逐行顯示" name="{NameDefine.KEY_SUBGROUP_PLAYLIST_SLIDER}"  
+						   click="{xList.@mode = NameDefine.KEY_SUBGROUP_PLAYLIST_SLIDER}"
+						   toolTip="{Tooltips.toolstip_editor_subgroup.radioButton_PLAYLIST_SLIDER}"
+						   />
+		</s:HGroup>
+		
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.xml.XmlCtrl;
+			
+			import components.configs.Tooltips;
+			import components.symbol.Buttons.IconButton;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.XmlContent;
+			
+			import mx.core.UIComponent;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			import spark.components.ToggleButton;
+			
+			[Bindable]private var bUse:Boolean = false;
+			[Bindable]private var bFile:Boolean= false;
+			[Bindable]private var bLanguageActive:Boolean = false;
+			[Bindable]private var bLanguageForce:Boolean = false;
+			[Bindable]private var bLanguageEnable:Boolean = false;
+			[Bindable]private var bParagraphActive:Boolean = false;
+			[Bindable]private var bParagraphForce:Boolean = false;
+			[Bindable]private var bParagraphEnable:Boolean = false;
+			[Bindable]private var nX:Number=0;
+			[Bindable]private var nY:Number=0;
+			[Bindable]private var nW:Number=0;
+			[Bindable]private var nH:Number=0;
+			[Bindable]private var nColor:uint
+			
+			private const vColor:Vector.<uint> = Vector.<uint>([
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff,
+				0xcc0000,0x3366ff,0xffcc00,0x33ff00,0x6600ff
+			])
+				
+				
+			private const cParaLenght:uint=100
+			
+			private var currentFun:Function = new Function()
+			
+			private var currentButton:IconButton
+			
+			private var cHightLight:UIComponent 
+			
+			private var nMovX:Number
+			private var nMovY:Number
+			
+			private var grShape:Group
+			private var grFore:Group
+			
+			private var aPartButton:Vector.<IconButton> = new Vector.<IconButton>
+			private var aUintButton:Vector.<IconButton> = new Vector.<IconButton>
+			
+			private var NAME_PLAYALL:String = "NAME_PLAYALL"
+			private var NAME_UNIT:String = "NAME_UNIT"
+			private var NAME_PARA:String = "NAME_PARA"
+			private var NAME_PART:String = "NAME_PART"
+			private var NAME_PLAYALLFORCE:String = "NAME_PLAYALLFORCE"
+			
+			private var langList:Editor_select_button
+			private var sInfo:String
+			
+			public function $setXML(_xml:XMLList):void
+			{
+				xList = _xml
+				grShape = currentSubGroupButton.getGrShape()
+				grFore = currentSubGroupButton.getGrForeground()
+			}
+			
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				sPath = xList.@path
+				__ID__ = xList.@id
+				baseInitMdel()
+				sPagesPath = Files.folder_book
+				xmlListAdv = xList.advance
+				xmlListKinds = xmlListAdv.kinds
+				baseInitMdel()
+				bDefaultDisplay = (xList.@defalutDisplay=="0")?false:true
+					
+				var i:int	
+				var _item:IconButton
+				
+				//playAll
+				for (i =0; i < xmlListAdv.playAll.length(); i++) 
+				{
+					var _xmlList:XMLList = XMLList(xmlListAdv.playAll[i])
+					if (_xmlList.@id!=undefined)
+					{
+						_item = new IconButton
+						_item._path = Files.folder_components
+						_item.NAME = NAME_PLAYALL
+						_item.$setIcon(new XML(XmlContent.XML_COMPONENT.children().(@componentID==_xmlList.@id)))
+						_item.$setLocation(_xmlList)
+						_item.$XLIST = _xmlList
+						_item.toolTip = Tooltips.toolstip_editor_subgroup.iconButton_playAll
+						_item.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+						_item.addEventListener(MouseEvent.MOUSE_UP,onButtonMove)
+						grFore.addElement(_item)
+					}
+					
+				}
+				
+				for (i = 0; i < xList.language.length(); i++) 
+				{
+					addSelectLangugeButton(false)
+					if (xList.language[i].@id!="")
+					{
+						_item = new IconButton
+						currentButton = _item
+						_item._path = Files.folder_components
+						_item.NAME = NAME_UNIT
+						_item.$setIcon(new XML(XmlContent.XML_COMPONENT.children().(@componentID==xList.language[i].@id)))
+						_item.$setLocation(XMLList(xList.language[i]))
+						_item.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+						_item.addEventListener(MouseEvent.MOUSE_UP,onButtonMove)
+						_item.toolTip = Tooltips.toolstip_editor_subgroup.iconButton_unit
+						grFore.addElement(_item)
+						aUintButton.push(_item)
+					}else{
+						aUintButton.push(null)
+					}
+					
+				}
+				xmlListKinds =  xList.advance.kinds
+				for (var j:int = 0; j < xmlListKinds.children().length(); j++) 
+				{
+					_item = new IconButton
+					currentPartXML = XMLList(xmlListKinds.children()[j])
+					if (currentPartXML.@id!="")
+					{
+						_item._path = Files.folder_components
+						_item.NAME = NAME_PART
+						_item.$setIcon(new XML(XmlContent.XML_COMPONENT.children().(@componentID==currentPartXML.@id)))
+						_item.$setLocation(currentPartXML)
+						_item.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+						_item.addEventListener(MouseEvent.MOUSE_UP,onButtonMove)
+						_item.toolTip = Tooltips.toolstip_editor_subgroup.iconButton_kind
+						grFore.addElement(_item)
+						aPartButton.push(_item)
+					}else{
+						aPartButton.push(null)
+					}
+				}
+				if (grL.numElements)ToggleButton(grL.getElementAt(0)).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+				backgroud.removeAllElements()
+				initMode()
+				nX = 0
+				nY = 0
+			}
+			
+			
+			private function initMode():void
+			{
+				var _radio:RadioButton
+				switch(__ID__)
+				{
+					case NameDefine.KEY_SUBGROUP_SHOWHIDE:
+						
+						for (var i:int = 0; i < modePic.numElements; i++) 
+						{
+							_radio = RadioButton(modePic.getElementAt(i))
+							if (xList.@mode == _radio.name || (xList.@mode==undefined && i == 0))
+							{
+								_radio.selected = true
+								break
+							}
+						} 
+						grMode.addElement(modePic)
+						break;	
+					
+					case NameDefine.KEY_SUBGROUP_PLAYLIST:
+						
+						break;
+				}
+			}
+			
+			protected function onMouseEvent(event:MouseEvent):void
+			{
+				var _me:Button = Button(event.currentTarget)
+				
+				switch(_me)
+				{
+					case btnAddL:addSelectLangugeButton();break;
+					case btnDelL:delSelectUnitToggleButton();break;
+					case btnAddP:addLinkButton();break;
+					case btnDelP:delLinkButton();break;
+					case btnAddS:addShape();break;
+					case btnDelS:delShape();break;
+					case btnAddA:addPart();break;
+					case btnDelA:delPart();break;
+				}
+			}
+			
+			//===========================================================================================================================================
+			private function addSelectLangugeButton(_fromClick:Boolean=true):void
+			{
+				var _but:ToggleButton = addSelectLangugeButtonAction(_fromClick)
+				if (_but)_but.addEventListener(MouseEvent.CLICK,onLangugeMouseEvent)
+			}
+			
+			
+			
+			private function addSelectLangugeButtonAction(_fromClick:Boolean=true):ToggleButton
+			{
+				var _btn:ToggleButton
+				bParagraphEnable = false
+				if (grL.numElements<vColor.length)
+				{
+					backgroud.removeAllElements()
+					grP.removeAllElements()
+					_btn = new ToggleButton
+					_btn.label = String(grL.numElements+1)
+					_btn.width = 35
+					grL.addElement(_btn)
+					if (_fromClick)
+					{
+						aUintButton.push(null)
+						xList.appendChild(xmlLang.copy())
+					}
+					getCurrentUnitXML(grL.numElements - 1)
+					setLangugeColor()
+					updateGroup(grL,currentLangugeIndex)
+					if (getCurrentParaXML()==null)addLinkButton()
+					bUse = grL.numElements>0
+					bFile = false
+				}
+				return _btn
+			}
+			
+			
+			private function setLangugeColor():void
+			{
+				if (currentLangugeXML.@color==undefined || currentLangugeXML.@color=="" ) currentLangugeXML.@color = vColor[currentLangugeIndex]
+				ToggleButton(grL.getElementAt(currentLangugeIndex)).setStyle("chromeColor",String(currentLangugeXML.@color))
+				nColor = currentLangugeXML.@color
+			}
+			
+			private function delSelectUnitToggleButton():void
+			{
+				if (grL.numElements==0)return
+				backgroud.removeAllElements()
+				grP.removeAllElements()
+				delSelectButton(aUintButton,currentLangugeIndex,true)
+				grL.removeElementAt(grL.numElements-1)
+				delete xList.language[currentLangugeIndex]
+				getCurrentUnitXML(0)
+				if (grL.numElements)
+				{
+					updateGroup(grL,currentLangugeIndex)
+					displayParaChildren()
+				}
+				currentFun = new Function()
+				bUse = grL.numElements>0
+				bFile = false
+			}
+			
+			private function delSelectButton(_vg:Vector.<IconButton>,_num:int,_remove:Boolean = false):Point
+			{
+				var _point:Point = new Point
+				var _current:IconButton = _vg[_num]
+				var _parent:Group
+				if (_current!=null)
+				{
+					_parent = Group(_current.parent)
+					_parent.removeElement(_current)
+					_point.x = _current.x
+					_point.y = _current.y
+					switch(_current.NAME)
+					{
+						case NAME_UNIT:
+							currentLangugeXML.@id = ""
+							break;
+						case NAME_PART:
+							currentPartXML.@id = ""
+							break
+					}
+					
+					if (_remove)
+					{
+						_vg.splice(_num,1)
+					}else{
+						_vg[_num] = null
+					}
+				}
+				return _point
+				
+			}
+			
+			
+			
+			
+			
+			private function addLinkButton(_bFromClick:Boolean=true):void
+			{
+				if (grP.numElements >=cParaLenght)return
+				var _linkButton:ToggleButton = new ToggleButton
+				_linkButton.label =  String(grP.numElements+1)
+				_linkButton.width = 35
+				_linkButton.addEventListener(MouseEvent.CLICK,onParaMouseEvent)
+				grP.addElement(_linkButton)
+				if (_bFromClick)
+				{
+					currentParaIndex = grP.numElements-1
+					getCurrentUnitXML().appendChild(xmlPara.copy())
+				}else{
+					currentParaIndex = 0
+				}
+				getCurrentParaXML()
+				updateGroup(grP,currentParaIndex)
+				bFile = false
+			}
+			
+			private function delLinkButton():void
+			{
+				if (grP.numElements==1)return
+					grP.removeElementAt(grP.numElements-1)
+						delete getCurrentUnitXML().children()[currentParaIndex]
+				getCurrentParaXML(0)
+				updateGroup(grP,currentParaIndex)
+				grShape.removeAllElements()
+				currentFun = new Function()
+				bFile = false
+			}
+			
+			
+			protected function onParaMouseEvent(event:MouseEvent=null):void
+			{
+				sFile = ""
+				currentButton = null
+				grShape.removeAllElements()
+				if(event)currentParaIndex = grP.getElementIndex(ToggleButton(event.currentTarget))
+				updateGroup(grP,currentParaIndex)
+				addShapeToGroup()
+				bFile = true
+				sFile = currentParaXML.@file
+				bParagraphEnable = true
+				
+				bParagraphActive = (currentParaXML.@active == "0")?false:true
+				bParagraphForce = (currentParaXML.@force == "1")?true:false
+				
+				btnAddS.enabled = true
+				if (sFile.length!=0 && __ID__ == NameDefine.KEY_SUBGROUP_SHOWHIDE)
+				{
+					loadPic(sPagesPath + sPath +"/" + currentParaXML.@file)
+					btnAddS.enabled = false
+				}
+			}
+			
+			
+			//===========================================================================================================================================
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//===========================================================================================================================================
+			
+			protected function onLangugeMouseEvent(event:MouseEvent):void
+			{
+				//语言按钮选列
+				grShape.removeAllElements()
+				bParagraphEnable = false
+				bLanguageEnable = true
+				var _me:ToggleButton = ToggleButton(event.currentTarget)
+				for (var i:int = 0; i < grL.numElements; i++) 
+				{
+					ToggleButton(grL.getElementAt(i)).selected=false
+				}
+				_me.selected =true
+				getCurrentUnitXML(grL.getElementIndex(_me))
+				loadPlayList().addEventListener(JEvent.SELECT,onButtonsJEvent)
+				displayParaChildren()
+				nColor = currentLangugeXML.@color
+				bLanguageActive = (currentLangugeXML.@active=="1")?true:false
+				bLanguageForce = (currentLangugeXML.@force=="1")?true:false
+			}
+			
+			private function loadPlayList():Editor_select_button
+			{
+				if (langList==null) langList = new Editor_select_button
+				langList.addEventListener(Event.REMOVED_FROM_STAGE,onlangListEvent)
+				langList.percentWidth = 100
+				langList.percentHeight = 100
+				backgroud.addElement(langList)
+				return langList
+			}
+			protected function onlangListEvent(event:Event):void
+			{
+				langList = null
+			}
+			private function onMainButtonMouseEvent(event:MouseEvent):void
+			{
+				switch(event.currentTarget)
+				{
+					
+					case playAll_Force:
+						sInfo = NAME_PLAYALLFORCE
+						backgroud.removeAllElements()
+						loadPlayList().addEventListener(JEvent.SELECT,onAddPlayAllMouseEvent)
+						break
+					case playAll:
+						sInfo = ""
+						backgroud.removeAllElements()
+						loadPlayList().addEventListener(JEvent.SELECT,onAddPlayAllMouseEvent)
+						break;
+					case adv:
+						currentState = "adv"
+						break;
+				}
+				
+			}
+			
+			protected function onButtonsJEvent(event:JEvent):void
+			{
+				//语言按钮列选完后
+				backgroud.removeAllElements()
+				var _point:Point = delSelectButton(aUintButton,currentLangugeIndex)
+				var _item:IconButton
+				_item = IconButton(event.$getSprite())
+				_item.NAME = NAME_UNIT
+				aUintButton[currentLangugeIndex]=_item
+				getCurrentUnitXML(currentLangugeIndex)
+				currentButton = _item
+				currentButton.x = _point.x
+				currentButton.y = _point.y
+				currentButton.viewRestSize()
+				currentFun = updateLangugeButonLocation
+				setValue(_item.x,_item.y,_item.width,_item.height)
+				currentLangugeXML.@id = _item.$ID
+				grFore.addElement(_item)
+				_item.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+				_item.addEventListener(MouseEvent.MOUSE_UP,onButtonMove)
+			}
+			
+			protected function onAddPlayAllMouseEvent(event:JEvent):void
+			{
+				backgroud.removeAllElements()
+				currentButton = IconButton(event.$getSprite())
+				currentButton.NAME = NAME_PLAYALL
+				currentButton.x = 0
+				currentButton.y = 0
+				currentButton.viewRestSize()
+				var _xmlList:XMLList = XMLList(new XML(xmlPlayAll))
+				if (sInfo == NAME_PLAYALLFORCE)
+				{
+					_xmlList.@force = "1"
+				}
+				_xmlList.@id = currentButton.$ID
+				XmlCtrl.addChild(xmlListAdv,_xmlList)
+				grFore.addElement(currentButton)
+				currentButton.$XLIST = _xmlList
+				currentFun = updatePlayAllButonLocation
+				setValue(currentButton.x,currentButton.y,currentButton.width,currentButton.height)
+				currentButton.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+				currentButton.addEventListener(MouseEvent.MOUSE_UP,onButtonMove) 
+			}
+			
+			protected function onButtonMove(event:MouseEvent):void
+			{
+				//目标语言按钮的设定
+				currentButton = IconButton(event.currentTarget)
+				switch(currentButton.NAME)
+				{
+					case NAME_PLAYALL:
+						currentFun = updatePlayAllButonLocation;
+						break
+					case NAME_UNIT:
+						currentLangugeIndex = aUintButton.indexOf(currentButton)
+						if (grL)grL.getElementAt(currentLangugeIndex).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+						getCurrentUnitXML()
+						currentFun = updateLangugeButonLocation
+						break
+					case NAME_PART:
+						currentPartIndex = aPartButton.indexOf(currentButton)
+						if (grKind)grKind.getElementAt(currentPartIndex).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+						currentPartXML = XMLList(xmlListKinds.children()[currentPartIndex])
+						currentFun = updateAdvLangugeButonLocation
+						break;
+				}
+				setValue(currentButton.x,currentButton.y,currentButton.width,currentButton.height)
+				
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						currentButton.startDrag(false)
+						break;
+					case MouseEvent.MOUSE_UP:
+						currentButton.stopDrag()
+						if (!currentButton.hitTestObject($hitTestGroup))
+						{
+							switch(currentButton.NAME)
+							{
+								case NAME_PLAYALL:
+									grFore.removeElement(currentButton)
+									XmlCtrl.deleteList(currentButton.$XLIST)
+									break
+								case NAME_UNIT:
+									delSelectButton(aUintButton,currentLangugeIndex)
+									break
+								case NAME_PART:
+									delSelectButton(aPartButton,currentPartIndex)
+									break;
+							}
+						}else{
+							switch(currentButton.NAME)
+							{
+								case NAME_UNIT:
+									displayParaChildren()
+									break
+							}
+						}
+						
+						break
+				}
+				
+				
+				
+				
+				
+				
+			}
+			
+			
+			private function updateLangugeButonLocation(_x:Number,_y:Number,_w:Number,_h:Number):void
+			{
+				currentLangugeXML.@x = _x
+				currentLangugeXML.@y = _y
+				currentLangugeXML.@width = _w
+				currentLangugeXML.@height = _h
+				currentButton.x = _x
+				currentButton.y = _y
+				currentButton.width = _w
+				currentButton.height = _h
+			}
+			
+			private function updatePlayAllButonLocation(_x:Number,_y:Number,_w:Number,_h:Number):void
+			{
+				var _xmlList:XMLList = currentButton.$XLIST
+				_xmlList.@x = _x
+				_xmlList.@y = _y
+				_xmlList.@width = _w
+				_xmlList.@height = _h
+				currentButton.x = _x
+				currentButton.y = _y
+				currentButton.width = _w
+				currentButton.height = _h 
+			}
+			
+			private function updateShapeLocation(_x:Number,_y:Number,_w:Number,_h:Number):void
+			{
+				currentShapeXML.@x = _x
+				currentShapeXML.@y = _y
+				currentShapeXML.@width = _w
+				currentShapeXML.@height = _h
+				currentShapeXML.@state = "1"
+				
+				if (sFile!="" && __ID__ == NameDefine.KEY_SUBGROUP_SHOWHIDE)
+				{
+					cHightLight.x = _x
+					cHightLight.y = _y
+					cHightLight.width = _w
+					cHightLight.height = _h
+					for (var i:int = 0; i < cHightLight.numChildren; i++) 
+					{
+						var _display:DisplayObject = cHightLight.getChildAt(i)
+						_display.width = _w
+						_display.height = _h
+					}
+				}else{
+					cHightLight.graphics.clear()
+					cHightLight.graphics.lineStyle(1,0x000000,1)
+					cHightLight.graphics.beginFill(nColor, nGraphicApha);
+					cHightLight.graphics.drawRect(0,0,_w,_h)
+					cHightLight.graphics.endFill()
+					cHightLight.graphics.moveTo(0,0)
+					cHightLight.graphics.moveTo(0,_h)	
+					cHightLight.graphics.moveTo(_w,_h)	
+					cHightLight.graphics.moveTo(_w,0)	
+					cHightLight.x = _x
+					cHightLight.y = _y
+				}
+			}
+			
+			
+			
+			
+			private function displayParaChildren():void
+			{
+				if (grP)
+				{
+					grP.removeAllElements()
+					getCurrentUnitXML()
+					if (currentLangugeXML && getCurrentUnitXML().children().length()>0)
+					{
+						for (var i:int = 0; i < getCurrentUnitXML().children().length(); i++) 
+						{
+							addLinkButton(false)
+						}
+						getCurrentShapeXML()
+					}
+				}
+				
+				
+			}
+			//===========================================================================================================================================
+			
+			
+			
+			
+			
+			
+			
+			//===========================================================================================================================================
+			
+			private function addShape(_bfromClick:Boolean=true):void
+			{
+				if (grShape.numElements==0)addShapeToGroup()
+				addShapeAction()
+			}
+			
+			private function addShapeAction(_bfromClick:Boolean=true):void
+			{
+				currentButton = null
+				var _x:Number= nX + 10
+				var _y:Number= nY + 10
+				cHightLight = new UIComponent
+				cHightLight.toolTip=Tooltips.toolstip_editor_subgroup.iconButton_shape
+				cHightLight.addEventListener(MouseEvent.MOUSE_DOWN,onShapMOuseEvent)
+				cHightLight.addEventListener(MouseEvent.MOUSE_UP,onShapMOuseEvent)
+				grShape.addElement(cHightLight)
+				currentFun = updateShapeLocation
+				if (_bfromClick)currentParaXML.appendChild(xmlShape.copy())
+				currentShapeIndex = grShape.numElements-1
+				getCurrentShapeXML()
+				currentFun = updateShapeLocation
+				if (_bfromClick)
+				{
+					if (currentParaXML.@file=="")
+					{
+						setValue(_x,_y,200,200)
+					}else{
+						cHightLight.x = _x
+						cHightLight.y = _y
+						currentShapeXML.@x = _x
+						currentShapeXML.@y = _y
+					}
+				}
+			}
+			
+			private function addShapeToGroup():void
+			{
+				getCurrentParaXML()
+				getCurrentShapeXML()
+				for (var i:int = 0; i < getCurrentParaXML().children().length(); i++) 
+				{
+					addShapeAction(false)
+					setValue(Number(currentShapeXML.@x),Number(currentShapeXML.@y),Number(currentShapeXML.@width),Number(currentShapeXML.@height))
+				}
+			}
+			private function delShape():void
+			{
+				bFile = false
+				sFile = ""
+				currentParaXML.@file = ""
+				if (grShape.numElements==0)return
+					delete currentParaXML.children()[currentShapeIndex]
+						grShape.removeElementAt(currentShapeIndex)
+						currentFun = new Function()
+				currentShapeIndex = 0
+			}
+			
+			
+			
+			protected function onShapMOuseEvent(event:MouseEvent):void
+			{
+				var _me:UIComponent = UIComponent(event.currentTarget)
+				currentShapeIndex = grShape.getElementIndex(_me)
+				getCurrentShapeXML()
+				currentFun = updateShapeLocation
+				
+				cHightLight = _me
+				bFile = true
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						_me.startDrag(false)
+						
+						break;
+					case MouseEvent.MOUSE_UP:
+						_me.stopDrag()
+						break
+				}
+				setValue(_me.x,_me.y,Number(currentShapeXML.@width),Number(currentShapeXML.@height))
+				
+			}
+			
+			
+			
+			
+			//===========================================================================================================================================
+			
+			
+			
+			
+			
+			
+			
+			//===========================================================================================================================================
+			private function setValue(_x:Number,_y:Number,_w:Number,_h:Number):void
+			{
+				nX = _x
+				nY = _y
+				nW = _w
+				nH = _h
+				currentFun(nX,nY,nW,nH)
+			}
+			
+			protected function onUpdateFunction(event:Event):void
+			{
+				currentFun(nX,nY,nW,nH)
+			}
+			
+			private function updateGroup(_gr:Group,_but:uint):void
+			{
+				for (var i:int = 0; i < _gr.numElements; i++) 
+				{
+					ToggleButton(_gr.getElementAt(i)).selected=false
+				}
+				ToggleButton(_gr.getElementAt(_but)).selected = true
+				
+			}
+			//===========================================================================================================================================
+			
+			
+			
+			
+			protected function onInput(event:KeyboardEvent):void
+			{
+				if (event.keyCode==13)setText(TextInput(event.currentTarget))
+			}
+			
+			protected function onFocusout(event:FocusEvent):void
+			{
+				setText(TextInput(event.currentTarget))
+			}
+			
+			private function  setText(_text:TextInput):void
+			{
+				var _add:Boolean = true
+				switch(_text)
+				{
+					case textPath:
+						xList.@path = sPath
+						break;
+					case textFile:
+						currentParaXML.@file = sFile
+						switch(__ID__)
+						{
+							case NameDefine.KEY_SUBGROUP_SHOWHIDE:
+								if (currentParaXML.children().length()>=1) 
+								{
+									_add = false
+									currentShapeXML = XMLList(new XML(currentParaXML.children()[0]))
+								}
+								while (grShape.numElements)
+								{
+									delete currentParaXML.children()[0]
+										grShape.removeElementAt(0)
+										currentShapeIndex = 0
+								}
+								if (sFile == "")
+								{
+									btnAddS.enabled = true
+								}else{
+									btnAddS.enabled = false
+									if (_add)
+									{
+										addShapeAction(true)
+									}else{
+										currentParaXML.appendChild(currentShapeXML)
+										addShapeAction(false)
+									}
+									loadPic(sPagesPath + sPath +"/" + currentParaXML.@file)
+								}
+								break;
+						}
+						break;
+				}
+			}
+			
+			
+			private function loadPic(_url:String):void
+			{
+				var request:URLRequest=new URLRequest(_url);
+				var loader:Loader=new Loader();
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
+				loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,onLoadPicError)
+				loader.load(request);
+			}
+			
+			private function completeHandler(event:Event):void 
+			{
+				var bmp:Bitmap=Bitmap(event.target.content);
+				bmp.smoothing = true
+				bmp.cacheAsBitmap = true	
+				cHightLight.graphics.clear()
+				currentFun = updateShapeLocation
+				if (currentShapeXML)
+				{
+					if (currentShapeXML.@state=="1")
+					{
+						cHightLight.x = currentShapeXML.@x
+						cHightLight.y = currentShapeXML.@y	
+						bmp.width = currentShapeXML.@width
+						bmp.height = currentShapeXML.@height 
+					}else{
+						setValue(cHightLight.x,cHightLight.y,bmp.width,bmp.height)	
+					}
+				}
+				
+				while(cHightLight.numChildren)cHightLight.removeChildAt(0)
+				cHightLight.addChild(bmp);
+			}
+			
+			protected function onLoadPicError(event:IOErrorEvent):void
+			{
+				sFile = ""
+				currentParaXML.@file = sFile
+			}
+			
+			
+			protected function onTrash(event:MouseEvent):void
+			{
+				Group($mainButton.parent).removeElement($mainButton)
+				XmlCtrl.deleteList(xList)
+			}
+			
+			
+			
+			protected function onColorChange(event:ColorPickerEvent):void
+			{
+				getCurrentUnitXML()
+				currentLangugeXML.@color = event.color
+				setLangugeColor()
+			}
+			
+		
+			
+			
+			
+			//========================================================================================================================
+			private function onStageChange(event:FlexEvent):void
+			{
+				grUint.removeAllElements()
+				grKind.removeAllElements()
+				backgroud.removeAllElements()
+				var _btn:ToggleButton
+				for (var i:int = 0; i < xList.language.length(); i++) 
+				{
+					_btn = new ToggleButton
+					_btn.label = String(grUint.numElements+1)
+					_btn.width = 30
+					_btn.addEventListener(MouseEvent.CLICK,onAddPartMark)
+					grUint.addElement(_btn)
+				}
+				for (var j:int = 0; j < xmlListKinds.children().length(); j++) 
+				{
+					addPart(false)
+				}
+				if (grKind.numElements)
+				{
+					ToggleButton(grKind.getElementAt(0)).dispatchEvent(new MouseEvent(MouseEvent.CLICK))
+				}
+				
+			}
+			
+			
+			private function addPart(_fromClick:Boolean=true):void
+			{
+				if (grKind.numElements < vColor.length)
+				{ 
+					if (_fromClick)
+					{
+						aPartButton.push(null)
+						xmlListKinds.appendChild(xmlKind.copy())
+					}
+					var _btn:ToggleButton = new ToggleButton
+					_btn.label = String(grKind.numElements+1)
+					_btn.width = 30
+					_btn.addEventListener(MouseEvent.CLICK,onKindMouseEvent)
+					grKind.addElement(_btn)
+				} 
+			}
+			
+			
+			private function delPart():void
+			{
+				if (grKind.numElements==0)return
+					grKind.removeElementAt(grKind.numElements-1)
+				currentPartXML = XMLList(xmlListKinds.children()[currentPartIndex])
+				delSelectButton(aPartButton,currentPartIndex)
+				aPartButton.splice(currentPartIndex,1)
+					delete xmlListKinds.children()[currentPartIndex]
+				currentPartIndex = 0
+				backgroud.removeAllElements()
+			}
+			
+			protected function onKindMouseEvent(event:MouseEvent):void
+			{
+				var _btn:ToggleButton = ToggleButton(event.currentTarget)
+				currentPartIndex = grKind.getElementIndex(_btn)
+				currentPartXML = XMLList(xmlListKinds.children()[currentPartIndex])
+				for (var i:int = 0; i < grKind.numElements; i++) 
+				{
+					ToggleButton(grKind.getElementAt(i)).selected = false
+				}
+				_btn.selected = true
+				var sg:String = String(currentPartXML.@group)
+				
+				for (var j:int = 0; j < grUint.numElements; j++) 
+				{
+					_btn = ToggleButton(grUint.getElementAt(j))
+					_btn.selected = false
+					if (j<sg.length)
+					{
+						_btn.selected = (sg.charAt(j)=="1")?true:false
+					}
+				}
+				
+				loadPlayList().addEventListener(JEvent.SELECT,onButtonsJEvent2)
+			}
+			
+			protected function onButtonsJEvent2(event:JEvent):void
+			{
+				backgroud.removeAllElements()
+				var _point:Point = delSelectButton(aPartButton,currentPartIndex)
+				var _item:IconButton = IconButton(event.$getSprite())
+				currentButton = _item
+				currentButton.x = _point.x
+				currentButton.y = _point.y
+				currentButton.viewRestSize()
+				currentFun = updateAdvLangugeButonLocation
+				setValue(_item.x,_item.y,_item.width,_item.height)
+				currentPartXML = XMLList(xmlListKinds.children()[currentPartIndex])
+				currentPartXML.@id = _item.$ID
+				_item.NAME = NAME_PART
+				grFore.addElement(_item)
+				aPartButton[currentPartIndex] = _item
+				_item.addEventListener(MouseEvent.MOUSE_DOWN,onButtonMove)
+				_item.addEventListener(MouseEvent.MOUSE_UP,onButtonMove)
+			}
+			
+			
+			private function updateAdvLangugeButonLocation(_x:Number,_y:Number,_w:Number,_h:Number):void
+			{
+				currentPartXML.@x = _x
+				currentPartXML.@y = _y
+				currentPartXML.@width = _w
+				currentPartXML.@height = _h
+				currentButton.x = _x
+				currentButton.y = _y
+				currentButton.width = _w
+				currentButton.height = _h
+			} 
+			
+			protected function onAddPartMark(event:MouseEvent):void
+			{
+				currentPartXML = XMLList(xmlListKinds.children()[currentPartIndex])
+				var sg:String=""
+				for (var i:int = 0; i < grUint.numElements; i++) 
+				{
+					var _btn:ToggleButton = ToggleButton(grUint.getElementAt(i))
+					if (_btn.selected)
+					{
+						sg+="1"
+					}else{
+						sg+="0"
+					}
+				}
+				currentPartXML.@group = sg
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<subgroup:states>
+		<s:State name="open"/>
+		<s:State name="adv"/>
+	</subgroup:states>
+	
+	<s:HGroup width="100%" height="100%">
+		<s:Button y="0" width="50" height="55" buttonMode="true" doubleClick="onTrash(event)"
+				  doubleClickEnabled="true" icon="@Embed('embed/button/Editor_trash.png')"
+				  skinClass="components.skin.IconButtonSkin"
+				  width.open="34" height.open="36"/>
+		<s:Group includeIn="open" width="60%">
+			<s:VGroup gap="5">
+				<s:HGroup gap="2" horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="單位:"/>
+					<s:HGroup gap="1">
+						<s:Button id="btnAddL" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)"
+								  icon="@Embed('embed/button/edit_button_add.png')"
+								  skinClass="components.skin.IconButtonSkin" />
+						<s:Button id="btnDelL" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)"
+								  icon="@Embed('embed/button/edit_button_del.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+					</s:HGroup>
+					<s:Scroller x="143" width="375" height="100%">
+						<s:HGroup id="grL" gap="2"/>
+					</s:Scroller>
+					<s:CheckBox label="active" 
+								selected="@{bLanguageActive}" 
+								toolTip="{Tooltips.toolstip_editor_subgroup.checkBox_language}" 
+								enabled="{bLanguageEnable}"
+								click="currentLangugeXML.@active = (bLanguageActive)?1:0"
+								/>
+					<s:CheckBox label="force" 
+								selected="@{bLanguageForce}" 
+								toolTip="{Tooltips.toolstip_editor_subgroup.checkBox_paragraph_force}" 
+								enabled="{bLanguageEnable}"
+								click="currentLangugeXML.@force = (bLanguageForce)?1:0" 
+								/>
+				</s:HGroup>
+				
+				
+				<s:HGroup gap="2" horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="分段:"/>
+					<s:HGroup gap="1">
+						<s:Button id="btnAddP" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)" enabled="{bUse}"
+								  icon="@Embed('embed/button/edit_button_add.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+						<s:Button id="btnDelP" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)" enabled="{bUse}"
+								  icon="@Embed('embed/button/edit_button_del.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+					</s:HGroup>
+					<s:Scroller width="374" height="100%">
+						<s:HGroup id="grP"  height="100%" gap="2"/>
+					</s:Scroller>
+					<s:CheckBox id="btnParaActive" label="active" 
+								selected="@{bParagraphActive}" 
+								enabled="{bParagraphEnable}"
+								toolTip="{Tooltips.toolstip_editor_subgroup.checkBox_paragraph_active}"
+								click="currentParaXML.@active = (bParagraphActive)?1:0" 
+								/>
+					<s:CheckBox id="btnParaForce" label="force" 
+								selected="@{bParagraphForce}" 
+								enabled="{bParagraphEnable}"
+								toolTip="{Tooltips.toolstip_editor_subgroup.checkBox_paragraph_force}"
+								click="currentParaXML.@force = (bParagraphForce)?1:0" 
+								/>
+				</s:HGroup>
+				
+				
+				<s:HGroup horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="按鍵:"/>
+					<s:HGroup gap="1">
+						<s:Button id="btnAddS" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)" enabled="{bUse}"
+								  icon="@Embed('embed/button/edit_button_add.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+						<s:Button id="btnDelS" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)" enabled="{bUse}"
+								  icon="@Embed('embed/button/edit_button_del.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+					</s:HGroup>
+					<mx:ColorPicker change="onColorChange(event)" selectedColor="{nColor}" />
+					<s:HGroup >
+						<s:HGroup width="100%" verticalAlign="middle" paddingLeft="2">
+							<s:Label text="X"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="20000" minimum="-10000" value="@{nX}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="Y"/>
+							<s:NumericStepper width="60" maximum="20000" minimum="-10000" value="@{nY}" change="onUpdateFunction(event)" enabled="{bUse}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" verticalAlign="middle" paddingLeft="2">
+							<s:Label text="W"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="20000" minimum="0" value="@{nW}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="H"/>
+							<s:NumericStepper width="60" maximum="20000" minimum="0" value="@{nH}" change="onUpdateFunction(event)" enabled="{bUse}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="A"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="1" minimum="0" stepSize="0.1"
+											  value="@{nGraphicApha}"/>
+						</s:HGroup>
+						<!--<s:HGroup width="100%" verticalAlign="middle" paddingLeft="2">
+						<s:Label text="A"/>
+						<s:NumericStepper width="60" maximum="100" minimum="0"/>
+						</s:HGroup>-->
+					</s:HGroup>
+				</s:HGroup>
+				
+				<s:HGroup id="grSetting" horizontalAlign="left" verticalAlign="middle" width="100%">
+					<s:HGroup horizontalAlign="center" verticalAlign="middle" enabled="{bFile}">
+						<s:Label text="文件:"/>
+						<s:Label text="{Files.folder_book_Pages}"/>
+						<s:TextInput id="textPath" width="60" focusOut="onFocusout(event)"
+									 keyUp="onInput(event)" text="@{sPath}"/>
+						<s:Label text="/"/>
+						<s:TextInput id="textFile" width="120"  focusOut="onFocusout(event)"
+									 keyUp="onInput(event)" text="@{sFile}"/>
+					</s:HGroup>
+				</s:HGroup>
+				
+				
+				<s:HGroup horizontalAlign="left" verticalAlign="middle"  width="100%">
+					<s:Label text="預設:"/>
+					<s:CheckBox label="默認顯示" 
+								selected="@{bDefaultDisplay}"
+								change="xList.@defalutDisplay = (bDefaultDisplay)?1:0" 
+								toolTip="{Tooltips.toolstip_editor_subgroup.checkBox_defaultDisplay}"
+								/>
+					<mx:VRule width="1" height="12"/>
+					<s:Label text="模式:"/>
+					<s:HGroup id="grMode"  height="100%" gap="2">
+						
+					</s:HGroup>
+					<mx:VRule width="1" height="12"/>
+					<s:HGroup horizontalAlign="right" verticalAlign="middle"  width="100%">
+						<s:Button id="playAll" x="219" width="100" label="Play/Show All"
+								  click="onMainButtonMouseEvent(event)"
+								  toolTip="{Tooltips.toolstip_editor_subgroup.button_playAll_ADD}"/>
+						<s:Button id="adv" width="69" label="分類設定" chromeColor="#9F0404"
+								  toolTip="{Tooltips.toolstip_editor_subgroup.button_advKind}" 
+								  click="onMainButtonMouseEvent(event)" color="#000000"/>
+					</s:HGroup>
+				</s:HGroup>
+				
+				
+			</s:VGroup>
+			
+		</s:Group>
+		
+		<s:Group includeIn="adv" x="50" y="0" cacheAsBitmap="true">
+			<s:VGroup height="122" gap="2">
+				<s:HGroup horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="歸類設定:"/>
+					<s:HGroup gap="3">
+						<s:Button id="btnAddA" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)"
+								  icon="@Embed('embed/button/edit_button_add.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+						<s:Button id="btnDelA" width="24" height="24" buttonMode="true"
+								  click="onMouseEvent(event)"
+								  icon="@Embed('embed/button/edit_button_del.png')"
+								  skinClass="components.skin.IconButtonSkin"/>
+					</s:HGroup>
+					<s:Scroller width="400" height="100%">
+						<s:HGroup id="grKind" gap="3"/>
+					</s:Scroller>
+					
+					<s:Button width="59" label="return" chromeColor="#030D57"
+							  click="currentState = 'open'" color="#BDBAF3"/>
+				</s:HGroup>
+				<s:HGroup horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="對應單位:"/>
+					<s:Scroller width="516" height="100%">
+						<s:HGroup id="grUint"  height="100%" gap="2"/>
+					</s:Scroller>
+				</s:HGroup>
+				<s:HGroup horizontalAlign="center" verticalAlign="middle">
+					<s:Label text="位置:"/>
+					<s:HGroup >
+						<s:HGroup width="100%" verticalAlign="middle" paddingLeft="2">
+							<s:Label text="X"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="20000" minimum="0" value="@{nX}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="Y"/>
+							<s:NumericStepper width="60" maximum="20000" minimum="0" value="@{nY}" change="onUpdateFunction(event)" enabled="{bUse}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" verticalAlign="middle" paddingLeft="2">
+							<s:Label text="W"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="20000" minimum="0" value="@{nW}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="H"/>
+							<s:NumericStepper width="60" maximum="20000" minimum="0" value="@{nH}" change="onUpdateFunction(event)" enabled="{bUse}"/>
+						</s:HGroup>
+						<s:HGroup width="100%" paddingLeft="2" verticalAlign="middle">
+							<s:Label text="A"/>
+							<s:NumericStepper width="60" change="onUpdateFunction(event)"
+											  enabled="{bUse}" maximum="1" minimum="0" stepSize="0.1"
+											  value="@{nGraphicApha}"/>
+						</s:HGroup>
+					</s:HGroup>
+				</s:HGroup>
+				<s:VGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Button id="playAll_Force" width="63" label="ALL" chromeColor="#F6AAAA"
+								  click="onMainButtonMouseEvent(event)"
+								  toolTip="{Tooltips.toolstip_editor_subgroup.button_playAll_ADD}"/>
+						<s:Label text="{Tooltips.toolstip_editor_subgroup.button_playAll_Text2}"/>
+					</s:HGroup>	
+				</s:VGroup>
+			</s:VGroup>
+		</s:Group>
+		<mx:VRule width="1" height="100%"/>
+		<s:HGroup id="backgroud" width="100%" height="100%"/>
+	</s:HGroup>
+</subgroup:Editor_subgroup_PlayList_Base>

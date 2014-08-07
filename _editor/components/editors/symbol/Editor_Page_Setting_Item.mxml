@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BorderBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:symbol="components.symbol.*" 
+		 width="320" click="$mouseDW()" minHeight="60" height.State1="60" height.State2="116" xmlns:base="components.base.*" cacheAsBitmap="true">
+	<base:states>
+		<s:State name="State1"/>
+		<s:State name="State2"/>
+	</base:states>
+	<fx:Declarations>
+		<fx:uint id="_pageNo"/>
+		<fx:String id="_path"/>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="REMOVE", type="JsC.events.JEvent")]
+		[Event(name="CHANGE", type="JsC.events.JEvent")]
+		[Event(name="SEND", type="JsC.events.JEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.JEvent;
+			import JsC.string.Maths;
+			import JsC.xml.XmlCtrl;
+			
+			import jsProject.mdel.NameDefine;
+			
+			private var xmlItem:XMLList
+			
+			[Bindable]private var sPicName:String
+			[Bindable]private var sPageNumber:String
+			[Bindable]private var sTag:String
+			
+			
+			public function $setXML(_xml:XMLList):void
+			{
+				xmlItem  = _xml
+				sPicName=XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).@src
+				pic.source = _path + sPicName
+				sPageNumber = String(XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).text["pageNumber"])
+				sTag = String(XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).text["TAG"])
+			}
+			public function $createID():void
+			{
+				XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).@pageID = Maths.DataName(NameDefine.KEY_PAGENODE)
+			}
+			
+			public function $getPic():String
+			{
+				return sPicName
+			}
+			protected function onTextInput(event:KeyboardEvent):void
+			{
+				if(event.keyCode==13)textInputAction(TextInput(event.currentTarget))
+			}
+			protected function onIoError(event:IOErrorEvent):void
+			{
+				sPicName = ""
+				pic.source = null
+			}
+			protected function onRemoveMouseEvent(event:MouseEvent):void
+			{
+				dispatchEvent(new JEvent(JEvent.REMOVE))
+			}
+			
+		
+			private function textInputAction(_text:TextInput):void
+			{
+				switch(_text)
+				{
+					case pageNo:
+						var _num:uint =  uint(pageNo.text)
+						if (!(pageNo.text =="" || _num == 0 || _pageNo == _num ))
+						{
+							_pageNo = _num
+							dispatchEvent(new JEvent(JEvent.CHANGE))
+						}
+						pageNo.text = String(_pageNo)
+						break;
+					case picName:
+						if (sPicName != picName.text)
+						{
+							sPicName = picName.text
+							XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).@src = sPicName
+							dispatchEvent(new JEvent(JEvent.SEND))
+						}
+						pic.source = _path + sPicName
+						break;
+					case textInputPageNumber:
+						XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).text["pageNumber"]= <pageNumber>{(sPageNumber)}</pageNumber>
+						break
+					case tagText:
+						XmlCtrl.getChildrenByID(xmlItem,_pageNo-1).text["TAG"]= <TAG>{(sTag)}</TAG>
+						break
+				}
+				
+				
+			}
+			protected function onFocusOut(event:FocusEvent):void
+			{
+				textInputAction(TextInput(event.currentTarget))
+			}
+			
+			
+			protected function onChangeState(event:MouseEvent):void
+			{
+				if (currentState == "State1")
+				{
+					currentState = "State2"
+				}else{
+					currentState = "State1"
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup x="0" y="1" gap="4" paddingLeft="10" paddingRight="10" verticalAlign="middle">
+		<s:HGroup width="30%" verticalAlign="middle">
+			<s:VGroup gap="0" horizontalAlign="center">
+				<s:Label fontSize="10" text="Page:"/>
+				<s:TextInput id="pageNo" width="30" prompt="No." restrict="0123456789" text="{_pageNo}" textAlign="right" keyUp="onTextInput(event)"   focusOut="onFocusOut(event)" />
+				<s:Button width="20" icon="@Embed('embed/button/icon/Edit_Page_Arrow.png')"
+						  skinClass="components.skin.IconButtonSkin" click="onChangeState(event)" rotation.State2="180"/>
+			</s:VGroup>
+			<mx:VRule width="1" height="40"/>
+			<s:Image id="pic" width="50" height="50" smooth="true" ioError="onIoError(event)"/>
+		</s:HGroup>
+		<mx:VRule width="1" height="40"/>
+		<s:HGroup width="50%" verticalAlign="middle">
+			<s:VGroup gap="0">
+				<s:Label fontSize="10" text="Picture Name:"/>	
+				<s:TextInput id="picName" width="100%" keyUp="onTextInput(event)"  focusOut="onFocusOut(event)" prompt="Picture Name" text="{sPicName}" />
+			</s:VGroup>
+		</s:HGroup>
+		<mx:VRule width="1" height="40"/>
+		<s:HGroup width="20%" verticalAlign="middle">
+			<s:VGroup width="100%" gap="2" horizontalAlign="center">
+				<s:Button x="13" width="35" label="remove" 
+						  doubleClick="onRemoveMouseEvent(event)" doubleClickEnabled="true"
+						  icon="@Embed('embed/button/Editor_trash.png')"
+						  skinClass="components.skin.IconButtonSkin"/>
+				<s:Label fontSize="10" text="(double click)"/>
+			</s:VGroup>
+		</s:HGroup>
+	</s:HGroup>
+	<s:VGroup includeIn="State2" left="10" top="60" gap="2">
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="Page Number:"/>
+			<s:TextInput id="textInputPageNumber" width="191" focusOut="onFocusOut(event)" keyUp="onTextInput(event)" text="@{sPageNumber}" imeMode="CHINESE"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="TAG:"/>
+			<s:TextInput id="tagText" width="245" focusOut="onFocusOut(event)" keyUp="onTextInput(event)" text="@{sTag}" imeMode="CHINESE"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+</base:BorderBase>

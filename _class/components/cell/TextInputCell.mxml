@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TextInput xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			  xmlns:s="library://ns.adobe.com/flex/spark" 
+			  xmlns:mx="library://ns.adobe.com/flex/mx"
+			  width="100%" height="100%" left="5" right="5"
+			  keyUp="onKeyUp(event)"
+			  focusOut="onFocus(event)"
+			  focusIn="onFocus(event)"
+			  >
+	
+	<fx:Script>
+		<![CDATA[
+			import JsC.events.DataGrid2Event;
+			private var _text:String=""
+			
+			protected function onKeyUp(event:KeyboardEvent):void
+			{
+				if (event.keyCode == 13) 
+				{
+					_text = text
+					onSendJEvent()
+				}
+				
+			}
+			
+			protected function onFocus(event:FocusEvent):void
+			{
+				switch(event.type)
+				{
+					case FocusEvent.FOCUS_IN:
+						
+						onSendJEvent()
+						break;
+					
+					case FocusEvent.FOCUS_OUT:
+						if (text=="")text = _text
+						break;
+				}
+				onSendJEvent()
+			}
+			
+			private function onSendJEvent():void
+			{
+				var _event:DataGrid2Event = new DataGrid2Event(DataGrid2Event.CHANGE)
+				_event.$label =  text
+				_event.$listData = listData
+				this.parent.parent.dispatchEvent(_event)
+			}
+		]]>
+	</fx:Script>
+	
+	
+</mx:TextInput>

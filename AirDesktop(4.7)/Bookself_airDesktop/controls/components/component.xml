@@ -1,0 +1,197 @@
+<components fileID="JS_KEY_COMPONENTS">
+
+  <component action="SHOW_PIC" prompt="" width="64" height="63" folder="images" openfile="" componentID="cmpidengenansshow">
+    <files>icon_ans.png</files>
+    <files>icon_ans_on.png</files>
+    <files>icon_ans_on.png</files>
+    <files>icon_ans_on.png</files>
+  </component>
+  <component action="SHOW_PIC" prompt="" width="64" height="63" folder="images" openfile="" componentID="cmpidengenansshowall">
+    <files>icon_allans.png</files>
+    <files>icon_allans_on.png</files>
+    <files>icon_allans_on.png</files>
+    <files>icon_allans_on.png</files>
+  </component>
+  <component componentID="cmpidengenaudioopen" prompt="" action="PLAY_SND" width="64" height="63" folder="sound">
+    <files>icon_play.png</files>
+    <files>icon_play_on.png</files>
+    <files>icon_play_on.png</files>
+    <files>icon_play_on.png</files>
+  </component>
+  <component componentID="cmpidengenpptopen" folder="doc" prompt="" width="64" height="63" openfile="" action="OPEN_PPT">
+    <files>icon_ppt.png</files>
+    <files>icon_ppt_on.png</files>
+    <files>icon_ppt_on.png</files>
+    <files>icon_ppt_on.png</files>
+  </component>
+  <component componentID="cmpidzhgendocopen" folder="doc" prompt="" width="224" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_doc.png</files>
+    <files>icon_doc_on.png</files>
+    <files>icon_doc_on.png</files>
+    <files>icon_doc_on.png</files>
+  </component>
+  <component componentID="cmpidzhgenvideoopen" folder="videos" prompt="" width="224" height="63" action="OPEN_DOC" openfile="">
+    <files>icon_video.png</files>
+    <files>icon_video_on.png</files>
+    <files>icon_video_on.png</files>
+    <files>icon_video_on.png</files>
+  </component>    
+  <component componentID="cmpidzhgenweblink" prompt="" action="OPEN_HTML" width="224" height="63" folder="htm">
+    <files>icon_http.png</files>
+    <files>icon_http_on.png</files>
+    <files>icon_http_on.png</files>
+    <files>icon_http_on.png</files>
+  </component>
+  
+  <component width="224" height="63" action="SHOW_PIC" prompt="" componentID="cmpidzhpthpinyin" openfile="" folder="">
+    <files>icon_pin.png</files>
+    <files>icon_pin_on.png</files>
+    <files>icon_pin_on.png</files>
+    <files>icon_pin_on.png</files>
+  </component>
+	<component width="224" height="63" action="SHOW_PIC" prompt="" componentID="cmpidzhpthhanzi" openfile="" folder="">
+    <files>icon_han.png</files>
+    <files>icon_han_on.png</files>
+    <files>icon_han_on.png</files>
+    <files>icon_han_on.png</files>
+  </component>
+	<component width="224" height="63" action="PLAY_SND" prompt="" componentID="cmpidzhpthplaypara" openfile="" folder="sound">
+    <files>icon_pra_re.png</files>
+    <files>icon_pra_re_on.png</files>
+    <files>icon_pra_re_on.png</files>
+    <files>icon_pra_re_on.png</files>
+  </component>
+  <component width="224" height="63" action="PLAY_SND" prompt="" componentID="cmpidzhpthplaypassage" openfile="" folder="sound">
+    <files>icon_all_re.png</files>
+    <files>icon_all_re_on.png</files>
+    <files>icon_all_re_on.png</files>
+    <files>icon_all_re_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthyting" folder="doc" prompt="" width="264" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_yting.png</files>
+    <files>icon_yting_on.png</files>
+    <files>icon_yting_on.png</files>
+    <files>icon_yting_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthyshuo" folder="doc" prompt="" width="264" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_yshuo.png</files>
+    <files>icon_yshuo_on.png</files>
+    <files>icon_yshuo_on.png</files>
+    <files>icon_yshuo_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthydu" folder="doc" prompt="" width="264" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_ydu.png</files>
+    <files>icon_ydu_on.png</files>
+    <files>icon_ydu_on.png</files>
+    <files>icon_ydu_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthyxie" folder="doc" prompt="" width="264" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_yxie.png</files>
+    <files>icon_yxie_on.png</files>
+    <files>icon_yxie_on.png</files>
+    <files>icon_yxie_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthyy" folder="doc" prompt="" width="264" height="63" openfile="" action="OPEN_DOC">
+    <files>icon_yy.png</files>
+    <files>icon_yy_on.png</files>
+    <files>icon_yy_on.png</files>
+    <files>icon_yy_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthgame" folder="htm" prompt="" width="179" height="63" action="OPEN_HTML" openfile="">
+	<files>icon_game.png</files>
+    <files>icon_game_on.png</files>
+    <files>icon_game_on.png</files>
+    <files>icon_game_on.png</files>
+  </component>
+  <component componentID="cmpidzhpthroleplay" prompt="" action="PLAY_SND" width="224" height="63" folder="sound">
+    <files>icon_role.png</files>
+    <files>icon_role_on.png</files>
+    <files>icon_role_on.png</files>
+    <files>icon_role_on.png</files>
+  </component> 
+
+  <component componentID="cmpidpthcharshuting" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>shuting.png</files>
+    <files>shuting_on.png</files>
+    <files>shuting_on.png</files>
+    <files>shuting_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharhuilin" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>huilin.png</files>
+    <files>huilin_on.png</files>
+    <files>huilin_on.png</files>
+    <files>huilin_on.png</files>
+  </component>  
+  <component componentID="cmpidpthcharmeixin" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>meixin.png</files>
+    <files>meixin_on.png</files>
+    <files>meixin_on.png</files>
+    <files>meixin_on.png</files>
+  </component>
+  <component componentID="cmpidpthchardonglin" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>donglin.png</files>
+    <files>donglin_on.png</files>
+    <files>donglin_on.png</files>
+    <files>donglin_on.png</files>
+  </component>  
+  <component componentID="cmpidpthcharwenjun" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>wenjun.png</files>
+    <files>wenjun_on.png</files>
+    <files>wenjun_on.png</files>
+    <files>wenjun_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharlichuan" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>lichuan.png</files>
+    <files>lichuan_on.png</files>
+    <files>lichuan_on.png</files>
+    <files>lichuan_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharzhiwei" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>zhiwei.png</files>
+    <files>zhiwei_on.png</files>
+    <files>zhiwei_on.png</files>
+    <files>zhiwei_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharyucheng" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>yucheng.png</files>
+    <files>yucheng_on.png</files>
+    <files>yucheng_on.png</files>
+    <files>yucheng_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharjiayi" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>jiayi.png</files>
+    <files>jiayi_on.png</files>
+    <files>jiayi_on.png</files>
+    <files>jiayi_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharfuwuyuan" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>fuwuyuan.png</files>
+    <files>fuwuyuan_on.png</files>
+    <files>fuwuyuan_on.png</files>
+    <files>fuwuyuan_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharmama" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>mama.png</files>
+    <files>mama_on.png</files>
+    <files>mama_on.png</files>
+    <files>mama_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharbaba" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>baba.png</files>
+    <files>baba_on.png</files>
+    <files>baba_on.png</files>
+    <files>baba_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharjiujiu" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>jiujiu.png</files>
+    <files>jiujiu_on.png</files>
+    <files>jiujiu_on.png</files>
+    <files>jiujiu_on.png</files>
+  </component>
+  <component componentID="cmpidpthcharjiejie" folder="" prompt="" width="121" height="200" openfile="" action="OPEN_DOC">
+    <files>jiejie.png</files>
+    <files>jiejie_on.png</files>
+    <files>jiejie_on.png</files>
+    <files>jiejie_on.png</files>
+  </component>
+</components>

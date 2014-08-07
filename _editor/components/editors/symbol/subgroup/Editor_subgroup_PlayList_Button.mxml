@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<subgroup:Editor_subgroup_PlayList_Base xmlns:fx="http://ns.adobe.com/mxml/2009"
+						  xmlns:s="library://ns.adobe.com/flex/spark"
+						  xmlns:mx="library://ns.adobe.com/flex/mx"
+						  xmlns:subgroup="components.editors.symbol.subgroup.*"
+						  creationComplete="onFlexEvent(event)"
+						  >
+	<fx:Script>
+		<![CDATA[
+			import components.symbol.Buttons.IconButton;
+			
+			import jsProject.mdel.Files;
+			import jsProject.mdel.NameDefine;
+			import jsProject.mdel.Viewers;
+			import jsProject.mdel.XmlContent;
+			import jsProject.view.EViewers;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.BorderContainer;
+			import spark.components.ToggleButton;
+
+			private var bOnce:Boolean
+			private var currentButton:IconButton
+			private var aPartButton:Vector.<IconButton> = new Vector.<IconButton>
+				
+			private var nMouseX:Number
+			private var nMouseY:Number
+			private var bMove:Boolean
+			private var bClick:Boolean
+			
+			private const cY:uint = 55
+			protected function onFlexEvent(event:FlexEvent):void
+			{
+				setButtonColor()
+			}
+			
+			override public function getResult():void
+			{
+				super.getResult();
+				if (bEnable)initMdel()
+				mainButton.addEventListener(MouseEvent.MOUSE_DOWN,onMainMouseEvent)
+				mainButton.addEventListener(MouseEvent.MOUSE_UP,onMainMouseEvent)
+				addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+			}
+			
+			override public function instCtrl():void
+			{
+				getResult()
+				setButtonColor()
+			}
+			
+			private function setButtonColor():void
+			{
+				baseInitMdel()
+				mainButton.setStyle("chromeColor",String(nBtnColor))
+			}
+			
+			private function initMdel():void
+			{
+				if ($index==-1)
+				{
+					nInitY = y
+					xList = XMLList(XmlContent.Edit_Function_NODE.copy())
+					xList.@id = __ID__
+					xList.@x = x
+					xList.@y = y
+					xList.@contentX = x
+					xList.@contentY = y + cY
+					xList.@path = ""
+					xList.@defalutDisplay = "0"
+					XmlContent.currentPageNode[NameDefine.KEY_FUNCTION_ROOT].appendChild(xList)
+					$index = XmlContent.currentPageNode[NameDefine.KEY_FUNCTION_ROOT].children().length()
+				}else{
+					xList = XMLList(XmlContent.currentPageNode[NameDefine.KEY_FUNCTION_ROOT].children()[$index])
+					x = xList.@x
+					y = xList.@y
+					__ID__ = xList.@id
+				}
+				if (xList.advance==undefined) xList.appendChild(xmlAdv)
+				
+			}
+			
+			
+			protected function onMainMouseEvent(event:MouseEvent):void
+			{
+				switch(event.type)
+				{
+					case MouseEvent.MOUSE_DOWN:
+						setEvent(true)
+						nMouseX = stage.mouseX
+						nMouseY = stage.mouseY
+						bMove = false
+						break;
+					case MouseEvent.MOUSE_MOVE:
+						if (Math.abs(stage.mouseX-nMouseX)>1 && Math.abs(stage.mouseY-nMouseY)>1)
+						{
+							startDrag(false)
+							bMove = true
+						}
+						break;
+					case MouseEvent.MOUSE_UP:
+						if (!bMove)
+						{
+							mainButtonAction()
+						}
+						break;
+				}
+			}
+			
+			protected function onStageMouseEvent(event:MouseEvent):void
+			{
+				xList.@x = x
+				xList.@y = y
+				xList.@contentX = x
+				xList.@contentY = y + cY
+				stopDrag()
+				setEvent(false)
+			}
+			
+			
+			private function setEvent(_b:Boolean):void
+			{
+				if(_b)
+				{
+					stage.addEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+					stage.addEventListener(MouseEvent.MOUSE_MOVE,onMainMouseEvent)
+				}else{
+					stage.removeEventListener(MouseEvent.MOUSE_UP,onStageMouseEvent)
+					stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMainMouseEvent)
+				}
+			}
+				
+			
+			private function mainButtonAction():void
+			{
+				
+				if (!bClick)
+				{
+					$close()
+					if (currentSubGroupButton)currentSubGroupButton.$close()
+					currentSubGroupButton = this
+					bClick = true
+					showPanel()
+				}else{
+					$close()
+				}
+			}
+			
+			private function showPanel():void
+			{
+				var _panel:Editor_subgroup_PlayList_Panel = new Editor_subgroup_PlayList_Panel
+				_panel.$hitTestGroup = $hitTestGroup
+				_panel.$mainButton = this
+				_panel.$setXML(xList)
+				EViewers.getEditPage().$dispProperty(_panel,__ID__)
+			}
+			
+			private function $close():void
+			{
+				EViewers.getEditPage().$removeProerty()
+				bClick = false
+				foregroud.removeAllElements()
+			}
+			
+			protected function onEvent(event:Event):void
+			{
+				switch(event.type)
+				{
+					case Event.ADDED_TO_STAGE:
+						addEventListener(Event.REMOVED_FROM_STAGE,onEvent)
+						break;
+					
+					case Event.REMOVED_FROM_STAGE:
+						$close()
+						break;	
+				}
+			}
+			
+			
+			public function getGrShape():Group
+			{
+				return grShape
+			}
+			
+			public function getGrForeground():Group
+			{
+				return foregroud
+			}
+			
+			public function getHitTest():Boolean
+			{
+				return hitTestObject($hitTestGroup)
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group>
+		<s:Group y="{cY}" id="grShape"/>
+		<s:Group y="{cY}" id="foregroud"/>
+	</s:Group>
+	<s:Button id="mainButton" width="60" height="65" buttonMode="true"
+			  icon="@Embed('embed/button/icon/Functions_PlayList.png')"
+			  skinClass="components.skin.IconButtonSkin"/>
+</subgroup:Editor_subgroup_PlayList_Base>

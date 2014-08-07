@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TextArea xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.ConversionType;
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
+			
+		
+			
+			public function set $text(_value:Object):void
+			{
+				textFlow = rebuilderTextFlow(TextFlow(_value))
+			}
+			public function get $text():Object
+			{
+				return rebuilderTextFlow(textFlow)
+			}
+			
+			protected function rebuilderTextFlow(_textFlow:TextFlow):TextFlow
+			{
+				var _textFlowObject:Object 
+				var _tf:TextFlow 
+				if (_textFlow)
+				{
+					_textFlowObject = TextConverter.export(_textFlow,TextConverter.TEXT_FIELD_HTML_FORMAT,ConversionType.STRING_TYPE)
+					_tf = TextConverter.importToFlow(_textFlowObject.toString(),TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+				return _tf
+			}
+		]]>
+	</fx:Script>
+</s:TextArea>

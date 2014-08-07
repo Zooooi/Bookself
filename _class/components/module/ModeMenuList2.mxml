@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module:ModeMenuList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" 
+					 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:bookUi="components.symbol.bookUi.*" xmlns:module="components.module.*">
+	<fx:Script>
+		<![CDATA[
+			import components.symbol.bookUi.BaseMenuNode;
+			override protected function onCreateNode(_xmlList:XMLList,i:uint,_length:uint):void
+			{
+				var _xmlPage:XMLList = _xmlList.children()[i]
+				var _xmlCtrl:XMLList = XMLList(_xmlPage.controls)
+				var _xmlLength:uint = _xmlCtrl.children().length()
+				if (_xmlLength>0)
+				{
+					for (var j:int = 0; j < _xmlLength; j++) 
+					{
+						var _newList:BaseMenuNode = new __nodeClass
+						gr.addElement(_newList)
+						_newList.setContent(_xmlCtrl,i,_length)
+					} 
+				}
+			}
+		]]>
+	</fx:Script>
+</module:ModeMenuList>
